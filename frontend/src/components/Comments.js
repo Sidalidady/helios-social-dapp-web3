@@ -3,9 +3,10 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { MessageCircle, Send, User, Loader2, Trash2, Edit2, X, Check, Heart, CornerDownRight } from 'lucide-react';
 import { uploadToIPFS, getFromIPFS } from '../utils/ipfs';
 import { formatTimestamp } from '../utils/formatters';
+import { addNotification } from './Notifications';
 import contractData from '../contracts/SocialFeed.json';
 import './Comments.css';
-function Comments({ postId }) {
+function Comments({ postId, postAuthor }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -130,6 +131,63 @@ function Comments({ postId }) {
       
       localStorage.setItem(`comments_${postIdStr}`, JSON.stringify(updatedComments));
       setComments(updatedComments);
+      
+      // Add notification for post author (if not commenting on own post)
+      if (postAuthor && postAuthor.toLowerCase() !== address.toLowerCase()) {
+        addNotification(postAuthor, {
+          type: 'comment',
+          from: address,
+          message: 'commented on your post',
+          content: newComment.trim().substring(0, 100),
+          postId: postIdStr,
+        });
+      }
+      
+      // Check for mentions and add notifications
+      const mentionRegex = /@(\w+)/g;
+      let match;
+      const mentionedUsers = new Set();
+      
+      while ((match = mentionRegex.exec(newComment)) !== null) {
+        const mentionedUsername = match[1].toLowerCase();
+        mentionedUsers.add(mentionedUsername);
+      }
+      
+      // Find mentioned users' addresses and notify them
+      if (mentionedUsers.size > 0) {
+        const allUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
+        
+        for (const userAddr of allUsers) {
+          try {
+            const { readContract } = await import('wagmi/actions');
+            const { config } = await import('../config/wagmi');
+            
+            const userProfile = await readContract(config, {
+              address: contractData.address,
+              abi: contractData.abi,
+              functionName: 'getUserProfile',
+              args: [userAddr],
+            });
+            
+            if (userProfile && userProfile.displayName) {
+              const username = userProfile.displayName.toLowerCase();
+              
+              if (mentionedUsers.has(username) && userAddr.toLowerCase() !== address.toLowerCase()) {
+                addNotification(userAddr, {
+                  type: 'mention',
+                  from: address,
+                  message: 'mentioned you in a comment',
+                  content: newComment.trim().substring(0, 100),
+                  postId: postIdStr,
+                });
+              }
+            }
+          } catch (error) {
+            console.error('Error notifying mentioned user:', error);
+          }
+        }
+      }
+      
       setNewComment('');
       setIsSubmitting(false);
     } catch (error) {

@@ -187,42 +187,6 @@ function Profile({ onClose }) {
           </button>
         </div>
 
-        {/* Profile Header with Picture and Username */}
-        <div className="profile-header-section">
-          <div className="profile-header-avatar">
-            {imagePreview ? (
-              <img src={imagePreview} alt={username || 'Profile'} />
-            ) : (
-              <div className="profile-header-placeholder">
-                <User size={48} />
-              </div>
-            )}
-          </div>
-          {username && (
-            <div className="profile-header-info">
-              <h3 className="profile-header-username">@{username}</h3>
-              <p className="profile-header-wallet">
-                <Wallet size={14} />
-                {formatAddress(address)}
-              </p>
-              <div className="profile-stats">
-                <div className="profile-stat">
-                  <span className="stat-value">{existingProfile?.postCount?.toString() || '0'}</span>
-                  <span className="stat-label">Posts</span>
-                </div>
-                <div className="profile-stat">
-                  <span className="stat-value">{followerCount}</span>
-                  <span className="stat-label">Followers</span>
-                </div>
-                <div className="profile-stat">
-                  <span className="stat-value">{existingProfile?.followingCount?.toString() || '0'}</span>
-                  <span className="stat-label">Following</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
         {isLoadingProfile && (
           <div className="profile-loading">
             <Loader2 size={24} className="spinning" />
@@ -278,7 +242,7 @@ function Profile({ onClose }) {
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell us about yourself..."
               maxLength={160}
-              rows={4}
+              rows={2}
               disabled={isProcessing}
             />
             <span className="char-count">{bio.length}/160</span>

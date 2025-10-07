@@ -3,6 +3,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { Heart, User, Loader2, Trash2 } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress, formatTimestamp } from '../utils/formatters';
+import { addNotification } from './Notifications';
 import contractData from '../contracts/SocialFeed.json';
 import Comments from './Comments';
 import './Post.css';
@@ -107,6 +108,7 @@ function Post({ post, onDelete }) {
     setIsLiking(true);
     
     const functionName = hasLiked ? 'unlikePost' : 'likePost';
+    const isLikingPost = !hasLiked;
     
     writeContract({
       address: contractData.address,
@@ -117,6 +119,17 @@ function Post({ post, onDelete }) {
       onSuccess: () => {
         refetchLikeStatus();
         setIsLiking(false);
+        
+        // Add notification for post author (if liking and not own post)
+        if (isLikingPost && post.author && post.author.toLowerCase() !== address.toLowerCase()) {
+          addNotification(post.author, {
+            type: 'like',
+            from: address,
+            message: 'liked your post',
+            content: content.substring(0, 100),
+            postId: post.id.toString(),
+          });
+        }
       },
       onError: (error) => {
         console.error('❌ Like/Unlike failed:', error);
@@ -240,7 +253,7 @@ function Post({ post, onDelete }) {
         </button>
       </div>
 
-      <Comments postId={post.id} />
+      <Comments postId={post.id} postAuthor={post.author} />
     </div>
   );
 }

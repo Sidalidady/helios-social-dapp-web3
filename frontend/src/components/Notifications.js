@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
-import { X, User, FileText, Heart, MessageCircle, AtSign } from 'lucide-react';
+import { X, User, FileText, Heart, MessageCircle, AtSign, Bell } from 'lucide-react';
 import { formatTimestamp } from '../utils/formatters';
 import { getFromIPFS } from '../utils/ipfs';
 import contractData from '../contracts/SocialFeed.json';
@@ -11,21 +11,29 @@ function Notifications({ isOpen, onClose }) {
   const { address } = useAccount();
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && address) {
       loadNotifications();
     }
   }, [isOpen, address]);
 
   const loadNotifications = () => {
     // Load notifications from localStorage
+    console.log('Loading notifications for address:', address);
     const stored = localStorage.getItem(`notifications_${address}`);
+    console.log('Stored notifications:', stored);
+    
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
+        console.log('Parsed notifications:', parsed);
         setNotifications(parsed);
       } catch (error) {
         console.error('Error loading notifications:', error);
+        setNotifications([]);
       }
+    } else {
+      console.log('No notifications found in localStorage');
+      setNotifications([]);
     }
   };
 
@@ -187,34 +195,41 @@ function Notifications({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  console.log('Rendering notifications, count:', notifications.length);
+
   return (
-    <div className="notifications-dropdown">
-      <div className="notifications-header">
-        <h3>Notifications</h3>
-        <div className="notifications-actions">
-          {notifications.length > 0 && (
-            <button onClick={clearNotifications} className="btn-clear">
-              Clear all
+    <div className="notifications-dropdown" onClick={onClose}>
+      <div className="notifications-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="notifications-header">
+          <h3>
+            <Bell size={28} />
+            Notifications
+          </h3>
+          <div className="notifications-actions">
+            {notifications.length > 0 && (
+              <button onClick={clearNotifications} className="btn-clear">
+                Clear all
+              </button>
+            )}
+            <button onClick={onClose} className="btn-close-notifications">
+              <X size={20} />
             </button>
-          )}
-          <button onClick={onClose} className="btn-close-notifications">
-            <X size={20} />
-          </button>
-        </div>
-      </div>
-      
-      <div className="notifications-list">
-        {notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <NotificationItem key={notification.id} notification={notification} />
-          ))
-        ) : (
-          <div className="no-notifications">
-            <User size={48} className="empty-icon" />
-            <p>No notifications yet</p>
-            <span>When someone follows you or posts, you'll see it here</span>
           </div>
-        )}
+        </div>
+        
+        <div className="notifications-list">
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <NotificationItem key={notification.id} notification={notification} />
+            ))
+          ) : (
+            <div className="no-notifications">
+              <Bell size={64} className="empty-icon" />
+              <p>No notifications yet</p>
+              <span>When someone interacts with your posts, you'll see it here</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
