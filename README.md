@@ -7,7 +7,7 @@
 ![React](https://img.shields.io/badge/React-18.2.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-A decentralized social media platform built on Helios Testnet, inspired by Somnia Social. Share your thoughts on the blockchain with IPFS storage and Web3 authentication.
+A decentralized social media platform built on Helios Testnet, inspired by x Social. Share your thoughts on the blockchain with IPFS storage and Web3 authentication.
 
 [Live Demo](#) | [Documentation](#features) | [Report Bug](https://github.com/yourusername/helios-social/issues)
 
@@ -393,7 +393,6 @@ Contributions are welcome! Please:
 
 ## 🙏 Acknowledgments
 
-- Inspired by [Somnia Social](https://somnia-social.vercel.app/)
 - Built on [Helios Blockchain](https://helioschainlabs.org)
 - Icons by [Lucide](https://lucide.dev/)
 - UI inspiration from modern Web3 apps
