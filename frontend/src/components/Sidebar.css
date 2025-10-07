@@ -211,15 +211,15 @@
 
 .trending-tag {
   font-weight: 700;
-  color: #a78bfa;
-  font-size: 0.9375rem;
+  color: #ffffff;
+  font-size: 1.125rem;
   margin-bottom: 0.25rem;
   letter-spacing: -0.01em;
 }
 
 .trending-count {
-  color: #c4b5fd;
-  font-size: 0.8125rem;
+  color: #ffffff;
+  font-size: 1rem;
   font-weight: 500;
 }
 
