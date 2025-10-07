@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Layout - Modern Design</title>
+    <link rel="stylesheet" href="LAYOUT_GUIDE.css">
+</head>
+<body>
+    <!-- Fixed Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <h1>Social<span>Hub</span></h1>
+            </div>
+            
+            <!-- Mobile Hamburger Menu -->
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <!-- Search Bar -->
+            <div class="header-search">
+                <input type="text" placeholder="Search posts, people..." />
+            </div>
+            
+            <!-- Header Actions -->
+            <div class="header-actions">
+                <button class="btn-icon">🔔</button>
+                <button class="btn-icon">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar (Navigation) -->
+        <aside class="left-sidebar" id="leftSidebar">
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Home</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">🔥</span>
+                    <span class="nav-text">Trending</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Categories</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Communities</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">ℹ️</span>
+                    <span class="nav-text">About</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+            
+            <!-- Quick Links Section -->
+            <div class="sidebar-section">
+                <h3>Quick Links</h3>
+                <ul class="quick-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Feed (Focal Point) -->
+        <main class="main-feed">
+            <!-- Create Post Section -->
+            <div class="create-post-card">
+                <h2>What's on your mind?</h2>
+                <textarea placeholder="Share your thoughts..."></textarea>
+                <button class="btn-post">Post</button>
+            </div>
+
+            <!-- Feed Filters -->
+            <div class="feed-filters">
+                <button class="filter-btn active">All Posts</button>
+                <button class="filter-btn">Following</button>
+                <button class="filter-btn">Popular</button>
+            </div>
+
+            <!-- Blog Posts -->
+            <article class="post-card">
+                <div class="post-header">
+                    <img src="https://via.placeholder.com/40" alt="User" class="post-avatar">
+                    <div class="post-info">
+                        <h3 class="post-author">John Doe</h3>
+                        <span class="post-time">2 hours ago</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <h2>Understanding Modern Web Design</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <img src="https://via.placeholder.com/600x300" alt="Post image" class="post-image">
+                </div>
+                <div class="post-footer">
+                    <button class="post-action">❤️ 124</button>
+                    <button class="post-action">💬 45</button>
+                    <button class="post-action">🔗 Share</button>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-header">
+                    <img src="https://via.placeholder.com/40" alt="User" class="post-avatar">
+                    <div class="post-info">
+                        <h3 class="post-author">Jane Smith</h3>
+                        <span class="post-time">5 hours ago</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <h2>The Future of Social Media</h2>
+                    <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                </div>
+                <div class="post-footer">
+                    <button class="post-action">❤️ 89</button>
+                    <button class="post-action">💬 23</button>
+                    <button class="post-action">🔗 Share</button>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-header">
+                    <img src="https://via.placeholder.com/40" alt="User" class="post-avatar">
+                    <div class="post-info">
+                        <h3 class="post-author">Mike Johnson</h3>
+                        <span class="post-time">1 day ago</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <h2>Tips for Better UX Design</h2>
+                    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                    <img src="https://via.placeholder.com/600x300" alt="Post image" class="post-image">
+                </div>
+                <div class="post-footer">
+                    <button class="post-action">❤️ 256</button>
+                    <button class="post-action">💬 78</button>
+                    <button class="post-action">🔗 Share</button>
+                </div>
+            </article>
+        </main>
+
+        <!-- Right Sidebar (Related Content & Ads) -->
+        <aside class="right-sidebar">
+            <!-- Trending Topics -->
+            <div class="sidebar-card">
+                <h3>Trending Topics</h3>
+                <div class="trending-list">
+                    <div class="trending-item">
+                        <span class="trending-tag">#WebDesign</span>
+                        <span class="trending-count">2.5k posts</span>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#JavaScript</span>
+                        <span class="trending-count">1.8k posts</span>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#UXDesign</span>
+                        <span class="trending-count">1.2k posts</span>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#React</span>
+                        <span class="trending-count">980 posts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggested Users -->
+            <div class="sidebar-card">
+                <h3>Suggested Users</h3>
+                <div class="suggested-users">
+                    <div class="user-item">
+                        <img src="https://via.placeholder.com/32" alt="User">
+                        <div class="user-info">
+                            <h4>Sarah Wilson</h4>
+                            <span>@sarahw</span>
+                        </div>
+                        <button class="btn-follow">Follow</button>
+                    </div>
+                    <div class="user-item">
+                        <img src="https://via.placeholder.com/32" alt="User">
+                        <div class="user-info">
+                            <h4>Tom Brown</h4>
+                            <span>@tombrown</span>
+                        </div>
+                        <button class="btn-follow">Follow</button>
+                    </div>
+                    <div class="user-item">
+                        <img src="https://via.placeholder.com/32" alt="User">
+                        <div class="user-info">
+                            <h4>Lisa Chen</h4>
+                            <span>@lisac</span>
+                        </div>
+                        <button class="btn-follow">Follow</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advertisement -->
+            <div class="sidebar-card ad-card">
+                <span class="ad-label">Sponsored</span>
+                <img src="https://via.placeholder.com/300x200" alt="Ad">
+                <h4>Boost Your Business</h4>
+                <p>Reach millions of users with our advertising platform.</p>
+                <button class="btn-ad">Learn More</button>
+            </div>
+
+            <!-- Related Posts -->
+            <div class="sidebar-card">
+                <h3>Related Posts</h3>
+                <div class="related-posts">
+                    <a href="#" class="related-post-item">
+                        <img src="https://via.placeholder.com/60" alt="Post">
+                        <div>
+                            <h4>10 CSS Tricks You Should Know</h4>
+                            <span>1.2k views</span>
+                        </div>
+                    </a>
+                    <a href="#" class="related-post-item">
+                        <img src="https://via.placeholder.com/60" alt="Post">
+                        <div>
+                            <h4>Building Responsive Layouts</h4>
+                            <span>890 views</span>
+                        </div>
+                    </a>
+                    <a href="#" class="related-post-item">
+                        <img src="https://via.placeholder.com/60" alt="Post">
+                        <div>
+                            <h4>Modern JavaScript Features</h4>
+                            <span>2.1k views</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const leftSidebar = document.getElementById('leftSidebar');
+
+        hamburger.addEventListener('click', () => {
+            leftSidebar.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024) {
+                if (!leftSidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                    leftSidebar.classList.remove('active');
+                    hamburger.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

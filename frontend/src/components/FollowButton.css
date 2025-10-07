@@ -1,0 +1,77 @@
+.follow-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.follow-button.small {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.follow-button.medium {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.follow-button.large {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9375rem;
+}
+
+.follow-button.not-following {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.3);
+}
+
+.follow-button.not-following:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
+}
+
+.follow-button.following {
+  background: rgba(107, 114, 128, 0.15);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.follow-button.following:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.follow-button.following:hover:not(:disabled) span {
+  display: none;
+}
+
+.follow-button.following:hover:not(:disabled)::after {
+  content: 'Unfollow';
+}
+
+.follow-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

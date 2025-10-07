@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Helios Social - Decentralized social platform on Helios Testnet"
+    />
+    <title>Helios Social - Web3 Community</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    
+    <!-- Suppress browser extension errors -->
+    <script>
+      // Override console.error to suppress wallet extension errors
+      const originalError = console.error;
+      console.error = function(...args) {
+        const message = args.join(' ');
+        if (message.includes('Connection interrupted') || 
+            message.includes('subscribe') ||
+            message.includes('WalletConnect') ||
+            message.includes('MetaMask') ||
+            message.includes('global Ethereum provider') ||
+            message.includes('only a getter')) {
+          return; // Suppress these errors
+        }
+        originalError.apply(console, args);
+      };
+
+      // Suppress harmless extension errors
+      window.addEventListener('error', function(e) {
+        if (e.message && (e.message.includes('extension') || 
+                          e.message.includes('Connection interrupted') ||
+                          e.message.includes('subscribe') ||
+                          e.message.includes('MetaMask') ||
+                          e.message.includes('global Ethereum provider') ||
+                          e.message.includes('only a getter'))) {
+          e.preventDefault();
+          e.stopPropagation();
+          return true;
+        }
+      }, true);
+      
+      // Suppress unhandled promise rejections from extensions and WalletConnect
+      window.addEventListener('unhandledrejection', function(e) {
+        const message = e.reason?.message || e.reason?.toString() || '';
+        if (message.includes('extension') || 
+            message.includes('Connection interrupted') ||
+            message.includes('subscribe') ||
+            message.includes('WalletConnect') ||
+            message.includes('MetaMask') ||
+            message.includes('global Ethereum provider') ||
+            message.includes('only a getter')) {
+          e.preventDefault();
+          e.stopPropagation();
+          return true;
+        }
+      }, true);
+
+      // Prevent wallet extension conflicts
+      // This runs before any extensions try to inject
+      (function() {
+        try {
+          // Check if ethereum is already defined
+          if (typeof window.ethereum !== 'undefined') {
+            // Ethereum is already set by an extension, just use it
+            console.log('Wallet extension detected and ready');
+            return;
+          }
+          
+          // If not defined yet, create a configurable property
+          let ethereumProvider = null;
+          
+          Object.defineProperty(window, 'ethereum', {
+            get: function() {
+              return ethereumProvider;
+            },
+            set: function(provider) {
+              if (!ethereumProvider) {
+                ethereumProvider = provider;
+              }
+            },
+            configurable: true
+          });
+        } catch (error) {
+          // If defineProperty fails, it means ethereum is already defined
+          // This is fine - just use the existing provider
+          console.log('Using existing wallet provider');
+        }
+      })();
+    </script>
+    
+  </body>
+</html>

@@ -1,0 +1,160 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+p {
+  word-wrap: break-word;
+  width: 100%;
+}
+
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0f172a;
+  color: #f8fafc;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+  min-height: 100vh;
+}
+
+#root {
+  height: 100%;
+  min-height: 100vh;
+}
+
+body.light-theme {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Light theme - all text to black */
+body.light-theme * {
+  color: #000000 !important;
+}
+
+body.light-theme .header {
+  background: #ffffff;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .post,
+body.light-theme .feed-header,
+body.light-theme .create-post,
+body.light-theme .left-nav,
+body.light-theme .sidebar-section,
+body.light-theme .comment-item {
+  background: rgba(241, 245, 249, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .search-input,
+body.light-theme textarea,
+body.light-theme input {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme button {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme .btn-icon-stack,
+body.light-theme .btn-disconnect-stack,
+body.light-theme .icon-stack {
+  background: #ffffff !important;
+}
+
+body.light-theme .btn-disconnect-stack {
+  background: #ffffff !important;
+  color: #dc2626 !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+}
+
+/* Background decoration removed for better performance */
+
+@keyframes pulse-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.15;
+  }
+  25% {
+    transform: translate(-30px, -20px) scale(1.1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(0, -40px) scale(0.9);
+    opacity: 0.15;
+  }
+  75% {
+    transform: translate(30px, -20px) scale(1.05);
+    opacity: 0.18;
+  }
+}
+
+@keyframes pulse-float-reverse {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.12;
+  }
+  25% {
+    transform: translate(30px, 20px) scale(0.95);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translate(0, 40px) scale(1.1);
+    opacity: 0.12;
+  }
+  75% {
+    transform: translate(-30px, 20px) scale(1.05);
+    opacity: 0.14;
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a1628;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 102, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 102, 255, 0.5);
+}
+
+/* Button animations */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}

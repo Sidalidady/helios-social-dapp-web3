@@ -1,0 +1,206 @@
+.feed {
+  width: 100%;
+  max-width: 680px;
+}
+
+.feed-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+}
+
+.feed-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feed-tabs {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.375rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.feed-tab {
+  padding: 0.75rem 1.5rem;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.feed-tab:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.feed-tab.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.feed-tab-x-helios {
+  background: rgba(29, 161, 242, 0.15);
+  border-color: rgba(29, 161, 242, 0.4);
+  color: #1da1f2;
+  text-decoration: none;
+  box-shadow: 0 0 10px rgba(29, 161, 242, 0.3), 0 0 20px rgba(29, 161, 242, 0.15);
+}
+
+.feed-tab-x-helios:hover {
+  background: rgba(29, 161, 242, 0.25);
+  border-color: rgba(29, 161, 242, 0.6);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(29, 161, 242, 0.5), 0 0 30px rgba(29, 161, 242, 0.25);
+}
+
+.feed-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+.feed-subtitle {
+  font-size: 0.9375rem;
+  color: #cbd5e1;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.btn-refresh,
+.btn-clear-cache,
+.btn-clear-filter {
+  padding: 0.625rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  backdrop-filter: blur(12px);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.btn-clear-cache:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-clear-filter:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-refresh.refreshing svg {
+  animation: spin 1s linear infinite;
+}
+
+.feed-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: #cbd5e1;
+}
+
+.feed-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-feed {
+  text-align: center;
+  padding: 5rem 2.5rem;
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.empty-feed-icon {
+  font-size: 4.5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.empty-feed h3 {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.025em;
+}
+
+.empty-feed p {
+  font-size: 1.0625rem;
+  color: #cbd5e1;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .feed-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .empty-feed {
+    padding: 3rem 1rem;
+  }
+}

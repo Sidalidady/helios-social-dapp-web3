@@ -1,0 +1,161 @@
+.welcome-choice-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.welcome-choice-modal {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(10, 22, 40, 0.98) 100%);
+  border: 2px solid rgba(0, 102, 255, 0.3);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 25px 80px rgba(0, 102, 255, 0.4);
+  animation: slideUp 0.4s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.welcome-choice-header {
+  text-align: center;
+  padding: 2rem;
+  border-bottom: 1px solid rgba(0, 102, 255, 0.2);
+}
+
+.welcome-choice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 102, 255, 0.4);
+}
+
+.welcome-choice-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.welcome-choice-subtitle {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.welcome-choice-options {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.choice-button {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(0, 102, 255, 0.05);
+  border: 2px solid rgba(0, 102, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.choice-button:hover {
+  background: rgba(0, 102, 255, 0.1);
+  border-color: rgba(0, 102, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+}
+
+.choice-button svg {
+  flex-shrink: 0;
+  color: #60a5fa;
+}
+
+.choice-content {
+  flex: 1;
+}
+
+.choice-content h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.25rem;
+}
+
+.choice-content p {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.choice-button.create:hover {
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.choice-button.create:hover svg {
+  color: #22c55e;
+}
+
+.choice-button.login:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.welcome-choice-note {
+  text-align: center;
+  padding: 1rem 2rem 2rem;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .welcome-choice-modal {
+    width: 95%;
+  }
+
+  .choice-button {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .choice-content h3 {
+    font-size: 1rem;
+  }
+}

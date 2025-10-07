@@ -1,0 +1,120 @@
+/* ============================================
+   GALAXY HEADER ANIMATION
+   100px tall, fits inside header
+   ============================================ */
+
+.galaxy-header-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none !important;
+  background: linear-gradient(
+    to bottom,
+    #0a0e27 0%,
+    #1a1a2e 50%,
+    #16213e 100%
+  );
+}
+
+/* Canvas for galaxy animation */
+.galaxy-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none !important;
+  z-index: -1;
+}
+
+/* GPU acceleration */
+.galaxy-canvas {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Fallback for browsers without canvas support */
+@supports not (display: grid) {
+  .galaxy-header-animation {
+    background: linear-gradient(
+      to right,
+      #0a0e27 0%,
+      #1a1a2e 50%,
+      #0a0e27 100%
+    );
+  }
+}
+
+/* Reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  .galaxy-header-animation {
+    animation: none;
+  }
+  
+  .galaxy-canvas {
+    opacity: 0.9;
+  }
+}
+
+/* ============================================
+   ALTERNATIVE: Pink Nebula Theme
+   ============================================ */
+
+/* Uncomment for pink nebula glow */
+/*
+.galaxy-header-animation.pink-nebula {
+  background: linear-gradient(
+    to bottom,
+    #1a0a2e 0%,
+    #2d1b3d 50%,
+    #3d2645 100%
+  );
+}
+*/
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .galaxy-header-animation {
+    background: #000000;
+  }
+}
+
+/* ============================================
+   MOBILE OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .galaxy-header-animation {
+    /* Simplified gradient for mobile */
+    background: linear-gradient(
+      to bottom,
+      #0a0e27 0%,
+      #16213e 100%
+    );
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Ensure smooth rendering */
+.galaxy-header-animation {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shifts */
+.galaxy-header-animation::before {
+  content: '';
+  display: block;
+  padding-top: 100px;
+}

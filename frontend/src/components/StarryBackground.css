@@ -1,0 +1,149 @@
+/* ============================================
+   STARRY BACKGROUND - Night Sky Animation
+   ============================================ */
+
+.starry-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    #0a0e27 0%,
+    #0f1419 50%,
+    #000000 100%
+  );
+  transition: background 0.5s ease;
+}
+
+/* Light theme - White sky */
+body.light-theme .starry-background {
+  background: linear-gradient(
+    to bottom,
+    #e0f2fe 0%,
+    #f0f9ff 50%,
+    #ffffff 100%
+  );
+}
+
+/* Gradient overlay for depth */
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+/* Canvas for stars */
+.stars-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Fallback for browsers without canvas support */
+@supports not (display: grid) {
+  .starry-background {
+    background: #0a0e27;
+  }
+}
+
+/* Reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  .starry-background {
+    animation: none;
+  }
+  
+  .stars-canvas {
+    opacity: 0.8;
+  }
+}
+
+/* ============================================
+   ALTERNATIVE: Purple Dusk Sky Version
+   ============================================ */
+
+/* Uncomment this section for purple dusk sky */
+/*
+.starry-background.dusk-theme {
+  background: linear-gradient(
+    to bottom,
+    #1a0a2e 0%,
+    #2d1b3d 30%,
+    #3d2645 60%,
+    #1a0a2e 100%
+  );
+}
+
+.starry-background.dusk-theme .gradient-overlay {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+*/
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* GPU acceleration */
+.stars-canvas {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Ensure content is readable over background */
+.main-content,
+.left-sidebar,
+.right-sidebar,
+.header {
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional: Add subtle backdrop blur to content containers */
+.main-feed,
+.sidebar-section,
+.left-nav {
+  backdrop-filter: blur(2px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .starry-background {
+    /* Reduce complexity on mobile */
+    background: linear-gradient(
+      to bottom,
+      #0a0e27 0%,
+      #000000 100%
+    );
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .starry-background {
+    background: #000000;
+  }
+  
+  .gradient-overlay {
+    display: none;
+  }
+}

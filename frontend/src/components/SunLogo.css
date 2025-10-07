@@ -1,0 +1,70 @@
+/* Sun Logo Container */
+.sun-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+/* Canvas for sun animation */
+.sun-logo-canvas {
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(255, 170, 0, 0.5));
+}
+
+/* HELIOS Text */
+.helios-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.helios-main {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffa726 0%, #ff6f00 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+}
+
+.helios-sub {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  margin-left: 0.25rem;
+}
+
+/* Light theme adjustments */
+body.light-theme .helios-main {
+  background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .helios-sub {
+  color: #64748b;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sun-logo-canvas {
+    filter: none;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .helios-main {
+    font-size: 1.5rem;
+  }
+  
+  .helios-sub {
+    font-size: 0.875rem;
+  }
+}

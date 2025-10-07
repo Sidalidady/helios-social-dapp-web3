@@ -1,0 +1,335 @@
+/* Creative Button Styles - Glowing Effect */
+
+/* CSS Variables for Glow Colors */
+:root {
+  --glow-color: rgb(217, 176, 255);
+  --glow-spread-color: rgba(191, 123, 255, 0.781);
+  --enhanced-glow-color: rgb(231, 206, 255);
+  --btn-color: rgb(100, 61, 136);
+  --glow-green: rgb(16, 185, 129);
+  --glow-green-spread: rgba(16, 185, 129, 0.781);
+  --glow-red: rgb(239, 68, 68);
+  --glow-red-spread: rgba(239, 68, 68, 0.781);
+  --glow-blue: rgb(96, 165, 250);
+  --glow-blue-spread: rgba(96, 165, 250, 0.781);
+}
+
+/* Primary Button - Gradient with Glow */
+.btn-primary,
+.btn-post,
+.btn-connect {
+  position: relative;
+  padding: 1em 3em;
+  background-color: var(--btn-color);
+  border: 0.25em solid var(--glow-color);
+  border-radius: 1em;
+  color: var(--glow-color);
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  overflow: visible;
+  transition: all 0.3s;
+  box-shadow: 0 0 0.5em 0.15em var(--glow-color),
+    0 0 2em 0.5em var(--glow-spread-color),
+    inset 0 0 0.4em 0.15em var(--glow-color);
+  text-shadow: 0 0 0.3em var(--glow-color);
+}
+
+.btn-primary::after,
+.btn-post::after,
+.btn-connect::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 120%;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: var(--glow-spread-color);
+  filter: blur(2em);
+  opacity: 0.7;
+  transform: perspective(1.5em) rotateX(35deg) scale(1, 0.6);
+}
+
+.btn-primary:hover,
+.btn-post:hover,
+.btn-connect:hover {
+  color: var(--btn-color);
+  background-color: var(--glow-color);
+  box-shadow: 0 0 0.6em 0.2em var(--glow-color),
+    0 0 2.5em 1em var(--glow-spread-color),
+    inset 0 0 0.5em 0.2em var(--glow-color);
+}
+
+.btn-primary:active,
+.btn-post:active,
+.btn-connect:active {
+  box-shadow: 0 0 0.4em 0.15em var(--glow-color),
+    0 0 1.5em 1em var(--glow-spread-color),
+    inset 0 0 0.3em 0.15em var(--glow-color);
+}
+
+/* Secondary Button - Outlined with Fill */
+.btn-secondary {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid #60a5fa;
+  border-radius: 12px;
+  color: #60a5fa;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
+  transition: width 0.4s ease;
+  z-index: -1;
+}
+
+.btn-secondary:hover::before {
+  width: 100%;
+}
+
+.btn-secondary:hover {
+  color: white;
+  border-color: #8b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+}
+
+/* Icon Button - Glow Effect */
+.btn-icon,
+.btn-icon-stack {
+  position: relative;
+  padding: 0.5rem;
+  background-color: rgba(100, 61, 136, 0.3);
+  border: 0.15em solid var(--glow-blue);
+  border-radius: 10px;
+  color: var(--glow-blue);
+  cursor: pointer;
+  overflow: visible;
+  transition: all 0.3s;
+  box-shadow: 0 0 0.3em 0.1em var(--glow-blue),
+    0 0 1em 0.3em var(--glow-blue-spread),
+    inset 0 0 0.3em 0.1em var(--glow-blue);
+}
+
+.btn-icon:hover,
+.btn-icon-stack:hover {
+  color: rgba(100, 61, 136, 0.9);
+  background-color: var(--glow-blue);
+  box-shadow: 0 0 0.4em 0.1em var(--glow-blue),
+    0 0 1.5em 0.5em var(--glow-blue-spread),
+    inset 0 0 0.4em 0.1em var(--glow-blue);
+  transform: scale(1.05);
+}
+
+.btn-icon:active,
+.btn-icon-stack:active {
+  box-shadow: 0 0 0.2em 0.1em var(--glow-blue),
+    0 0 1em 0.5em var(--glow-blue-spread),
+    inset 0 0 0.2em 0.1em var(--glow-blue);
+}
+
+/* Danger Button - Red Glow Effect */
+.btn-danger,
+.btn-delete,
+.btn-delete-post,
+.btn-disconnect-stack {
+  position: relative;
+  padding: 0.75em 1.5em;
+  background-color: rgba(100, 61, 61, 0.5);
+  border: 0.25em solid var(--glow-red);
+  border-radius: 1em;
+  color: var(--glow-red);
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  overflow: visible;
+  transition: all 0.3s;
+  box-shadow: 0 0 0.5em 0.15em var(--glow-red),
+    0 0 2em 0.5em var(--glow-red-spread),
+    inset 0 0 0.4em 0.15em var(--glow-red);
+  text-shadow: 0 0 0.3em var(--glow-red);
+}
+
+.btn-danger::after,
+.btn-delete::after,
+.btn-delete-post::after,
+.btn-disconnect-stack::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 120%;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: var(--glow-red-spread);
+  filter: blur(2em);
+  opacity: 0.7;
+  transform: perspective(1.5em) rotateX(35deg) scale(1, 0.6);
+}
+
+.btn-danger:hover,
+.btn-delete:hover,
+.btn-delete-post:hover,
+.btn-disconnect-stack:hover {
+  color: rgb(100, 61, 61);
+  background-color: var(--glow-red);
+  box-shadow: 0 0 0.6em 0.2em var(--glow-red),
+    0 0 2.5em 1em var(--glow-red-spread),
+    inset 0 0 0.5em 0.2em var(--glow-red);
+}
+
+.btn-danger:active,
+.btn-delete:active,
+.btn-delete-post:active,
+.btn-disconnect-stack:active {
+  box-shadow: 0 0 0.4em 0.15em var(--glow-red),
+    0 0 1.5em 1em var(--glow-red-spread),
+    inset 0 0 0.3em 0.15em var(--glow-red);
+}
+
+/* Success Button - Green Glow */
+.btn-success,
+.btn-follow {
+  position: relative;
+  padding: 0.75em 1.5em;
+  background-color: rgba(61, 100, 80, 0.5);
+  border: 0.25em solid var(--glow-green);
+  border-radius: 1em;
+  color: var(--glow-green);
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  overflow: visible;
+  transition: all 0.3s;
+  box-shadow: 0 0 0.5em 0.15em var(--glow-green),
+    0 0 2em 0.5em var(--glow-green-spread),
+    inset 0 0 0.4em 0.15em var(--glow-green);
+  text-shadow: 0 0 0.3em var(--glow-green);
+}
+
+.btn-success::after,
+.btn-follow::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 120%;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: var(--glow-green-spread);
+  filter: blur(2em);
+  opacity: 0.7;
+  transform: perspective(1.5em) rotateX(35deg) scale(1, 0.6);
+}
+
+.btn-success:hover,
+.btn-follow:hover {
+  color: rgb(61, 100, 80);
+  background-color: var(--glow-green);
+  box-shadow: 0 0 0.6em 0.2em var(--glow-green),
+    0 0 2.5em 1em var(--glow-green-spread),
+    inset 0 0 0.5em 0.2em var(--glow-green);
+}
+
+.btn-success:active,
+.btn-follow:active {
+  box-shadow: 0 0 0.4em 0.15em var(--glow-green),
+    0 0 1.5em 1em var(--glow-green-spread),
+    inset 0 0 0.3em 0.15em var(--glow-green);
+}
+
+/* Floating Action Button */
+.btn-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.btn-fab:hover {
+  transform: scale(1.15) rotate(90deg);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.7);
+}
+
+/* Neon Button */
+.btn-neon {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid #60a5fa;
+  border-radius: 12px;
+  color: #60a5fa;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+}
+
+.btn-neon:hover {
+  background: #60a5fa;
+  color: #1a1f35;
+  box-shadow: 
+    0 0 20px rgba(96, 165, 250, 0.6),
+    0 0 40px rgba(96, 165, 250, 0.4),
+    0 0 60px rgba(96, 165, 250, 0.2);
+  text-shadow: none;
+}
+
+/* Glass Button */
+.btn-glass {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+}
+
+/* Disabled State */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
