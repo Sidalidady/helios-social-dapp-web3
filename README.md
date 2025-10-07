@@ -393,7 +393,6 @@ Contributions are welcome! Please:
 
 ## 🙏 Acknowledgments
 
-- Inspired by [Somnia Social](https://somnia-social.vercel.app/)
 - Built on [Helios Blockchain](https://helioschainlabs.org)
 - Icons by [Lucide](https://lucide.dev/)
 - UI inspiration from modern Web3 apps
