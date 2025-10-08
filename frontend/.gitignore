@@ -22,6 +22,3 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# contracts (copied from parent)
-/src/contracts/SocialFeed.json
