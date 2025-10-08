@@ -349,7 +349,7 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #ef4444;
+  background: rgba(255, 152, 0, 0.9);
   color: white;
   font-size: 0.625rem;
   font-weight: 700;
@@ -357,6 +357,7 @@
   border-radius: 10px;
   min-width: 18px;
   text-align: center;
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
 }
 
 .btn-disconnect-header {
@@ -559,11 +560,24 @@
   position: relative;
 }
 
+.btn-notifications.btn-icon-stack {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  color: #ff9800;
+}
+
+.btn-notifications.btn-icon-stack:hover {
+  background: rgba(255, 152, 0, 0.2);
+  border-color: rgba(255, 152, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
+  transform: scale(1.05);
+}
+
 .notification-badge {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #ef4444;
+  background: rgba(255, 152, 0, 0.9);
   color: white;
   font-size: 0.625rem;
   font-weight: 700;
@@ -571,6 +585,7 @@
   border-radius: 1rem;
   min-width: 18px;
   text-align: center;
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
 }
 
 .user-username-header {

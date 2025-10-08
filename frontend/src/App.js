@@ -82,7 +82,7 @@ function AppContent() {
   
   // Write contract for follow/unfollow
   const { writeContract, data: followHash, isPending: isFollowPending } = useWriteContract();
-  const { isLoading: isFollowConfirming, isSuccess: isFollowSuccess } = useWaitForTransactionReceipt({ 
+  const { isLoading: isFollowConfirming } = useWaitForTransactionReceipt({ 
     hash: followHash 
   });
 
@@ -102,6 +102,7 @@ function AppContent() {
     args: [address],
     enabled: !!address && isConnected,
   });
+
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -158,7 +159,7 @@ function AppContent() {
     };
     
     checkProfile();
-  }, [isConnected, address, userProfile, hasCheckedProfile]);
+  }, [isConnected, isConnecting, isReconnecting, address, userProfile, hasCheckedProfile]);
 
   const handleCreateAccount = () => {
     setShowWelcomeChoice(false);
@@ -218,17 +219,39 @@ function AppContent() {
         <div className="disconnected-overlay">
           <div className="connect-prompt">
             <div className="connect-prompt-logo">
-              <SunLogo />
+              <div className="logo-container">
+                <SunLogo />
+              </div>
+              <div className="logo-glow"></div>
             </div>
             <h1>Welcome to Helios Social</h1>
-            <p>Connect your wallet to get started</p>
+            <p className="tagline">Your Decentralized Social Network</p>
+            <p className="subtitle">Connect your Web3 wallet to join the community</p>
             <button 
               onClick={() => setShowWalletConnect(true)} 
               className="btn-connect-large"
             >
-              <span className="wallet-icon">👛</span>
+              <svg className="wallet-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+              </svg>
               Connect Wallet
             </button>
+            <div className="features">
+              <div className="feature-item">
+                <span className="feature-icon">🔒</span>
+                <span>Secure & Private</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">⚡</span>
+                <span>Lightning Fast</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">🌐</span>
+                <span>Fully Decentralized</span>
+              </div>
+            </div>
           </div>
         </div>
       ) : (

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useDisconnect, useWatchContractEvent } from 'wagmi';
-import { TrendingUp, User, LogOut, Users } from 'lucide-react';
+import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
+import { TrendingUp, User } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress } from '../utils/formatters';
 import FollowButton from './FollowButton';
+import SuggestedUsers from './SuggestedUsers';
 import contractData from '../contracts/SocialFeed.json';
 import './Sidebar.css';
 
 function Sidebar({ onHashtagClick }) {
   const { address, isConnected } = useAccount();
-  const { disconnect } = useDisconnect();
   const [trendingTopics, setTrendingTopics] = useState([]);
 
   // Get recent posts to extract hashtags
@@ -25,10 +25,16 @@ function Sidebar({ onHashtagClick }) {
       if (!postsData || !Array.isArray(postsData)) return;
 
       const hashtagCounts = {};
+      const now = Date.now() / 1000;
+      const sevenDaysAgo = now - (7 * 24 * 60 * 60); // Last 7 days
 
-      // Extract hashtags from all posts
+      // Extract hashtags from recent posts only
       for (const post of postsData) {
         if (!post.isActive) continue;
+
+        // Only count recent posts for trending
+        const postTime = Number(post.timestamp);
+        if (postTime < sevenDaysAgo) continue;
 
         try {
           const content = await getFromIPFS(post.ipfsHash);
@@ -58,7 +64,7 @@ function Sidebar({ onHashtagClick }) {
         }
       }
 
-      // Convert to array and sort by count
+      // Convert to array and sort by count (most recent trending)
       const trending = Object.entries(hashtagCounts)
         .map(([tag, count]) => ({
           tag: tag,
@@ -72,18 +78,54 @@ function Sidebar({ onHashtagClick }) {
     };
 
     extractHashtags();
+
+    // Auto-refresh trending topics every 30 seconds
+    const interval = setInterval(() => {
+      extractHashtags();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [postsData]);
 
   // Track online users
-  const [onlineUsers, setOnlineUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  
-  // Mock suggested users (in real app, get from contract)
-  const [suggestedUsers] = useState([
-    { address: '0x1234567890123456789012345678901234567890', username: 'crypto_enthusiast', followers: 122, posts: 3 },
-    { address: '0x2345678901234567890123456789012345678901', username: 'web3_builder', followers: 95, posts: 3 },
-    { address: '0x3456789012345678901234567890123456789012', username: 'nft_collector', followers: 82, posts: 1 },
-  ]);
+
+  // Get current user profile for suggestions
+  const { data: currentUserProfile } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getUserProfile',
+    args: [address],
+    enabled: !!address && isConnected,
+  });
+
+  // Prepare data for suggested users
+  const [allUsersForSuggestions, setAllUsersForSuggestions] = useState([]);
+  const [allFollows, setAllFollows] = useState([]);
+
+  // Extract users from posts
+  useEffect(() => {
+    if (!postsData || !Array.isArray(postsData)) return;
+
+    const uniqueAddresses = [...new Set(postsData.map(post => post.author))];
+    const users = uniqueAddresses.map(addr => ({
+      address: addr,
+      username: addr.slice(0, 6) + '...' + addr.slice(-4),
+      bio: '',
+      profileImage: null
+    }));
+
+    setAllUsersForSuggestions(users);
+
+    // Get follows from localStorage
+    const followingKey = `following_${address}`;
+    const following = JSON.parse(localStorage.getItem(followingKey) || '[]');
+    const followsData = following.map(addr => ({
+      follower: address,
+      following: addr
+    }));
+    setAllFollows(followsData);
+  }, [postsData, address]);
 
   // Watch for profile creation events to track users
   useWatchContractEvent({
@@ -127,61 +169,6 @@ function Sidebar({ onHashtagClick }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Component to display user with online status
-  const OnlineUserItem = ({ userAddress }) => {
-    const { data: userProfile } = useReadContract({
-      address: contractData.address,
-      abi: contractData.abi,
-      functionName: 'getUserProfile',
-      args: [userAddress],
-      enabled: !!userAddress,
-    });
-
-    const [profileImage, setProfileImage] = useState('');
-    const [isOnline, setIsOnline] = useState(true);
-
-    useEffect(() => {
-      if (userProfile?.profileImageHash) {
-        getFromIPFS(userProfile.profileImageHash).then(data => {
-          if (data?.image) setProfileImage(data.image);
-        });
-      }
-      
-      // Simulate online status
-      setIsOnline(Math.random() > 0.3);
-    }, [userProfile]);
-
-    // Guard against undefined userAddress - after hooks
-    if (!userAddress) return null;
-
-    const username = userProfile?.displayName || formatAddress(userAddress);
-    const isCurrentUser = address && userAddress?.toLowerCase() === address?.toLowerCase();
-
-    if (isCurrentUser) return null; // Don't show current user
-
-    return (
-      <div className="online-user-item">
-        <div className="online-user-avatar-container">
-          <div className="online-user-avatar">
-            {profileImage ? (
-              <img src={profileImage} alt={username} />
-            ) : (
-              <User size={20} />
-            )}
-          </div>
-          <div className={`online-status ${isOnline ? 'online' : 'offline'}`} />
-        </div>
-        <div className="online-user-info">
-          <span className="online-user-name">{username}</span>
-          <span className="online-user-status-text">
-            {isOnline ? 'Online' : 'Offline'}
-          </span>
-        </div>
-        <FollowButton targetAddress={userAddress} />
-      </div>
-    );
-  };
-
   return (
     <div className="sidebar">
       {/* Trending Topics */}
@@ -213,32 +200,24 @@ function Sidebar({ onHashtagClick }) {
       </div>
 
       {/* Suggested Users */}
-      <div className="sidebar-section">
-        <h3 className="sidebar-title">
-          <User size={20} />
-          Suggested Users
-        </h3>
-        <div className="suggested-users-list">
-          {suggestedUsers.map((user, index) => (
-            <div key={index} className="suggested-user-item">
-              <div className="suggested-user-avatar">
-                <User size={20} />
-              </div>
-              <div className="suggested-user-info">
-                <div className="suggested-user-name">@{user.username}</div>
-                <div className="suggested-user-stats">
-                  {user.followers} followers • {user.posts} posts
-                </div>
-              </div>
-              <FollowButton 
-                targetAddress={user.address}
-                targetUsername={user.username}
-                size="small"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      {isConnected && currentUserProfile && (
+        <SuggestedUsers 
+          currentUser={currentUserProfile}
+          allUsers={allUsersForSuggestions}
+          allFollows={allFollows}
+          allPosts={postsData || []}
+          onFollowChange={() => {
+            // Refresh follows data
+            const followingKey = `following_${address}`;
+            const following = JSON.parse(localStorage.getItem(followingKey) || '[]');
+            const followsData = following.map(addr => ({
+              follower: address,
+              following: addr
+            }));
+            setAllFollows(followsData);
+          }}
+        />
+      )}
     </div>
   );
 }

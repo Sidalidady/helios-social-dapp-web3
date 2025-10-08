@@ -2,8 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  min-width: 290px;
-  max-width: 290px;
+  min-width: 250px;
+  max-width: 250px;
+  width: 250px;
 }
 
 .left-sidebar-content {

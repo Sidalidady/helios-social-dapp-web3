@@ -2,6 +2,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure scrolling works everywhere */
+*, *::before, *::after {
+  overscroll-behavior: auto;
 }
 
 p {
@@ -11,9 +17,11 @@ p {
 
 html {
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
   scroll-behavior: smooth;
   height: 100%;
+  width: 100%;
+  overscroll-behavior: auto;
 }
 
 body {
@@ -25,14 +33,19 @@ body {
   background: #0f172a;
   color: #f8fafc;
   overflow-x: hidden;
-  overflow-y: auto;
-  height: 100%;
+  overflow-y: scroll;
+  height: auto;
   min-height: 100vh;
+  width: 100%;
+  overscroll-behavior: auto;
+  touch-action: pan-y;
+  cursor: auto;
 }
 
 #root {
-  height: 100%;
+  height: auto;
   min-height: 100vh;
+  overflow: visible;
 }
 
 body.light-theme {
