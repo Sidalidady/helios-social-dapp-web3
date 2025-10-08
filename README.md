@@ -56,7 +56,7 @@ Before you begin, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/helios-social.git
+(https://github.com/codeoverlorderror404/helios-social-dapp-web3.git)
 cd helios-social
 ```
 
