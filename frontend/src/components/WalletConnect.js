@@ -148,6 +148,20 @@ function WalletConnect({ onClose }) {
         }
       }
       
+      // Clear any stale wagmi state before connecting
+      try {
+        // Disconnect any existing connections first
+        if (connector.getProvider) {
+          const provider = await connector.getProvider();
+          if (provider && provider.removeAllListeners) {
+            provider.removeAllListeners();
+          }
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+        console.log('Cleanup error (safe to ignore):', e);
+      }
+      
       // Desktop or wallet is available - proceed with normal connection
       await connect({ connector });
       
@@ -165,7 +179,7 @@ function WalletConnect({ onClose }) {
       } else if (error.message && error.message.includes('Connector not found')) {
         console.error('Wallet not found:', error);
         setConnectionError('Wallet not found. Please install it first.');
-      } else if (error.message && error.message.includes('already connected')) {
+      } else if (error.message && (error.message.includes('already connected') || error.message.includes('Connector already connected'))) {
         console.log('Already connected, closing modal');
         onClose();
       } else {

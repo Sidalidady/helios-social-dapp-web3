@@ -118,7 +118,12 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
           console.log(`Filtering post ${postIdStr}: isActive=${isActive}, isDeleted=${isDeleted}, willShow=${!isDeleted && isActive}`);
           return !isDeleted && isActive;
         })
-        .reverse();
+        .sort((a, b) => {
+          // Sort by timestamp descending (newest first)
+          const timestampA = Number(a.timestamp);
+          const timestampB = Number(b.timestamp);
+          return timestampB - timestampA;
+        });
       
       console.log('✅ Displaying', formattedPosts.length, 'posts');
       console.log('Deleted posts list:', deletedPosts);

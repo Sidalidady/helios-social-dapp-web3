@@ -25,21 +25,18 @@ export const config = createConfig({
   connectors: [
     injected({
       target: 'metaMask',
-      shimDisconnect: true,
     }),
     injected({
       target: 'rabby',
-      shimDisconnect: true,
     }),
     injected({
       target: 'okxWallet',
-      shimDisconnect: true,
     }),
-    injected({
-      shimDisconnect: true,
-    }),
+    injected(),
   ],
   transports: {
     [heliosTestnet.id]: http(),
   },
+  ssr: false,
+  multiInjectedProviderDiscovery: false,
 });
