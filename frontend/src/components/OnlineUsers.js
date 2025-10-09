@@ -18,31 +18,52 @@ function OnlineUsers() {
     functionName: 'getAllPosts',
   });
 
-  // Load all registered users from localStorage and posts
+  // Load all registered users from smart contract
   useEffect(() => {
     const loadUsers = async () => {
-      console.log('📊 Loading all registered users...');
+      console.log('📊 Loading all registered users from blockchain...');
       const uniqueAddresses = new Set();
 
-      // Get registered users from localStorage
-      const stored = localStorage.getItem('all_registered_users');
-      const registeredUsers = stored ? JSON.parse(stored) : [];
-      console.log('📋 Registered users from localStorage:', registeredUsers.length);
-      
-      registeredUsers.forEach(addr => {
-        uniqueAddresses.add(addr.toLowerCase());
-      });
-
-      // Also add users from posts (fallback)
+      // Get all posts and extract unique authors
       if (allPosts && allPosts.length > 0) {
-        allPosts.forEach(post => {
+        console.log('📝 Checking', allPosts.length, 'posts for authors...');
+        
+        for (const post of allPosts) {
           if (post && post.author) {
-            uniqueAddresses.add(post.author.toLowerCase());
+            const authorAddress = post.author.toLowerCase();
+            
+            // Check if this user has a profile on the blockchain
+            try {
+              const { readContract } = await import('wagmi/actions');
+              const { config } = await import('../config/wagmi');
+              
+              const userProfile = await readContract(config, {
+                address: contractData.address,
+                abi: contractData.abi,
+                functionName: 'getUserProfile',
+                args: [post.author],
+              });
+              
+              // If user has a profile (displayName exists), add them
+              if (userProfile && userProfile.displayName && userProfile.displayName.length > 0) {
+                uniqueAddresses.add(authorAddress);
+                console.log('✅ Found user:', userProfile.displayName, '-', authorAddress);
+              }
+            } catch (error) {
+              console.error('Error checking user profile:', error);
+            }
           }
-        });
+        }
       }
 
-      console.log('👥 Total unique users:', uniqueAddresses.size);
+      // Also check localStorage for registered users (backup)
+      const stored = localStorage.getItem('all_registered_users');
+      if (stored) {
+        const registeredUsers = JSON.parse(stored);
+        registeredUsers.forEach(addr => uniqueAddresses.add(addr.toLowerCase()));
+      }
+
+      console.log('👥 Total unique registered users:', uniqueAddresses.size);
 
       // Convert to array and filter out current user
       const userAddresses = Array.from(uniqueAddresses).filter(addr => 

@@ -279,24 +279,25 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       console.log('🎯 Search complete:', foundPosts.length, 'posts found');
       console.log('📋 Found posts:', foundPosts);
 
-      // Search through users by fetching all user profiles
+      // Search through users by fetching profiles from blockchain
       const foundUsers = [];
       
-      // Get all registered users from localStorage
+      // Get unique authors from posts (users who have profiles)
+      const uniqueAuthors = [...new Set(allPosts?.map(post => post.author) || [])];
+      console.log('📋 Found', uniqueAuthors.length, 'unique authors from posts');
+      
+      // Get registered users from localStorage as backup
       const registeredUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
       console.log('📋 Registered users from localStorage:', registeredUsers.length);
-      
-      // Get unique authors from posts
-      const uniqueAuthors = [...new Set(allPosts?.map(post => post.author) || [])];
       
       // Combine all user addresses
       const allUserAddresses = new Set();
       
-      // Add registered users first
-      registeredUsers.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
-      
-      // Add authors from posts
+      // Add authors from posts (these definitely have profiles)
       uniqueAuthors.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
+      
+      // Add registered users from localStorage
+      registeredUsers.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
       
       // Add current user
       if (address) allUserAddresses.add(address.toLowerCase());
@@ -305,7 +306,7 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       
       // Convert Set to Array for iteration
       const userAddressArray = Array.from(allUserAddresses);
-      console.log('👥 Searching through', userAddressArray.length, 'users...');
+      console.log('👥 Searching through', userAddressArray.length, 'users from blockchain...');
       
       for (const authorAddress of userAddressArray) {
         try {
