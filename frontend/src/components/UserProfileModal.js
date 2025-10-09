@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { X, User, Users, FileText, Calendar } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress } from '../utils/formatters';
@@ -13,8 +13,8 @@ function UserProfileModal({ userAddress, onClose }) {
   const [bio, setBio] = useState('');
   const [userPosts, setUserPosts] = useState([]);
 
-  // Get user's profile
-  const { data: userProfile } = useReadContract({
+  // Get user's profile from blockchain
+  const { data: userProfile, refetch: refetchProfile } = useReadContract({
     address: contractData.address,
     abi: contractData.abi,
     functionName: 'getUserProfile',
@@ -23,10 +23,56 @@ function UserProfileModal({ userAddress, onClose }) {
   });
 
   // Get all posts to filter user's posts
-  const { data: allPosts } = useReadContract({
+  const { data: allPosts, refetch: refetchPosts } = useReadContract({
     address: contractData.address,
     abi: contractData.abi,
     functionName: 'getAllPosts',
+  });
+
+  // Watch for profile updates
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'ProfileUpdated',
+    onLogs: (logs) => {
+      logs.forEach((log) => {
+        if (log.args.user?.toLowerCase() === userAddress?.toLowerCase()) {
+          console.log('🔄 Profile updated, refreshing...');
+          refetchProfile();
+        }
+      });
+    }
+  });
+
+  // Watch for new posts
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'PostCreated',
+    onLogs: (logs) => {
+      logs.forEach((log) => {
+        if (log.args.author?.toLowerCase() === userAddress?.toLowerCase()) {
+          console.log('📝 New post created, refreshing...');
+          refetchPosts();
+        }
+      });
+    }
+  });
+
+  // Watch for follows
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'UserFollowed',
+    onLogs: (logs) => {
+      logs.forEach((log) => {
+        if (log.args.followed?.toLowerCase() === userAddress?.toLowerCase() ||
+            log.args.follower?.toLowerCase() === userAddress?.toLowerCase()) {
+          console.log('👥 Follow event, refreshing profile...');
+          refetchProfile();
+        }
+      });
+    }
   });
 
   // Load profile data
@@ -65,6 +111,15 @@ function UserProfileModal({ userAddress, onClose }) {
   const followingCount = userProfile?.followingCount ? Number(userProfile.followingCount) : 0;
   const postCount = userPosts.length;
   const isCurrentUser = currentUserAddress && userAddress.toLowerCase() === currentUserAddress.toLowerCase();
+
+  // Log blockchain stats
+  console.log('📊 User Profile Stats from Blockchain:');
+  console.log('  Username:', username);
+  console.log('  Followers:', followerCount, '(from blockchain)');
+  console.log('  Following:', followingCount, '(from blockchain)');
+  console.log('  Posts:', postCount, '(counted from blockchain)');
+  console.log('  Profile IPFS Hash:', userProfile?.profileIpfsHash);
+  console.log('  Bio from IPFS:', bio);
 
   return (
     <div className="user-profile-modal-overlay" onClick={onClose}>
