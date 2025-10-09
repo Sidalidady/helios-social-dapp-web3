@@ -55,6 +55,69 @@ function AppContent() {
   // Automatically switch to Helios Testnet when wallet connects
   useAutoSwitchNetwork();
   
+  // IMMEDIATE network check and switch on connect
+  useEffect(() => {
+    const ensureHeliosNetwork = async () => {
+      if (isConnected && window.ethereum) {
+        try {
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          console.log('🌐 Current network:', chainId);
+          
+          if (chainId !== '0xa410') { // Not on Helios Testnet
+            console.log('⚠️ Wrong network detected, switching to Helios Testnet...');
+            
+            try {
+              // Try to switch to Helios
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0xa410' }],
+              });
+              console.log('✅ Switched to Helios Testnet!');
+            } catch (switchError) {
+              // If network doesn't exist (error 4902), add it
+              if (switchError.code === 4902) {
+                console.log('📡 Helios Testnet not found, adding it...');
+                
+                try {
+                  await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                      chainId: '0xa410', // 42000 in decimal
+                      chainName: 'Helios Testnet',
+                      nativeCurrency: {
+                        name: 'Helios',
+                        symbol: 'HLS',
+                        decimals: 18
+                      },
+                      rpcUrls: ['https://testnet1.helioschainlabs.org'],
+                      blockExplorerUrls: ['https://explorer.helioschainlabs.org']
+                    }]
+                  });
+                  console.log('✅ Helios Testnet added and switched successfully!');
+                } catch (addError) {
+                  console.error('❌ Failed to add Helios Testnet:', addError);
+                  if (addError.code === 4001) {
+                    console.log('User rejected adding network');
+                  }
+                }
+              } else if (switchError.code === 4001) {
+                console.log('User rejected network switch');
+              } else {
+                console.error('❌ Failed to switch network:', switchError);
+              }
+            }
+          } else {
+            console.log('✅ Already on Helios Testnet');
+          }
+        } catch (error) {
+          console.error('Error checking network:', error);
+        }
+      }
+    };
+    
+    ensureHeliosNetwork();
+  }, [isConnected]);
+  
   // Clear stale wagmi storage on mount to prevent connection issues
   useEffect(() => {
     if (!isConnected && !isConnecting && !isReconnecting) {
