@@ -51,19 +51,23 @@ export async function uploadToIPFS(content) {
     // For this MVP, we'll simulate by creating a hash from content
     // In production, replace with actual IPFS upload
     
-    // Skip Pinata API call if no credentials are configured
-    // This prevents 401 errors in development
-    const hasPinataCredentials = process.env.REACT_APP_PINATA_API_KEY && 
-                                  process.env.REACT_APP_PINATA_SECRET_KEY;
+    // Get Pinata credentials from runtime config or environment
+    const pinataApiKey = (window.ENV_CONFIG && window.ENV_CONFIG.REACT_APP_PINATA_API_KEY) ||
+                         process.env.REACT_APP_PINATA_API_KEY;
+    const pinataSecretKey = (window.ENV_CONFIG && window.ENV_CONFIG.REACT_APP_PINATA_SECRET_KEY) ||
+                            process.env.REACT_APP_PINATA_SECRET_KEY;
+    
+    const hasPinataCredentials = pinataApiKey && pinataSecretKey;
 
     if (hasPinataCredentials) {
       try {
+        console.log('📤 Uploading to Pinata IPFS...');
         const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'pinata_api_key': process.env.REACT_APP_PINATA_API_KEY,
-            'pinata_secret_api_key': process.env.REACT_APP_PINATA_SECRET_KEY,
+            'pinata_api_key': pinataApiKey,
+            'pinata_secret_api_key': pinataSecretKey,
           },
           body: JSON.stringify({
             pinataContent: JSON.parse(data),
