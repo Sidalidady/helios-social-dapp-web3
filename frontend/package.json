@@ -17,7 +17,9 @@
     "react-scripts": "5.0.1",
     "viem": "^2.7.13",
     "wagmi": "^2.5.7",
-    "@react-native-async-storage/async-storage": "^1.23.1"
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "process": "^0.11.10",
+    "buffer": "^6.0.3"
   },
   "scripts": {
     "start": "craco start",
@@ -47,11 +49,9 @@
     "react-refresh": "^0.18.0",
     "@craco/craco": "^7.1.0",
     "assert": "^2.1.0",
-    "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
-    "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "url": "^0.11.3"

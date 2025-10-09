@@ -15,6 +15,13 @@ module.exports = {
         url: require.resolve('url'),
         buffer: require.resolve('buffer'),
         process: require.resolve('process/browser'),
+        'process/browser': require.resolve('process/browser'),
+      };
+
+      // Add alias for process
+      webpackConfig.resolve.alias = {
+        ...webpackConfig.resolve.alias,
+        'process/browser': require.resolve('process/browser'),
       };
 
       // Add plugins
@@ -23,6 +30,9 @@ module.exports = {
         new webpack.ProvidePlugin({
           process: 'process/browser',
           Buffer: ['buffer', 'Buffer'],
+        }),
+        new webpack.DefinePlugin({
+          'process.env': JSON.stringify(process.env),
         }),
       ];
 
