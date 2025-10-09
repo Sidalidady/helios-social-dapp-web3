@@ -3,6 +3,7 @@ import { WagmiProvider, useAccount, useReadContract, useWriteContract, useWaitFo
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TrendingUp, Users } from 'lucide-react';
 import { config } from './config/wagmi';
+import { useAutoSwitchNetwork } from './hooks/useAutoSwitchNetwork';
 import Header from './components/Header';
 import LeftSidebar from './components/LeftSidebar';
 import CreatePost from './components/CreatePost';
@@ -16,6 +17,7 @@ import WelcomeChoice from './components/WelcomeChoice';
 import LoginSuccess from './components/LoginSuccess';
 import OnlineUsers from './components/OnlineUsers';
 import SunLogo from './components/SunLogo';
+import NetworkSwitcher from './components/NetworkSwitcher';
 import { getFromIPFS } from './utils/ipfs';
 import contractData from './contracts/SocialFeed.json';
 import './App.css';
@@ -48,6 +50,9 @@ function AppContent() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [showCommunitiesModal, setShowCommunitiesModal] = useState(false);
   const { address, isConnected, isConnecting, isReconnecting } = useAccount();
+  
+  // Automatically switch to Helios Testnet when wallet connects
+  useAutoSwitchNetwork();
   
   // Clear stale wagmi storage on mount to prevent connection issues
   useEffect(() => {
@@ -201,6 +206,9 @@ function AppContent() {
 
   return (
     <div className="app">
+      {/* Network Switcher - shows when on wrong network */}
+      {isConnected && <NetworkSwitcher />}
+      
       {/* Header - only visible when connected */}
       {isConnected && (
         <Header 
