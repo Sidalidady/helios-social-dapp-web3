@@ -18,7 +18,7 @@ function Registration({ onComplete, onSkip, isFirstTime = false }) {
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
   // Check username availability from smart contract
-  const { data: isAvailable, refetch: recheckUsername } = useReadContract({
+  const { data: isAvailable, error: usernameError, refetch: recheckUsername } = useReadContract({
     address: contractData.address,
     abi: contractData.abi,
     functionName: 'isUsernameAvailable',
@@ -30,10 +30,15 @@ function Registration({ onComplete, onSkip, isFirstTime = false }) {
     if (username.length >= 3 && isAvailable !== undefined) {
       setUsernameAvailable(isAvailable);
       setIsCheckingUsername(false);
+    } else if (username.length >= 3 && usernameError) {
+      // If function doesn't exist (old contract), assume available
+      console.warn('Username check unavailable (old contract version)');
+      setUsernameAvailable(true);
+      setIsCheckingUsername(false);
     } else if (username.length < 3) {
       setUsernameAvailable(null);
     }
-  }, [isAvailable, username]);
+  }, [isAvailable, usernameError, username]);
 
   const handleUsernameChange = (e) => {
     const value = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');

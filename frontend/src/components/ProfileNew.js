@@ -121,8 +121,9 @@ function ProfileNew({ onClose }) {
         
         setUsernameAvailable(available);
       } catch (error) {
-        console.error('Error checking username:', error);
-        setUsernameAvailable(null);
+        console.warn('Username check unavailable (old contract version):', error.message);
+        // Assume available if function doesn't exist (old contract)
+        setUsernameAvailable(true);
       } finally {
         setCheckingUsername(false);
       }

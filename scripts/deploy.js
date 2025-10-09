@@ -7,10 +7,11 @@ async function main() {
 
   // Get deployer account
   const [deployer] = await hre.ethers.getSigners();
-  console.log("📝 Deploying with account:", deployer.address);
+  const deployerAddress = await deployer.getAddress();
+  console.log("📝 Deploying with account:", deployerAddress);
 
   // Check balance
-  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  const balance = await hre.ethers.provider.getBalance(deployerAddress);
   console.log("💰 Account balance:", hre.ethers.formatEther(balance), "HLS\n");
 
   if (balance === 0n) {
