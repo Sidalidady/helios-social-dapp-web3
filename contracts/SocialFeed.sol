@@ -125,19 +125,22 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         string displayName
     );
     
-    // Notification storage
+    // Notification storage - Optimized for gas efficiency
     struct Notification {
-        uint256 id;
-        address recipient;
-        address sender;
-        string notificationType;
-        uint256 relatedId;
-        uint256 timestamp;
-        bool read;
+        address sender;           // 20 bytes
+        uint96 timestamp;         // 12 bytes (fits in same slot)
+        uint8 notificationType;   // 1 byte - 0=like, 1=follow, 2=comment, 3=comment_like
+        bool read;                // 1 byte
+        uint32 relatedId;         // 4 bytes (supports up to 4 billion posts)
     }
     
-    mapping(address => Notification[]) public userNotifications;
-    uint256 private notificationCounter;
+    mapping(address => Notification[]) private userNotifications;
+    
+    // Notification type constants for gas optimization
+    uint8 constant NOTIF_LIKE = 0;
+    uint8 constant NOTIF_FOLLOW = 1;
+    uint8 constant NOTIF_COMMENT = 2;
+    uint8 constant NOTIF_COMMENT_LIKE = 3;
     
     // Notification event for frontend
     event NotificationCreated(
@@ -218,7 +221,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
             _createNotification(
                 posts[_postId].author,
                 msg.sender,
-                "like",
+                NOTIF_LIKE,
                 _postId
             );
         }
@@ -265,7 +268,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         _createNotification(
             _userToFollow,
             msg.sender,
-            "follow",
+            NOTIF_FOLLOW,
             0
         );
     }
@@ -399,7 +402,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
             _createNotification(
                 posts[_postId].author,
                 msg.sender,
-                "comment",
+                NOTIF_COMMENT,
                 _postId
             );
         }
@@ -454,7 +457,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
                     _createNotification(
                         comments[i].commenter,
                         msg.sender,
-                        "comment_like",
+                        NOTIF_COMMENT_LIKE,
                         _postId
                     );
                 }
@@ -630,32 +633,34 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Internal function to create a notification
+     * @dev Internal function to create a notification - Gas optimized
      */
     function _createNotification(
         address _recipient,
         address _sender,
-        string memory _notificationType,
+        uint8 _notificationType,
         uint256 _relatedId
     ) internal {
-        notificationCounter++;
-        
-        Notification memory newNotification = Notification({
-            id: notificationCounter,
-            recipient: _recipient,
+        // Gas optimization: Direct push without creating memory struct
+        userNotifications[_recipient].push(Notification({
             sender: _sender,
+            timestamp: uint96(block.timestamp),
             notificationType: _notificationType,
-            relatedId: _relatedId,
-            timestamp: block.timestamp,
-            read: false
-        });
+            read: false,
+            relatedId: uint32(_relatedId)
+        }));
         
-        userNotifications[_recipient].push(newNotification);
+        // Emit event with string type for frontend compatibility
+        string memory typeString;
+        if (_notificationType == NOTIF_LIKE) typeString = "like";
+        else if (_notificationType == NOTIF_FOLLOW) typeString = "follow";
+        else if (_notificationType == NOTIF_COMMENT) typeString = "comment";
+        else typeString = "comment_like";
         
         emit NotificationCreated(
             _recipient,
             _sender,
-            _notificationType,
+            typeString,
             _relatedId,
             block.timestamp
         );
@@ -685,14 +690,15 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Mark notification as read
+     * @dev Mark notification as read - Gas optimized
      */
     function markNotificationAsRead(uint256 _notificationIndex) external {
-        require(_notificationIndex < userNotifications[msg.sender].length, "Invalid notification index");
+        require(_notificationIndex < userNotifications[msg.sender].length, "Invalid index");
         
+        // Gas optimization: Direct storage access
         userNotifications[msg.sender][_notificationIndex].read = true;
         
-        emit NotificationRead(msg.sender, userNotifications[msg.sender][_notificationIndex].id);
+        emit NotificationRead(msg.sender, _notificationIndex);
     }
     
     /**

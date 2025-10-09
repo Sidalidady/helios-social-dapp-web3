@@ -25,6 +25,12 @@ function Notifications({ isOpen, onClose }) {
     enabled: !!address,
   });
 
+  // Helper to convert notification type number to string
+  const getNotificationTypeString = (typeNum) => {
+    const types = ['like', 'follow', 'comment', 'comment_like'];
+    return types[typeNum] || 'unknown';
+  };
+
   const loadNotifications = () => {
     // Load notifications from blockchain
     console.log('📥 Loading notifications from blockchain for:', address);
@@ -33,15 +39,18 @@ function Notifications({ isOpen, onClose }) {
       console.log('✅ Loaded', blockchainNotifications.length, 'notifications from blockchain');
       
       // Convert blockchain data to frontend format
-      const formattedNotifications = blockchainNotifications.map(notif => ({
-        id: Number(notif.id),
-        type: notif.notificationType,
-        from: notif.sender,
-        message: getNotificationMessage(notif.notificationType),
-        postId: notif.relatedId.toString(),
-        timestamp: Number(notif.timestamp) * 1000,
-        read: notif.read
-      })).reverse(); // Reverse to show newest first
+      const formattedNotifications = blockchainNotifications.map((notif, index) => {
+        const typeString = getNotificationTypeString(Number(notif.notificationType));
+        return {
+          id: index,
+          type: typeString,
+          from: notif.sender,
+          message: getNotificationMessage(typeString),
+          postId: Number(notif.relatedId).toString(),
+          timestamp: Number(notif.timestamp) * 1000,
+          read: notif.read
+        };
+      }).reverse(); // Reverse to show newest first
       
       setNotifications(formattedNotifications);
     } else {
