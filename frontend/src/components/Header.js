@@ -57,18 +57,30 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
         const username = userProfile.displayName;
         const ipfsHash = userProfile.profileIpfsHash;
         
+        console.log('📸 Header - Loading profile:', { username, ipfsHash });
         setUsername(username);
         
         // Load profile image from IPFS if available
-        if (ipfsHash && ipfsHash.length > 0) {
+        if (ipfsHash && ipfsHash.length > 0 && ipfsHash !== '0x' && ipfsHash !== '') {
           try {
+            console.log('📥 Header - Fetching profile image from IPFS:', ipfsHash);
             const profileData = await getFromIPFS(ipfsHash);
+            console.log('📋 Header - Profile data received:', profileData);
+            
             if (profileData && profileData.image) {
+              console.log('✅ Header - Setting profile image');
               setProfileImage(profileData.image);
+            } else {
+              console.warn('⚠️ Header - No image in profile data');
+              setProfileImage('');
             }
           } catch (error) {
-            console.error('Error loading profile image:', error);
+            console.error('❌ Header - Error loading profile image:', error);
+            setProfileImage('');
           }
+        } else {
+          console.log('ℹ️ Header - No IPFS hash, using default icon');
+          setProfileImage('');
         }
       } else {
         setUsername('');
