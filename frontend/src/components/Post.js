@@ -6,6 +6,7 @@ import { formatAddress, formatTimestamp } from '../utils/formatters';
 import { addNotification } from './Notifications';
 import { contractData } from '../utils/contract';
 import Comments from './Comments';
+import UserProfileModal from './UserProfileModal';
 import './Post.css';
 
 function Post({ post, onDelete }) {
@@ -15,6 +16,7 @@ function Post({ post, onDelete }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [authorUsername, setAuthorUsername] = useState('');
   const [authorImage, setAuthorImage] = useState('');
+  const [showUserProfile, setShowUserProfile] = useState(false);
   const { address } = useAccount();
 
   // Get author's profile
@@ -192,26 +194,42 @@ function Post({ post, onDelete }) {
   const likeCount = Number(post.likes);
 
   return (
-    <div className="post" data-post-id={post.id.toString()} id={`post-${post.id.toString()}`}>
-      <div className="post-header">
-        <div className="post-author">
-          <div className="author-avatar">
-            {authorImage ? (
-              <img src={authorImage} alt={authorUsername} />
-            ) : (
-              <User size={20} />
-            )}
-          </div>
-          <div>
-            <div className="author-name">
-              {authorUsername}
-              {isOwnPost && <span className="own-badge">You</span>}
+    <>
+      {showUserProfile && (
+        <UserProfileModal 
+          userAddress={post.author} 
+          onClose={() => setShowUserProfile(false)} 
+        />
+      )}
+      
+      <div className="post" data-post-id={post.id.toString()} id={`post-${post.id.toString()}`}>
+        <div className="post-header">
+          <div className="post-author">
+            <div 
+              className="author-avatar clickable" 
+              onClick={() => !isOwnPost && setShowUserProfile(true)}
+              style={{ cursor: isOwnPost ? 'default' : 'pointer' }}
+            >
+              {authorImage ? (
+                <img src={authorImage} alt={authorUsername} />
+              ) : (
+                <User size={20} />
+              )}
             </div>
-            <div className="post-timestamp">
-              {formatTimestamp(post.timestamp)}
+            <div>
+              <div 
+                className="author-name clickable" 
+                onClick={() => !isOwnPost && setShowUserProfile(true)}
+                style={{ cursor: isOwnPost ? 'default' : 'pointer' }}
+              >
+                {authorUsername}
+                {isOwnPost && <span className="own-badge">You</span>}
+              </div>
+              <div className="post-timestamp">
+                {formatTimestamp(post.timestamp)}
+              </div>
             </div>
           </div>
-        </div>
         {isOwnPost && (
           <button 
             className="btn-delete-post"
@@ -255,6 +273,7 @@ function Post({ post, onDelete }) {
 
       <Comments postId={post.id} postAuthor={post.author} />
     </div>
+    </>
   );
 }
 
