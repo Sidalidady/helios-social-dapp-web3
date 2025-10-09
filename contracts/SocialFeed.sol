@@ -125,6 +125,15 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         string displayName
     );
     
+    // Notification event for frontend
+    event NotificationCreated(
+        address indexed recipient,
+        address indexed sender,
+        string notificationType,
+        uint256 relatedId,
+        uint256 timestamp
+    );
+    
     // Comment storage
     struct Comment {
         uint256 id;
@@ -184,6 +193,17 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         posts[_postId].likes++;
         
         emit PostLiked(_postId, msg.sender, posts[_postId].likes);
+        
+        // Emit notification for post author (don't notify yourself)
+        if (posts[_postId].author != msg.sender) {
+            emit NotificationCreated(
+                posts[_postId].author,
+                msg.sender,
+                "like",
+                _postId,
+                block.timestamp
+            );
+        }
     }
     
     /**
@@ -222,6 +242,15 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         userProfiles[_userToFollow].followerCount++;
         
         emit UserFollowed(msg.sender, _userToFollow);
+        
+        // Emit notification for the user being followed
+        emit NotificationCreated(
+            _userToFollow,
+            msg.sender,
+            "follow",
+            0,
+            block.timestamp
+        );
     }
     
     /**
@@ -347,6 +376,17 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         postComments[_postId].push(newComment);
         
         emit CommentAdded(_postId, msg.sender, _ipfsHash, block.timestamp);
+        
+        // Emit notification for post author (don't notify yourself)
+        if (posts[_postId].author != msg.sender) {
+            emit NotificationCreated(
+                posts[_postId].author,
+                msg.sender,
+                "comment",
+                _postId,
+                block.timestamp
+            );
+        }
     }
     
     /**
@@ -379,14 +419,33 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     
     /**
      * @dev Like a comment
+     * @param _postId ID of the post containing the comment
      * @param _commentId ID of the comment to like
      */
-    function likeComment(uint256 _commentId) external {
+    function likeComment(uint256 _postId, uint256 _commentId) external {
         require(!commentLikes[_commentId][msg.sender], "Already liked");
         
         commentLikes[_commentId][msg.sender] = true;
         
         emit CommentLiked(_commentId, msg.sender);
+        
+        // Find the comment to get the commenter address
+        Comment[] storage comments = postComments[_postId];
+        for (uint256 i = 0; i < comments.length; i++) {
+            if (comments[i].id == _commentId && comments[i].isActive) {
+                // Emit notification for comment author (don't notify yourself)
+                if (comments[i].commenter != msg.sender) {
+                    emit NotificationCreated(
+                        comments[i].commenter,
+                        msg.sender,
+                        "comment_like",
+                        _postId,
+                        block.timestamp
+                    );
+                }
+                break;
+            }
+        }
     }
     
     /**

@@ -388,7 +388,7 @@ function Comments({ postId, postAuthor }) {
         address: contractData.address,
         abi: contractData.abi,
         functionName,
-        args: [comment.id],
+        args: functionName === 'likeComment' ? [postId, comment.id] : [comment.id],
       }, {
         onSuccess: () => {
           setHasLiked(!hasLiked);

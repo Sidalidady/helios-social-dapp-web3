@@ -59,6 +59,79 @@ function Notifications({ isOpen, onClose }) {
     enabled: !!address,
   });
 
+  // Watch for NotificationCreated events from smart contract
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'NotificationCreated',
+    onLogs: async (logs) => {
+      if (!address) {
+        console.log('⚠️ No address, skipping notification');
+        return;
+      }
+
+      console.log('🔔 NotificationCreated event received:', logs.length, 'events');
+
+      for (const log of logs) {
+        try {
+          const recipient = log.args.recipient;
+          const sender = log.args.sender;
+          const notificationType = log.args.notificationType;
+          const relatedId = log.args.relatedId;
+          const timestamp = log.args.timestamp;
+
+          // Only process if notification is for current user
+          if (recipient.toLowerCase() !== address.toLowerCase()) {
+            console.log('⏭️ Notification not for current user');
+            continue;
+          }
+
+          console.log('✅ Processing notification:', { type: notificationType, from: sender });
+
+          const notification = {
+            id: Date.now() + Math.random(),
+            type: notificationType,
+            from: sender,
+            message: getNotificationMessage(notificationType),
+            postId: relatedId.toString(),
+            timestamp: Number(timestamp) * 1000,
+            read: false
+          };
+
+          // Save directly to localStorage
+          const stored = localStorage.getItem(`notifications_${address}`);
+          const existing = stored ? JSON.parse(stored) : [];
+          const updated = [notification, ...existing].slice(0, 50);
+          localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
+          
+          console.log('💾 Notification saved to localStorage');
+          
+          // Update state
+          setNotifications(updated);
+        } catch (error) {
+          console.error('❌ Error processing notification:', error);
+        }
+      }
+    }
+  });
+
+  // Helper function to get notification message
+  const getNotificationMessage = (type) => {
+    switch (type) {
+      case 'like':
+        return 'liked your post';
+      case 'follow':
+        return 'started following you';
+      case 'comment':
+        return 'commented on your post';
+      case 'comment_like':
+        return 'liked your comment';
+      default:
+        return 'interacted with you';
+    }
+  };
+
+  // Keep old event watchers as backup (will be removed later)
   // Watch for post likes
   useWatchContractEvent({
     address: contractData.address,
