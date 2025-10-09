@@ -26,7 +26,6 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         uint256 postCount;
         uint256 followerCount;
         uint256 followingCount;
-        uint256 lastSeen;        // Timestamp of last activity
         bool exists;
     }
     
@@ -156,15 +155,6 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         address indexed user,
         uint256 notificationId
     );
-    
-    event UserOnline(
-        address indexed user,
-        string displayName,
-        uint256 timestamp
-    );
-    
-    // Online status tracking
-    uint256 public constant ONLINE_THRESHOLD = 2 minutes; // User is online if active within 2 minutes
     
     // Comment storage
     struct Comment {
@@ -331,15 +321,12 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         
         if (!userProfiles[msg.sender].exists) {
             userProfiles[msg.sender].exists = true;
-            userProfiles[msg.sender].lastSeen = block.timestamp; // Set initial online status
         }
         
         userProfiles[msg.sender].displayName = _displayName;
         userProfiles[msg.sender].profileIpfsHash = _profileIpfsHash;
-        userProfiles[msg.sender].lastSeen = block.timestamp; // Update online status
         
         emit ProfileUpdated(msg.sender, _displayName, _profileIpfsHash);
-        emit UserOnline(msg.sender, _displayName, block.timestamp);
     }
     
     /**
@@ -759,73 +746,6 @@ contract SocialFeed is Ownable, ReentrancyGuard {
      */
     function getUserProfile(address _user) external view returns (UserProfile memory) {
         return userProfiles[_user];
-    }
-    
-    /**
-     * @dev Update user's last seen timestamp (heartbeat)
-     * Gas-optimized: Only updates timestamp, no other data
-     */
-    function updateOnlineStatus() external {
-        require(userProfiles[msg.sender].exists, "Profile does not exist");
-        
-        userProfiles[msg.sender].lastSeen = block.timestamp;
-        
-        emit UserOnline(msg.sender, userProfiles[msg.sender].displayName, block.timestamp);
-    }
-    
-    /**
-     * @dev Check if user is currently online
-     */
-    function isUserOnline(address _user) external view returns (bool) {
-        if (!userProfiles[_user].exists) return false;
-        
-        return (block.timestamp - userProfiles[_user].lastSeen) <= ONLINE_THRESHOLD;
-    }
-    
-    /**
-     * @dev Get all online users (users active within threshold)
-     * Returns arrays of addresses and usernames
-     */
-    function getOnlineUsers() external view returns (address[] memory, string[] memory, uint256[] memory) {
-        // First pass: count unique online users
-        uint256 onlineCount = 0;
-        address[] memory tempAddresses = new address[](postIds.length);
-        
-        for (uint256 i = 0; i < postIds.length; i++) {
-            address author = posts[postIds[i]].author;
-            
-            // Check if user is online and not already counted
-            if (userProfiles[author].exists && 
-                (block.timestamp - userProfiles[author].lastSeen) <= ONLINE_THRESHOLD) {
-                
-                // Check if already added
-                bool alreadyAdded = false;
-                for (uint256 j = 0; j < onlineCount; j++) {
-                    if (tempAddresses[j] == author) {
-                        alreadyAdded = true;
-                        break;
-                    }
-                }
-                
-                if (!alreadyAdded) {
-                    tempAddresses[onlineCount] = author;
-                    onlineCount++;
-                }
-            }
-        }
-        
-        // Create final arrays with exact size
-        address[] memory addresses = new address[](onlineCount);
-        string[] memory usernames = new string[](onlineCount);
-        uint256[] memory lastSeenTimes = new uint256[](onlineCount);
-        
-        for (uint256 i = 0; i < onlineCount; i++) {
-            addresses[i] = tempAddresses[i];
-            usernames[i] = userProfiles[tempAddresses[i]].displayName;
-            lastSeenTimes[i] = userProfiles[tempAddresses[i]].lastSeen;
-        }
-        
-        return (addresses, usernames, lastSeenTimes);
     }
     
     /**
