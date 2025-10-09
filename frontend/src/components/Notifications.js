@@ -65,15 +65,25 @@ function Notifications({ isOpen, onClose }) {
     abi: contractData.abi,
     eventName: 'PostLiked',
     onLogs: async (logs) => {
-      if (!address) return;
+      if (!address) {
+        console.log('⚠️ No address, skipping like notification');
+        return;
+      }
+
+      console.log('❤️ PostLiked event received:', logs.length, 'events');
 
       for (const log of logs) {
         try {
           const postId = log.args.postId;
           const liker = log.args.liker;
 
+          console.log('Processing like:', { postId: postId?.toString(), liker, currentUser: address });
+
           // Don't notify if you liked your own post
-          if (liker.toLowerCase() === address.toLowerCase()) return;
+          if (liker.toLowerCase() === address.toLowerCase()) {
+            console.log('⏭️ Skipping - you liked your own post');
+            continue;
+          }
 
           // Get the post to check if it's yours
           const { readContract } = await import('wagmi/actions');
@@ -86,9 +96,13 @@ function Notifications({ isOpen, onClose }) {
             args: [postId],
           });
 
+          console.log('Post author:', post?.author, 'Your address:', address);
+
           // If this is your post, add notification
           if (post && post.author.toLowerCase() === address.toLowerCase()) {
-            addNotification({
+            console.log('✅ Adding like notification!');
+            
+            const notification = {
               id: Date.now() + Math.random(),
               type: 'like',
               from: liker,
@@ -96,10 +110,23 @@ function Notifications({ isOpen, onClose }) {
               postId: postId.toString(),
               timestamp: Date.now(),
               read: false
-            });
+            };
+
+            // Save directly to localStorage
+            const stored = localStorage.getItem(`notifications_${address}`);
+            const existing = stored ? JSON.parse(stored) : [];
+            const updated = [notification, ...existing].slice(0, 50);
+            localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
+            
+            console.log('💾 Notification saved to localStorage');
+            
+            // Update state
+            setNotifications(updated);
+          } else {
+            console.log('⏭️ Not your post, skipping notification');
           }
         } catch (error) {
-          console.error('Error processing like notification:', error);
+          console.error('❌ Error processing like notification:', error);
         }
       }
     }
@@ -111,27 +138,49 @@ function Notifications({ isOpen, onClose }) {
     abi: contractData.abi,
     eventName: 'UserFollowed',
     onLogs: (logs) => {
-      if (!address) return;
+      if (!address) {
+        console.log('⚠️ No address, skipping follow notification');
+        return;
+      }
+
+      console.log('👥 UserFollowed event received:', logs.length, 'events');
 
       for (const log of logs) {
         try {
           const follower = log.args.follower;
           const followed = log.args.followed;
 
+          console.log('Processing follow:', { follower, followed, currentUser: address });
+
           // If someone followed you, add notification
           if (followed.toLowerCase() === address.toLowerCase() && 
               follower.toLowerCase() !== address.toLowerCase()) {
-            addNotification({
+            console.log('✅ Adding follow notification!');
+            
+            const notification = {
               id: Date.now() + Math.random(),
               type: 'follow',
               from: follower,
               message: 'started following you',
               timestamp: Date.now(),
               read: false
-            });
+            };
+
+            // Save directly to localStorage
+            const stored = localStorage.getItem(`notifications_${address}`);
+            const existing = stored ? JSON.parse(stored) : [];
+            const updated = [notification, ...existing].slice(0, 50);
+            localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
+            
+            console.log('💾 Follow notification saved to localStorage');
+            
+            // Update state
+            setNotifications(updated);
+          } else {
+            console.log('⏭️ Not following you, skipping notification');
           }
         } catch (error) {
-          console.error('Error processing follow notification:', error);
+          console.error('❌ Error processing follow notification:', error);
         }
       }
     }
