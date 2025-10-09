@@ -1,6 +1,11 @@
 import { createConfig, http } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
+// Helios Testnet RPC URL with fallback
+const HELIOS_RPC_URL = process.env.REACT_APP_HELIOS_RPC_URL || 'https://testnet1.helioschainlabs.org';
+
+console.log('🔧 Wagmi Config - Helios RPC URL:', HELIOS_RPC_URL);
+
 // Helios Testnet configuration
 export const heliosTestnet = {
   id: 42000,
@@ -11,8 +16,8 @@ export const heliosTestnet = {
     symbol: 'HLS',
   },
   rpcUrls: {
-    default: { http: [process.env.REACT_APP_HELIOS_RPC_URL || 'https://testnet1.helioschainlabs.org'] },
-    public: { http: [process.env.REACT_APP_HELIOS_RPC_URL || 'https://testnet1.helioschainlabs.org'] },
+    default: { http: [HELIOS_RPC_URL] },
+    public: { http: [HELIOS_RPC_URL] },
   },
   blockExplorers: {
     default: { name: 'Helios Explorer', url: 'https://explorer.helioschainlabs.org' },
