@@ -59,6 +59,84 @@ function Notifications({ isOpen, onClose }) {
     enabled: !!address,
   });
 
+  // Watch for post likes
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'PostLiked',
+    onLogs: async (logs) => {
+      if (!address) return;
+
+      for (const log of logs) {
+        try {
+          const postId = log.args.postId;
+          const liker = log.args.liker;
+
+          // Don't notify if you liked your own post
+          if (liker.toLowerCase() === address.toLowerCase()) return;
+
+          // Get the post to check if it's yours
+          const { readContract } = await import('wagmi/actions');
+          const { config } = await import('../config/wagmi');
+          
+          const post = await readContract(config, {
+            address: contractData.address,
+            abi: contractData.abi,
+            functionName: 'getPost',
+            args: [postId],
+          });
+
+          // If this is your post, add notification
+          if (post && post.author.toLowerCase() === address.toLowerCase()) {
+            addNotification({
+              id: Date.now() + Math.random(),
+              type: 'like',
+              from: liker,
+              message: 'liked your post',
+              postId: postId.toString(),
+              timestamp: Date.now(),
+              read: false
+            });
+          }
+        } catch (error) {
+          console.error('Error processing like notification:', error);
+        }
+      }
+    }
+  });
+
+  // Watch for follows
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'UserFollowed',
+    onLogs: (logs) => {
+      if (!address) return;
+
+      for (const log of logs) {
+        try {
+          const follower = log.args.follower;
+          const followed = log.args.followed;
+
+          // If someone followed you, add notification
+          if (followed.toLowerCase() === address.toLowerCase() && 
+              follower.toLowerCase() !== address.toLowerCase()) {
+            addNotification({
+              id: Date.now() + Math.random(),
+              type: 'follow',
+              from: follower,
+              message: 'started following you',
+              timestamp: Date.now(),
+              read: false
+            });
+          }
+        } catch (error) {
+          console.error('Error processing follow notification:', error);
+        }
+      }
+    }
+  });
+
   // Watch for new comments to detect mentions
   useWatchContractEvent({
     address: contractData.address,
@@ -88,11 +166,11 @@ function Notifications({ isOpen, onClose }) {
           if (mentionRegex.test(content)) {
             // Add notification
             addNotification({
-              id: Date.now(),
+              id: Date.now() + Math.random(),
               type: 'mention',
               from: commenter,
               fromName: 'Someone',
-              message: `Someone mentioned you in a comment`,
+              message: `mentioned you in a comment`,
               content: content.substring(0, 100),
               postId: postId.toString(),
               timestamp: Date.now(),
