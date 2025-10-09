@@ -20,6 +20,7 @@ import SunLogo from './components/SunLogo';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import { getFromIPFS } from './utils/ipfs';
 import { contractData } from './utils/contract';
+import { startHeartbeat, stopHeartbeat } from './utils/onlineTracker';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -169,6 +170,12 @@ function AppContent() {
           // Show welcome back animation
           setShowLoginSuccess(true);
           
+          // Start online heartbeat
+          const heartbeatId = startHeartbeat(address, username);
+          
+          // Store heartbeat ID for cleanup
+          window.heartbeatIntervalId = heartbeatId;
+          
           // Auto-hide after 3 seconds
           setTimeout(() => {
             setShowLoginSuccess(false);
@@ -185,6 +192,12 @@ function AppContent() {
 
       // Reset check when disconnected
       if (!isConnected && !isConnecting && !isReconnecting) {
+        // Stop heartbeat
+        if (window.heartbeatIntervalId) {
+          stopHeartbeat(window.heartbeatIntervalId, address);
+          window.heartbeatIntervalId = null;
+        }
+        
         setHasCheckedProfile(false);
         setShowWelcomeChoice(false);
         setShowRegistration(false);

@@ -5,11 +5,13 @@ import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress } from '../utils/formatters';
 import FollowButton from './FollowButton';
 import { contractData } from '../utils/contract';
+import { getOnlineUsersArray } from '../utils/onlineTracker';
 import './OnlineUsers.css';
 
 function OnlineUsers() {
   const { address } = useAccount();
   const [allUsers, setAllUsers] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   // Get all posts to extract unique users
   const { data: allPosts, refetch: refetchPosts } = useReadContract({
@@ -18,7 +20,30 @@ function OnlineUsers() {
     functionName: 'getAllPosts',
   });
 
-  // Load all registered users from smart contract
+  // Update online users list every 5 seconds
+  useEffect(() => {
+    const updateOnlineList = () => {
+      const onlineList = getOnlineUsersArray();
+      console.log('👥 Online users:', onlineList.length);
+      
+      // Filter out current user
+      const filteredList = onlineList.filter(user => 
+        !address || user.address !== address.toLowerCase()
+      );
+      
+      setOnlineUsers(filteredList);
+    };
+
+    // Initial load
+    updateOnlineList();
+
+    // Update every 5 seconds
+    const interval = setInterval(updateOnlineList, 5000);
+
+    return () => clearInterval(interval);
+  }, [address]);
+
+  // Load all registered users from smart contract (fallback)
   useEffect(() => {
     const loadUsers = async () => {
       console.log('📊 Loading all registered users from blockchain...');
@@ -72,7 +97,7 @@ function OnlineUsers() {
 
       setAllUsers(userAddresses.map(addr => ({
         address: addr,
-        isOnline: true, // Show all as online
+        isOnline: false,
         lastSeen: Date.now()
       })));
     };
@@ -103,7 +128,7 @@ function OnlineUsers() {
   });
 
   // Component to display user with online status
-  const OnlineUserItem = ({ userAddress }) => {
+  const OnlineUserItem = ({ userAddress, trackedUsername }) => {
     const { data: userProfile } = useReadContract({
       address: contractData.address,
       abi: contractData.abi,
@@ -128,7 +153,8 @@ function OnlineUsers() {
     // Guard against undefined userAddress - after hooks
     if (!userAddress) return null;
 
-    const username = userProfile?.displayName || formatAddress(userAddress);
+    // Use tracked username if available, otherwise use profile or address
+    const username = trackedUsername || userProfile?.displayName || formatAddress(userAddress);
     const isCurrentUser = address && userAddress?.toLowerCase() === address?.toLowerCase();
 
     if (isCurrentUser) return null;
@@ -160,15 +186,19 @@ function OnlineUsers() {
     <div className="online-users-section">
       <h3 className="online-users-title">
         <Users size={20} />
-        Online Users ({allUsers.length})
+        Online Users ({onlineUsers.length})
       </h3>
       <div className="online-users-list">
-        {allUsers.length > 0 ? (
-          allUsers.map((user) => (
-            <OnlineUserItem key={user.address} userAddress={user.address} />
+        {onlineUsers.length > 0 ? (
+          onlineUsers.map((user) => (
+            <OnlineUserItem 
+              key={user.address} 
+              userAddress={user.address}
+              trackedUsername={user.username}
+            />
           ))
         ) : (
-          <p className="no-users">No other users yet. Invite your friends!</p>
+          <p className="no-users">No other users online. Invite your friends!</p>
         )}
       </div>
     </div>
