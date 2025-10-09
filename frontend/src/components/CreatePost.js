@@ -21,12 +21,17 @@ function CreatePost({ onPostCreated }) {
 
   // Trigger refresh when transaction is confirmed
   const [hasRefreshed, setHasRefreshed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   
   useEffect(() => {
     if (isConfirmed && hash && !hasRefreshed) {
       console.log('✅ Post confirmed on blockchain!');
-      console.log('🔄 Refreshing feed in 2 seconds...');
+      console.log('Transaction hash:', hash);
       setHasRefreshed(true);
+      setShowSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
       
       // Wait for blockchain to propagate
       setTimeout(() => {
@@ -47,6 +52,7 @@ function CreatePost({ onPostCreated }) {
     // Reset when hash changes (new transaction)
     if (!hash) {
       setHasRefreshed(false);
+      setShowSuccess(false);
     }
   }, [isConfirmed, hash, hasRefreshed, onPostCreated]);
 
@@ -154,6 +160,12 @@ function CreatePost({ onPostCreated }) {
 
   return (
     <div className="create-post">
+      {showSuccess && (
+        <div className="success-banner">
+          ✅ Post created successfully! Refreshing feed...
+        </div>
+      )}
+      
       <div className="create-post-header">
         <h3>Share your thoughts</h3>
         <div className="hint-container">
