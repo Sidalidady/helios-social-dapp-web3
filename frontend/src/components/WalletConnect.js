@@ -180,6 +180,8 @@ function WalletConnect({ onClose }) {
       setConnectingWallet(walletName);
       setConnectionError(null);
       
+      console.log('🔌 Connecting to', walletName, '...');
+      
       // If on mobile and wallet not installed, open mobile app
       if (isMobile() && !available) {
         const deepLink = getMobileDeepLink(walletName);

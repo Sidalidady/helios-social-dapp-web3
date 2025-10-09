@@ -134,18 +134,56 @@ function AppContent() {
     enabled: !!address && isConnected,
   });
 
-
+  // Check if user has a profile when they connect
   useEffect(() => {
     const checkProfile = async () => {
-      if (isConnected && address && userProfile !== undefined && !hasCheckedProfile) {
-        console.log('🔍 Checking user profile for:', address);
-        console.log('📋 Profile data:', userProfile);
+      if (isConnected && address && !hasCheckedProfile && !isConnecting && !isReconnecting) {
+        console.log('🔍 Checking if user has profile...');
         
-        // Check if user has a profile (exists flag and username)
-        const hasProfile = userProfile && 
-                          userProfile.exists === true && 
-                          userProfile.displayName && 
-                          userProfile.displayName.length > 0;
+        // First, ensure user is on Helios Testnet
+        if (window.ethereum) {
+          try {
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            console.log('Current chain ID:', chainId);
+            
+            if (chainId !== '0xa410') { // 0xa410 = 42000 in hex
+              console.log('⚠️ Not on Helios Testnet, switching...');
+              
+              try {
+                // Try to switch
+                await window.ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: '0xa410' }],
+                });
+                console.log('✅ Switched to Helios Testnet');
+              } catch (switchError) {
+                // If network doesn't exist, add it
+                if (switchError.code === 4902) {
+                  console.log('Network not found, adding Helios Testnet...');
+                  await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                      chainId: '0xa410',
+                      chainName: 'Helios Testnet',
+                      nativeCurrency: {
+                        name: 'Helios',
+                        symbol: 'HLS',
+                        decimals: 18
+                      },
+                      rpcUrls: ['https://testnet1.helioschainlabs.org'],
+                      blockExplorerUrls: ['https://explorer.helioschainlabs.org']
+                    }]
+                  });
+                  console.log('✅ Helios Testnet added and switched!');
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error checking/switching network:', error);
+          }
+        }
+        
+        const hasProfile = userProfile?.exists && userProfile?.displayName?.length > 0;
         
         if (hasProfile) {
           // ✅ User has existing profile - auto login
@@ -182,9 +220,9 @@ function AppContent() {
           }, 3000);
         } else {
           // ❌ No profile - must create one first
-          console.log('⚠️ No profile found - showing registration');
+          console.log('⚠️ No profile found - MUST CREATE PROFILE');
           setShowWelcomeChoice(false);
-          setShowRegistration(true); // Force registration
+          setShowRegistration(true); // Force registration - NO SKIP!
         }
         
         setHasCheckedProfile(true);
