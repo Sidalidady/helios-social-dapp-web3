@@ -1,59 +1,63 @@
-// Real-time online user tracking using localStorage and timestamps
-// This allows users to see who's currently using the dApp
+// Real-time online user tracking using BLOCKCHAIN
+// True Web3 - works across all devices and tabs!
 
-const ONLINE_USERS_KEY = 'helios_online_users';
-const HEARTBEAT_INTERVAL = 30000; // 30 seconds
-const ONLINE_THRESHOLD = 60000; // 1 minute (user is offline if no heartbeat)
+import { writeContract, readContract } from 'wagmi/actions';
+import { config } from '../config/wagmi';
+import { contractData } from './contract';
+
+const HEARTBEAT_INTERVAL = 60000; // 60 seconds (1 minute)
+const ONLINE_THRESHOLD = 120000; // 2 minutes (matches smart contract)
 
 /**
- * Update current user's online status
+ * Update current user's online status on BLOCKCHAIN
  */
-export const updateOnlineStatus = (address, username) => {
+export const updateOnlineStatus = async (address, username) => {
   if (!address) return;
 
-  const onlineUsers = getOnlineUsers();
-  
-  // Update or add current user
-  onlineUsers[address.toLowerCase()] = {
-    address: address.toLowerCase(),
-    username: username || 'Anonymous',
-    lastSeen: Date.now(),
-    isOnline: true
-  };
-
-  // Save to localStorage
-  localStorage.setItem(ONLINE_USERS_KEY, JSON.stringify(onlineUsers));
-  
-  console.log('💚 Updated online status for:', username);
+  try {
+    // Update on blockchain
+    await writeContract(config, {
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'updateOnlineStatus',
+    });
+    
+    console.log('💚 Updated online status on blockchain for:', username);
+    return true;
+  } catch (error) {
+    console.error('Error updating online status:', error);
+    return false;
+  }
 };
 
 /**
- * Get all currently online users
+ * Get all currently online users from BLOCKCHAIN
  */
-export const getOnlineUsers = () => {
+export const getOnlineUsers = async () => {
   try {
-    const stored = localStorage.getItem(ONLINE_USERS_KEY);
-    const users = stored ? JSON.parse(stored) : {};
-    
-    // Clean up offline users
-    const now = Date.now();
-    const activeUsers = {};
-    
-    Object.keys(users).forEach(address => {
-      const user = users[address];
-      const timeSinceLastSeen = now - user.lastSeen;
-      
-      if (timeSinceLastSeen < ONLINE_THRESHOLD) {
-        activeUsers[address] = {
-          ...user,
-          isOnline: true
-        };
-      }
+    const result = await readContract(config, {
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'getOnlineUsers',
     });
     
-    return activeUsers;
+    const [addresses, usernames, lastSeenTimes] = result;
+    
+    // Convert to object format
+    const users = {};
+    for (let i = 0; i < addresses.length; i++) {
+      users[addresses[i].toLowerCase()] = {
+        address: addresses[i].toLowerCase(),
+        username: usernames[i],
+        lastSeen: Number(lastSeenTimes[i]) * 1000,
+        isOnline: true
+      };
+    }
+    
+    console.log('📥 Loaded', addresses.length, 'online users from blockchain');
+    return users;
   } catch (error) {
-    console.error('Error getting online users:', error);
+    console.error('Error getting online users from blockchain:', error);
     return {};
   }
 };
@@ -61,23 +65,17 @@ export const getOnlineUsers = () => {
 /**
  * Get count of online users
  */
-export const getOnlineUserCount = () => {
-  const users = getOnlineUsers();
+export const getOnlineUserCount = async () => {
+  const users = await getOnlineUsers();
   return Object.keys(users).length;
 };
 
 /**
- * Remove user from online list (when they disconnect)
+ * Remove user from online list (no-op for blockchain, handled automatically)
  */
 export const setUserOffline = (address) => {
-  if (!address) return;
-
-  const onlineUsers = getOnlineUsers();
-  delete onlineUsers[address.toLowerCase()];
-  
-  localStorage.setItem(ONLINE_USERS_KEY, JSON.stringify(onlineUsers));
-  
-  console.log('💔 User went offline:', address);
+  // Blockchain automatically marks users offline after 2 minutes
+  console.log('💔 User disconnected (will be marked offline automatically):', address);
 };
 
 /**
@@ -116,18 +114,30 @@ export const stopHeartbeat = (intervalId, address) => {
 /**
  * Get online users as array (sorted by most recent)
  */
-export const getOnlineUsersArray = () => {
-  const users = getOnlineUsers();
+export const getOnlineUsersArray = async () => {
+  const users = await getOnlineUsers();
   return Object.values(users).sort((a, b) => b.lastSeen - a.lastSeen);
 };
 
 /**
  * Check if specific user is online
  */
-export const isUserOnline = (address) => {
+export const isUserOnline = async (address) => {
   if (!address) return false;
-  const users = getOnlineUsers();
-  return !!users[address.toLowerCase()];
+  
+  try {
+    const result = await readContract(config, {
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'isUserOnline',
+      args: [address],
+    });
+    
+    return result;
+  } catch (error) {
+    console.error('Error checking if user is online:', error);
+    return false;
+  }
 };
 
 export default {

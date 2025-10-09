@@ -20,11 +20,11 @@ function OnlineUsers() {
     functionName: 'getAllPosts',
   });
 
-  // Update online users list every 5 seconds
+  // Update online users list every 10 seconds (from blockchain)
   useEffect(() => {
-    const updateOnlineList = () => {
-      const onlineList = getOnlineUsersArray();
-      console.log('👥 Online users:', onlineList.length);
+    const updateOnlineList = async () => {
+      const onlineList = await getOnlineUsersArray();
+      console.log('👥 Online users from blockchain:', onlineList.length);
       
       // Filter out current user
       const filteredList = onlineList.filter(user => 
@@ -37,8 +37,8 @@ function OnlineUsers() {
     // Initial load
     updateOnlineList();
 
-    // Update every 5 seconds
-    const interval = setInterval(updateOnlineList, 5000);
+    // Update every 10 seconds (blockchain read is free)
+    const interval = setInterval(updateOnlineList, 10000);
 
     return () => clearInterval(interval);
   }, [address]);

@@ -26,6 +26,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         uint256 postCount;
         uint256 followerCount;
         uint256 followingCount;
+        uint256 lastSeen;        // Timestamp of last activity
         bool exists;
     }
     
@@ -155,6 +156,15 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         address indexed user,
         uint256 notificationId
     );
+    
+    event UserOnline(
+        address indexed user,
+        string displayName,
+        uint256 timestamp
+    );
+    
+    // Online status tracking
+    uint256 public constant ONLINE_THRESHOLD = 2 minutes; // User is online if active within 2 minutes
     
     // Comment storage
     struct Comment {
@@ -321,12 +331,15 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         
         if (!userProfiles[msg.sender].exists) {
             userProfiles[msg.sender].exists = true;
+            userProfiles[msg.sender].lastSeen = block.timestamp; // Set initial online status
         }
         
         userProfiles[msg.sender].displayName = _displayName;
         userProfiles[msg.sender].profileIpfsHash = _profileIpfsHash;
+        userProfiles[msg.sender].lastSeen = block.timestamp; // Update online status
         
         emit ProfileUpdated(msg.sender, _displayName, _profileIpfsHash);
+        emit UserOnline(msg.sender, _displayName, block.timestamp);
     }
     
     /**
@@ -746,6 +759,70 @@ contract SocialFeed is Ownable, ReentrancyGuard {
      */
     function getUserProfile(address _user) external view returns (UserProfile memory) {
         return userProfiles[_user];
+    }
+    
+    /**
+     * @dev Update user's last seen timestamp (heartbeat)
+     * Gas-optimized: Only updates timestamp, no other data
+     */
+    function updateOnlineStatus() external {
+        require(userProfiles[msg.sender].exists, "Profile does not exist");
+        
+        userProfiles[msg.sender].lastSeen = block.timestamp;
+        
+        emit UserOnline(msg.sender, userProfiles[msg.sender].displayName, block.timestamp);
+    }
+    
+    /**
+     * @dev Check if user is currently online
+     */
+    function isUserOnline(address _user) external view returns (bool) {
+        if (!userProfiles[_user].exists) return false;
+        
+        return (block.timestamp - userProfiles[_user].lastSeen) <= ONLINE_THRESHOLD;
+    }
+    
+    /**
+     * @dev Get all online users (users active within threshold)
+     * Returns arrays of addresses and usernames
+     */
+    function getOnlineUsers() external view returns (address[] memory, string[] memory, uint256[] memory) {
+        // First pass: count online users
+        uint256 onlineCount = 0;
+        
+        for (uint256 i = 0; i < postIds.length; i++) {
+            address author = posts[postIds[i]].author;
+            
+            if (userProfiles[author].exists && 
+                (block.timestamp - userProfiles[author].lastSeen) <= ONLINE_THRESHOLD) {
+                onlineCount++;
+            }
+        }
+        
+        // Second pass: collect online users
+        address[] memory addresses = new address[](onlineCount);
+        string[] memory usernames = new string[](onlineCount);
+        uint256[] memory lastSeenTimes = new uint256[](onlineCount);
+        uint256 index = 0;
+        
+        // Track already added users to avoid duplicates
+        mapping(address => bool) storage addedUsers;
+        
+        for (uint256 i = 0; i < postIds.length; i++) {
+            address author = posts[postIds[i]].author;
+            
+            if (userProfiles[author].exists && 
+                (block.timestamp - userProfiles[author].lastSeen) <= ONLINE_THRESHOLD &&
+                index < onlineCount) {
+                
+                addresses[index] = author;
+                usernames[index] = userProfiles[author].displayName;
+                lastSeenTimes[index] = userProfiles[author].lastSeen;
+                index++;
+            }
+        }
+        
+        return (addresses, usernames, lastSeenTimes);
     }
     
     /**
