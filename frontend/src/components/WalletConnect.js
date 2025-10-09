@@ -105,6 +105,65 @@ function WalletConnect({ onClose }) {
     return deepLinks[walletName];
   };
 
+  // Add Helios Testnet to wallet
+  const addHeliosNetwork = async () => {
+    try {
+      console.log('🌐 Adding Helios Testnet to wallet...');
+      
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0xA410', // 42000 in hex
+          chainName: 'Helios Testnet',
+          nativeCurrency: {
+            name: 'Helios',
+            symbol: 'HLS',
+            decimals: 18
+          },
+          rpcUrls: ['https://testnet1.helioschainlabs.org'],
+          blockExplorerUrls: ['https://explorer.helioschainlabs.org']
+        }]
+      });
+      
+      console.log('✅ Helios Testnet added successfully!');
+      return true;
+    } catch (error) {
+      console.error('❌ Error adding Helios network:', error);
+      
+      // If user rejected, that's okay
+      if (error.code === 4001) {
+        console.log('User rejected network addition');
+      }
+      
+      return false;
+    }
+  };
+
+  // Switch to Helios Testnet
+  const switchToHeliosNetwork = async () => {
+    try {
+      console.log('🔄 Switching to Helios Testnet...');
+      
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0xA410' }], // 42000 in hex
+      });
+      
+      console.log('✅ Switched to Helios Testnet!');
+      return true;
+    } catch (error) {
+      console.error('❌ Error switching network:', error);
+      
+      // If network doesn't exist, add it
+      if (error.code === 4902) {
+        console.log('Network not found, adding it...');
+        return await addHeliosNetwork();
+      }
+      
+      return false;
+    }
+  };
+
   const handleConnect = async (connector) => {
     try {
       const walletName = getWalletName(connector);
@@ -164,6 +223,19 @@ function WalletConnect({ onClose }) {
       
       // Desktop or wallet is available - proceed with normal connection
       await connect({ connector });
+      
+      // After successful connection, automatically add and switch to Helios network
+      if (window.ethereum) {
+        console.log('🌐 Checking network...');
+        
+        // Wait a bit for connection to complete
+        setTimeout(async () => {
+          const switched = await switchToHeliosNetwork();
+          if (switched) {
+            console.log('✅ Successfully connected to Helios Testnet!');
+          }
+        }, 1000);
+      }
       
       // Connection successful - modal will auto-close via useEffect
     } catch (error) {
