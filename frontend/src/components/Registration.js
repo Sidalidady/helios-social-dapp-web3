@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { User, Upload, Loader2, X, CheckCircle, XCircle, Camera, AlertCircle } from 'lucide-react';
 import { uploadToIPFS } from '../utils/ipfs';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './Registration.css';
 
 function Registration({ onComplete, onSkip, isFirstTime = false }) {

@@ -19,7 +19,7 @@ import OnlineUsers from './components/OnlineUsers';
 import SunLogo from './components/SunLogo';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import { getFromIPFS } from './utils/ipfs';
-import contractData from './contracts/SocialFeed.json';
+import { contractData } from './utils/contract';
 import './App.css';
 
 const queryClient = new QueryClient({
