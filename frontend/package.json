@@ -16,14 +16,15 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "viem": "^2.7.13",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.5.7",
+    "@react-native-async-storage/async-storage": "^1.23.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
-    "vercel-build": "npm install --legacy-peer-deps && react-scripts build"
+    "vercel-build": "npm install --legacy-peer-deps && craco build"
   },
   "eslintConfig": {
     "extends": [
@@ -43,6 +44,16 @@
     ]
   },
   "devDependencies": {
-    "react-refresh": "^0.18.0"
+    "react-refresh": "^0.18.0",
+    "@craco/craco": "^7.1.0",
+    "assert": "^2.1.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.3"
   }
 }
