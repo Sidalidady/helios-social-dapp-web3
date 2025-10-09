@@ -11,45 +11,66 @@ function OnlineUsers() {
   const { address } = useAccount();
   const [allUsers, setAllUsers] = useState([]);
 
-  // Watch for profile creation events to track users
+  // Get all posts to extract unique users
+  const { data: allPosts, refetch: refetchPosts } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getAllPosts',
+  });
+
+  // Load all users from posts
+  useEffect(() => {
+    const loadUsers = async () => {
+      if (!allPosts || allPosts.length === 0) return;
+
+      console.log('📊 Loading users from posts...');
+      const uniqueAddresses = new Set();
+
+      // Extract unique user addresses from posts
+      allPosts.forEach(post => {
+        if (post && post.author) {
+          uniqueAddresses.add(post.author.toLowerCase());
+        }
+      });
+
+      console.log('👥 Found unique users:', uniqueAddresses.size);
+
+      // Convert to array and filter out current user
+      const userAddresses = Array.from(uniqueAddresses).filter(addr => 
+        !address || addr !== address.toLowerCase()
+      );
+
+      setAllUsers(userAddresses.map(addr => ({
+        address: addr,
+        isOnline: true, // Show all as online
+        lastSeen: Date.now()
+      })));
+    };
+
+    loadUsers();
+  }, [allPosts, address]);
+
+  // Watch for new profile creation events
   useWatchContractEvent({
     address: contractData.address,
     abi: contractData.abi,
     eventName: 'ProfileCreated',
     onLogs: (logs) => {
-      logs.forEach((log) => {
-        const userAddress = log.args.user;
-        if (!allUsers.find(u => u.address === userAddress)) {
-          fetchUserProfile(userAddress);
-        }
-      });
+      console.log('🆕 New profile created, refreshing users...');
+      refetchPosts();
     }
   });
 
-  // Fetch user profile
-  const fetchUserProfile = async (userAddress) => {
-    try {
-      setAllUsers(prev => [...prev, {
-        address: userAddress,
-        isOnline: Math.random() > 0.5,
-        lastSeen: Date.now()
-      }]);
-    } catch (error) {
-      console.error('Error fetching user:', error);
+  // Watch for new posts to update user list
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'PostCreated',
+    onLogs: (logs) => {
+      console.log('📝 New post created, refreshing users...');
+      refetchPosts();
     }
-  };
-
-  // Update online status periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAllUsers(prev => prev.map(user => ({
-        ...user,
-        isOnline: Math.random() > 0.3
-      })));
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
+  });
 
   // Component to display user with online status
   const OnlineUserItem = ({ userAddress }) => {
@@ -109,15 +130,15 @@ function OnlineUsers() {
     <div className="online-users-section">
       <h3 className="online-users-title">
         <Users size={20} />
-        Online Users
+        Online Users ({allUsers.length})
       </h3>
       <div className="online-users-list">
         {allUsers.length > 0 ? (
-          allUsers.slice(0, 5).map((user) => (
+          allUsers.map((user) => (
             <OnlineUserItem key={user.address} userAddress={user.address} />
           ))
         ) : (
-          <p className="no-users">No other users online</p>
+          <p className="no-users">No other users yet. Invite your friends!</p>
         )}
       </div>
     </div>
