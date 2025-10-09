@@ -3,7 +3,16 @@
  * Using public IPFS gateways for MVP (no API keys needed)
  */
 
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY || 'https://ipfs.io/ipfs/';
+// Multiple IPFS gateways for fallback (CORS-friendly)
+const IPFS_GATEWAYS = [
+  'https://ipfs.io/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://gateway.ipfs.io/ipfs/',
+  'https://dweb.link/ipfs/',
+  process.env.REACT_APP_IPFS_GATEWAY || 'https://ipfs.io/ipfs/',
+].filter((v, i, a) => a.indexOf(v) === i); // Remove duplicates
+
+const IPFS_GATEWAY = IPFS_GATEWAYS[0];
 
 /**
  * Upload content to IPFS via public gateway
@@ -98,7 +107,7 @@ export async function uploadToIPFS(content) {
 }
 
 /**
- * Retrieve content from IPFS
+ * Retrieve content from IPFS with multiple gateway fallback
  */
 export async function getFromIPFS(hash) {
   try {
@@ -115,31 +124,54 @@ export async function getFromIPFS(hash) {
       }
     }
 
-    // If not in localStorage, try to fetch from IPFS gateway
-    console.log('🌐 Attempting to fetch from IPFS gateway...');
-    const response = await fetch(`${IPFS_GATEWAY}${hash}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    }).catch((err) => {
-      console.warn('IPFS gateway fetch failed:', err.message);
-      return null;
-    });
+    // Try multiple IPFS gateways
+    console.log('🌐 Attempting to fetch from IPFS gateways...');
+    
+    for (let i = 0; i < IPFS_GATEWAYS.length; i++) {
+      const gateway = IPFS_GATEWAYS[i];
+      console.log(`Trying gateway ${i + 1}/${IPFS_GATEWAYS.length}: ${gateway}`);
+      
+      try {
+        const response = await fetch(`${gateway}${hash}`, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Accept': 'application/json, text/plain, */*',
+          },
+          signal: AbortSignal.timeout(10000), // 10 second timeout
+        });
 
-    if (response && response.ok) {
-      const data = await response.json();
-      console.log('✅ Content loaded from IPFS gateway');
-      // Cache it locally for future use
-      localStorage.setItem(`ipfs_${hash}`, JSON.stringify(data));
-      return data;
+        if (response.ok) {
+          const contentType = response.headers.get('content-type');
+          let data;
+          
+          if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+          } else {
+            const text = await response.text();
+            try {
+              data = JSON.parse(text);
+            } catch {
+              data = { content: text };
+            }
+          }
+          
+          console.log(`✅ Content loaded from gateway: ${gateway}`);
+          // Cache it locally for future use
+          localStorage.setItem(`ipfs_${hash}`, JSON.stringify(data));
+          return data;
+        }
+      } catch (err) {
+        console.warn(`Gateway ${gateway} failed:`, err.message);
+        // Continue to next gateway
+      }
     }
 
-    // If not found anywhere, return a placeholder
-    console.error('❌ Content not found for hash:', hash);
+    // If all gateways fail, return placeholder
+    console.error('❌ Content not found on any gateway for hash:', hash);
     console.log('Available hashes:', localStorage.getItem('ipfs_hashes'));
     return {
-      content: '[Content not available - Please refresh the page]',
+      content: '[Content not available - IPFS gateways unreachable]',
       timestamp: Date.now(),
       version: '1.0'
     };
