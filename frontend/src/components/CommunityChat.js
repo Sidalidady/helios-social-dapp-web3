@@ -3,7 +3,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { MessageCircle, Send, X, User, Loader2 } from 'lucide-react';
 import { uploadToIPFS, getFromIPFS } from '../utils/ipfs';
 import { formatTimestamp } from '../utils/formatters';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './CommunityChat.css';
 
 function CommunityChat() {

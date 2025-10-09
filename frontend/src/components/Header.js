@@ -8,7 +8,7 @@ import Profile from './Profile';
 import Notifications, { getUnreadCount } from './Notifications';
 import SearchResults from './SearchResults';
 import SunLogo from './SunLogo';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import { config } from '../config/wagmi';
 import './Header.css';
 

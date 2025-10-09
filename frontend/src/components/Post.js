@@ -4,7 +4,7 @@ import { Heart, User, Loader2, Trash2 } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress, formatTimestamp } from '../utils/formatters';
 import { addNotification } from './Notifications';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import Comments from './Comments';
 import './Post.css';
 

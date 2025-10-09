@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { HelpCircle, Send, Loader2, Image, X } from 'lucide-react';
 import { uploadToIPFS } from '../utils/ipfs';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './CreatePost.css';
 
 function CreatePost({ onPostCreated }) {

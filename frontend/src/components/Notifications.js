@@ -3,7 +3,7 @@ import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { X, User, FileText, Heart, MessageCircle, AtSign, Bell } from 'lucide-react';
 import { formatTimestamp } from '../utils/formatters';
 import { getFromIPFS } from '../utils/ipfs';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './Notifications.css';
 
 function Notifications({ isOpen, onClose }) {

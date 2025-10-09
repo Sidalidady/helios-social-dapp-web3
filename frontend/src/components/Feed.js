@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { Loader2, RefreshCw, X } from 'lucide-react';
 import Post from './Post';
 import { getFromIPFS } from '../utils/ipfs';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './Feed.css';
 
 function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
 import { X, User, FileText } from 'lucide-react';
 import { formatTimestamp, formatAddress } from '../utils/formatters';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './SearchResults.css';
 
 function SearchResults({ isOpen, onClose, results, searchQuery }) {

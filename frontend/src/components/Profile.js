@@ -3,7 +3,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadCont
 import { User, Upload, Loader2, Save, X, Wallet } from 'lucide-react';
 import { uploadToIPFS } from '../utils/ipfs';
 import { formatAddress } from '../utils/formatters';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './Profile.css';
 
 function Profile({ onClose }) {

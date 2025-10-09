@@ -4,7 +4,7 @@ import { Users, User } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress } from '../utils/formatters';
 import FollowButton from './FollowButton';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './OnlineUsers.css';
 
 function OnlineUsers() {

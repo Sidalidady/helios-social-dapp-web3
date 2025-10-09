@@ -4,7 +4,7 @@ import { MessageCircle, Send, User, Loader2, Trash2, Edit2, X, Check, Heart, Cor
 import { uploadToIPFS, getFromIPFS } from '../utils/ipfs';
 import { formatTimestamp } from '../utils/formatters';
 import { addNotification } from './Notifications';
-import contractData from '../contracts/SocialFeed.json';
+import { contractData } from '../utils/contract';
 import './Comments.css';
 function Comments({ postId, postAuthor }) {
   const [comments, setComments] = useState([]);
