@@ -139,6 +139,7 @@ function AppContent() {
     const checkProfile = async () => {
       if (isConnected && address && !hasCheckedProfile && !isConnecting && !isReconnecting) {
         console.log('🔍 Checking if user has profile...');
+        console.log('Address:', address);
         
         // First, ensure user is on Helios Testnet
         if (window.ethereum) {
@@ -183,7 +184,16 @@ function AppContent() {
           }
         }
         
+        // Wait a bit for profile data to load
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Refetch profile to ensure we have latest data
+        await refetchProfile();
+        
+        console.log('Profile data:', userProfile);
+        
         const hasProfile = userProfile?.exists && userProfile?.displayName?.length > 0;
+        console.log('Has profile?', hasProfile);
         
         if (hasProfile) {
           // ✅ User has existing profile - auto login
@@ -661,8 +671,8 @@ function AppContent() {
         <Registration 
           address={address}
           onComplete={handleRegistrationComplete}
-          onSkip={handleSkipRegistration}
-          isFirstTime={!hasCheckedProfile || (userProfile && !userProfile.exists)}
+          onSkip={null}
+          isFirstTime={true}
         />
       )}
 
