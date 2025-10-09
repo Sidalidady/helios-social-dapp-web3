@@ -125,6 +125,20 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         string displayName
     );
     
+    // Notification storage
+    struct Notification {
+        uint256 id;
+        address recipient;
+        address sender;
+        string notificationType;
+        uint256 relatedId;
+        uint256 timestamp;
+        bool read;
+    }
+    
+    mapping(address => Notification[]) public userNotifications;
+    uint256 private notificationCounter;
+    
     // Notification event for frontend
     event NotificationCreated(
         address indexed recipient,
@@ -132,6 +146,11 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         string notificationType,
         uint256 relatedId,
         uint256 timestamp
+    );
+    
+    event NotificationRead(
+        address indexed user,
+        uint256 notificationId
     );
     
     // Comment storage
@@ -194,14 +213,13 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         
         emit PostLiked(_postId, msg.sender, posts[_postId].likes);
         
-        // Emit notification for post author (don't notify yourself)
+        // Create notification for post author (don't notify yourself)
         if (posts[_postId].author != msg.sender) {
-            emit NotificationCreated(
+            _createNotification(
                 posts[_postId].author,
                 msg.sender,
                 "like",
-                _postId,
-                block.timestamp
+                _postId
             );
         }
     }
@@ -243,13 +261,12 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         
         emit UserFollowed(msg.sender, _userToFollow);
         
-        // Emit notification for the user being followed
-        emit NotificationCreated(
+        // Create notification for the user being followed
+        _createNotification(
             _userToFollow,
             msg.sender,
             "follow",
-            0,
-            block.timestamp
+            0
         );
     }
     
@@ -377,14 +394,13 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         
         emit CommentAdded(_postId, msg.sender, _ipfsHash, block.timestamp);
         
-        // Emit notification for post author (don't notify yourself)
+        // Create notification for post author (don't notify yourself)
         if (posts[_postId].author != msg.sender) {
-            emit NotificationCreated(
+            _createNotification(
                 posts[_postId].author,
                 msg.sender,
                 "comment",
-                _postId,
-                block.timestamp
+                _postId
             );
         }
     }
@@ -433,14 +449,13 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         Comment[] storage comments = postComments[_postId];
         for (uint256 i = 0; i < comments.length; i++) {
             if (comments[i].id == _commentId && comments[i].isActive) {
-                // Emit notification for comment author (don't notify yourself)
+                // Create notification for comment author (don't notify yourself)
                 if (comments[i].commenter != msg.sender) {
-                    emit NotificationCreated(
+                    _createNotification(
                         comments[i].commenter,
                         msg.sender,
                         "comment_like",
-                        _postId,
-                        block.timestamp
+                        _postId
                     );
                 }
                 break;
@@ -612,6 +627,105 @@ contract SocialFeed is Ownable, ReentrancyGuard {
      */
     function hasLiked(uint256 _postId, address _user) external view returns (bool) {
         return postLikes[_postId][_user];
+    }
+    
+    /**
+     * @dev Internal function to create a notification
+     */
+    function _createNotification(
+        address _recipient,
+        address _sender,
+        string memory _notificationType,
+        uint256 _relatedId
+    ) internal {
+        notificationCounter++;
+        
+        Notification memory newNotification = Notification({
+            id: notificationCounter,
+            recipient: _recipient,
+            sender: _sender,
+            notificationType: _notificationType,
+            relatedId: _relatedId,
+            timestamp: block.timestamp,
+            read: false
+        });
+        
+        userNotifications[_recipient].push(newNotification);
+        
+        emit NotificationCreated(
+            _recipient,
+            _sender,
+            _notificationType,
+            _relatedId,
+            block.timestamp
+        );
+    }
+    
+    /**
+     * @dev Get all notifications for a user
+     */
+    function getUserNotifications(address _user) external view returns (Notification[] memory) {
+        return userNotifications[_user];
+    }
+    
+    /**
+     * @dev Get unread notification count
+     */
+    function getUnreadNotificationCount(address _user) external view returns (uint256) {
+        uint256 count = 0;
+        Notification[] memory notifications = userNotifications[_user];
+        
+        for (uint256 i = 0; i < notifications.length; i++) {
+            if (!notifications[i].read) {
+                count++;
+            }
+        }
+        
+        return count;
+    }
+    
+    /**
+     * @dev Mark notification as read
+     */
+    function markNotificationAsRead(uint256 _notificationIndex) external {
+        require(_notificationIndex < userNotifications[msg.sender].length, "Invalid notification index");
+        
+        userNotifications[msg.sender][_notificationIndex].read = true;
+        
+        emit NotificationRead(msg.sender, userNotifications[msg.sender][_notificationIndex].id);
+    }
+    
+    /**
+     * @dev Mark all notifications as read
+     */
+    function markAllNotificationsAsRead() external {
+        Notification[] storage notifications = userNotifications[msg.sender];
+        
+        for (uint256 i = 0; i < notifications.length; i++) {
+            notifications[i].read = true;
+        }
+    }
+    
+    /**
+     * @dev Clear old notifications (keep last N)
+     */
+    function clearOldNotifications(uint256 _keepCount) external {
+        Notification[] storage notifications = userNotifications[msg.sender];
+        
+        if (notifications.length <= _keepCount) {
+            return;
+        }
+        
+        uint256 deleteCount = notifications.length - _keepCount;
+        
+        // Remove old notifications from the beginning
+        for (uint256 i = 0; i < deleteCount; i++) {
+            // Shift all elements left
+            for (uint256 j = 0; j < notifications.length - 1; j++) {
+                notifications[j] = notifications[j + 1];
+            }
+            notifications.pop();
+        }
     }
     
     /**

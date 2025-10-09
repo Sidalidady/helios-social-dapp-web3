@@ -16,38 +16,77 @@ function Notifications({ isOpen, onClose }) {
     }
   }, [isOpen, address]);
 
+  // Read notifications from blockchain
+  const { data: blockchainNotifications, refetch: refetchNotifications } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getUserNotifications',
+    args: [address],
+    enabled: !!address,
+  });
+
   const loadNotifications = () => {
-    // Load notifications from localStorage
-    console.log('Loading notifications for address:', address);
-    const stored = localStorage.getItem(`notifications_${address}`);
-    console.log('Stored notifications:', stored);
+    // Load notifications from blockchain
+    console.log('📥 Loading notifications from blockchain for:', address);
     
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        console.log('Parsed notifications:', parsed);
-        setNotifications(parsed);
-      } catch (error) {
-        console.error('Error loading notifications:', error);
-        setNotifications([]);
-      }
+    if (blockchainNotifications && blockchainNotifications.length > 0) {
+      console.log('✅ Loaded', blockchainNotifications.length, 'notifications from blockchain');
+      
+      // Convert blockchain data to frontend format
+      const formattedNotifications = blockchainNotifications.map(notif => ({
+        id: Number(notif.id),
+        type: notif.notificationType,
+        from: notif.sender,
+        message: getNotificationMessage(notif.notificationType),
+        postId: notif.relatedId.toString(),
+        timestamp: Number(notif.timestamp) * 1000,
+        read: notif.read
+      })).reverse(); // Reverse to show newest first
+      
+      setNotifications(formattedNotifications);
     } else {
-      console.log('No notifications found in localStorage');
+      console.log('📭 No notifications found on blockchain');
       setNotifications([]);
     }
   };
 
-  const clearNotifications = () => {
-    localStorage.removeItem(`notifications_${address}`);
-    setNotifications([]);
+  const clearNotifications = async () => {
+    // Clear notifications on blockchain (keep last 50)
+    try {
+      const { writeContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      
+      await writeContract(config, {
+        address: contractData.address,
+        abi: contractData.abi,
+        functionName: 'clearOldNotifications',
+        args: [50],
+      });
+      
+      console.log('🗑️ Cleared old notifications on blockchain');
+      refetchNotifications();
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+    }
   };
 
-  const markAsRead = (notificationId) => {
-    const updated = notifications.map(n => 
-      n.id === notificationId ? { ...n, read: true } : n
-    );
-    setNotifications(updated);
-    localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
+  const markAsRead = async (notificationIndex) => {
+    try {
+      const { writeContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      
+      await writeContract(config, {
+        address: contractData.address,
+        abi: contractData.abi,
+        functionName: 'markNotificationAsRead',
+        args: [notificationIndex],
+      });
+      
+      console.log('✅ Marked notification as read on blockchain');
+      refetchNotifications();
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
   };
 
   // Get user's profile
@@ -75,10 +114,6 @@ function Notifications({ isOpen, onClose }) {
       for (const log of logs) {
         try {
           const recipient = log.args.recipient;
-          const sender = log.args.sender;
-          const notificationType = log.args.notificationType;
-          const relatedId = log.args.relatedId;
-          const timestamp = log.args.timestamp;
 
           // Only process if notification is for current user
           if (recipient.toLowerCase() !== address.toLowerCase()) {
@@ -86,28 +121,11 @@ function Notifications({ isOpen, onClose }) {
             continue;
           }
 
-          console.log('✅ Processing notification:', { type: notificationType, from: sender });
-
-          const notification = {
-            id: Date.now() + Math.random(),
-            type: notificationType,
-            from: sender,
-            message: getNotificationMessage(notificationType),
-            postId: relatedId.toString(),
-            timestamp: Number(timestamp) * 1000,
-            read: false
-          };
-
-          // Save directly to localStorage
-          const stored = localStorage.getItem(`notifications_${address}`);
-          const existing = stored ? JSON.parse(stored) : [];
-          const updated = [notification, ...existing].slice(0, 50);
-          localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
+          console.log('✅ New notification! Refetching from blockchain...');
           
-          console.log('💾 Notification saved to localStorage');
+          // Refetch notifications from blockchain
+          refetchNotifications();
           
-          // Update state
-          setNotifications(updated);
         } catch (error) {
           console.error('❌ Error processing notification:', error);
         }
