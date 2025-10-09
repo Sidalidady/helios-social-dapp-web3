@@ -5,7 +5,7 @@ import { uploadToIPFS } from '../utils/ipfs';
 import contractData from '../contracts/SocialFeed.json';
 import './Registration.css';
 
-function Registration({ onComplete, onSkip }) {
+function Registration({ onComplete, onSkip, isFirstTime = false }) {
   const [username, setUsername] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -180,10 +180,18 @@ function Registration({ onComplete, onSkip }) {
           <div className="registration-icon">
             <User size={32} />
           </div>
-          <h2>Welcome to Helios Social</h2>
+          <h2>{isFirstTime ? 'Create Your Profile' : 'Welcome to Helios Social'}</h2>
           <p className="registration-subtitle">
-            Create your account to get started
+            {isFirstTime 
+              ? '✨ Complete your profile to start using the DApp' 
+              : 'Create your account to get started'}
           </p>
+          {isFirstTime && (
+            <div className="first-time-notice">
+              <AlertCircle size={16} />
+              <span>Profile creation is required to use the platform</span>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="registration-form">
@@ -282,7 +290,7 @@ function Registration({ onComplete, onSkip }) {
                 </>
               )}
             </button>
-            {onSkip && (
+            {onSkip && !isFirstTime && (
               <button
                 type="button"
                 onClick={onSkip}

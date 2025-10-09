@@ -107,16 +107,21 @@ function AppContent() {
   useEffect(() => {
     const checkProfile = async () => {
       if (isConnected && address && userProfile !== undefined && !hasCheckedProfile) {
-        console.log('Checking user profile:', userProfile);
-        // Check if user has a username set
-        const hasUsername = userProfile && userProfile.displayName && userProfile.displayName.length > 0;
+        console.log('🔍 Checking user profile for:', address);
+        console.log('📋 Profile data:', userProfile);
         
-        if (hasUsername) {
-          // User has account - auto login and show welcome message
+        // Check if user has a profile (exists flag and username)
+        const hasProfile = userProfile && 
+                          userProfile.exists === true && 
+                          userProfile.displayName && 
+                          userProfile.displayName.length > 0;
+        
+        if (hasProfile) {
+          // ✅ User has existing profile - auto login
           const username = userProfile.displayName;
           const ipfsHash = userProfile.profileIpfsHash;
           
-          console.log('User has profile:', username);
+          console.log('✅ Existing profile found:', username);
           setWelcomeUsername(username);
           
           // Load profile image if available
@@ -131,12 +136,18 @@ function AppContent() {
             }
           }
           
-          // Show login success animation
+          // Show welcome back animation
           setShowLoginSuccess(true);
+          
+          // Auto-hide after 3 seconds
+          setTimeout(() => {
+            setShowLoginSuccess(false);
+          }, 3000);
         } else {
-          // No username - always show welcome choice screen
-          console.log('No profile found, showing welcome choice');
-          setShowWelcomeChoice(true);
+          // ❌ No profile - must create one first
+          console.log('⚠️ No profile found - showing registration');
+          setShowWelcomeChoice(false);
+          setShowRegistration(true); // Force registration
         }
         
         setHasCheckedProfile(true);
@@ -567,6 +578,7 @@ function AppContent() {
           address={address}
           onComplete={handleRegistrationComplete}
           onSkip={handleSkipRegistration}
+          isFirstTime={!hasCheckedProfile || (userProfile && !userProfile.exists)}
         />
       )}
 
