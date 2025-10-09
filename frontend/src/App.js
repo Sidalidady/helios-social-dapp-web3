@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { WagmiProvider, useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { WagmiProvider, useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useWatchContractEvent } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TrendingUp, Users } from 'lucide-react';
 import { config } from './config/wagmi';
@@ -97,6 +97,31 @@ function AppContent() {
     abi: contractData.abi,
     functionName: 'getAllPosts',
     enabled: isConnected,
+  });
+
+  // Watch for ProfileUpdated events to track all registered users
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'ProfileUpdated',
+    onLogs: (logs) => {
+      logs.forEach((log) => {
+        const userAddress = log.args.user;
+        if (userAddress) {
+          // Get existing registered users
+          const stored = localStorage.getItem('all_registered_users');
+          const registeredUsers = stored ? JSON.parse(stored) : [];
+          
+          // Add new user if not already in list
+          if (!registeredUsers.includes(userAddress.toLowerCase())) {
+            registeredUsers.push(userAddress.toLowerCase());
+            localStorage.setItem('all_registered_users', JSON.stringify(registeredUsers));
+            console.log('👤 New user registered:', userAddress);
+            console.log('📋 Total registered users:', registeredUsers.length);
+          }
+        }
+      });
+    }
   });
 
   // Read user's profile

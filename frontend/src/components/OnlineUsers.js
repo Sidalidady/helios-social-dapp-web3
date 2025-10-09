@@ -18,22 +18,31 @@ function OnlineUsers() {
     functionName: 'getAllPosts',
   });
 
-  // Load all users from posts
+  // Load all registered users from localStorage and posts
   useEffect(() => {
     const loadUsers = async () => {
-      if (!allPosts || allPosts.length === 0) return;
-
-      console.log('📊 Loading users from posts...');
+      console.log('📊 Loading all registered users...');
       const uniqueAddresses = new Set();
 
-      // Extract unique user addresses from posts
-      allPosts.forEach(post => {
-        if (post && post.author) {
-          uniqueAddresses.add(post.author.toLowerCase());
-        }
+      // Get registered users from localStorage
+      const stored = localStorage.getItem('all_registered_users');
+      const registeredUsers = stored ? JSON.parse(stored) : [];
+      console.log('📋 Registered users from localStorage:', registeredUsers.length);
+      
+      registeredUsers.forEach(addr => {
+        uniqueAddresses.add(addr.toLowerCase());
       });
 
-      console.log('👥 Found unique users:', uniqueAddresses.size);
+      // Also add users from posts (fallback)
+      if (allPosts && allPosts.length > 0) {
+        allPosts.forEach(post => {
+          if (post && post.author) {
+            uniqueAddresses.add(post.author.toLowerCase());
+          }
+        });
+      }
+
+      console.log('👥 Total unique users:', uniqueAddresses.size);
 
       // Convert to array and filter out current user
       const userAddresses = Array.from(uniqueAddresses).filter(addr => 

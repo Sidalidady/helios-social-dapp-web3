@@ -282,33 +282,32 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       // Search through users by fetching all user profiles
       const foundUsers = [];
       
-      // Get unique authors from posts to search their profiles
-      const uniqueAuthors = [...new Set(allPosts?.map(post => post.author) || [])];
-      
       // Get all registered users from localStorage
       const registeredUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
       console.log('📋 Registered users from localStorage:', registeredUsers.length);
       
-      // ALWAYS add current connected user first
-      const allUserAddresses = address ? [address] : [];
+      // Get unique authors from posts
+      const uniqueAuthors = [...new Set(allPosts?.map(post => post.author) || [])];
       
-      // Then add authors from posts
-      uniqueAuthors.forEach(addr => {
-        if (!allUserAddresses.includes(addr)) {
-          allUserAddresses.push(addr);
-        }
-      });
+      // Combine all user addresses
+      const allUserAddresses = new Set();
       
-      // Then add registered users
-      registeredUsers.forEach(addr => {
-        if (!allUserAddresses.includes(addr)) {
-          allUserAddresses.push(addr);
-        }
-      });
+      // Add registered users first
+      registeredUsers.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
       
-      console.log('👥 Searching through', allUserAddresses.length, 'users...');
+      // Add authors from posts
+      uniqueAuthors.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
       
-      for (const authorAddress of allUserAddresses) {
+      // Add current user
+      if (address) allUserAddresses.add(address.toLowerCase());
+      
+      console.log('👥 Total users to search:', allUserAddresses.size);
+      
+      // Convert Set to Array for iteration
+      const userAddressArray = Array.from(allUserAddresses);
+      console.log('👥 Searching through', userAddressArray.length, 'users...');
+      
+      for (const authorAddress of userAddressArray) {
         try {
           console.log(`🔍 Checking user: ${authorAddress}`);
           
