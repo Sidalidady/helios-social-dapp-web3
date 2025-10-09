@@ -101,7 +101,18 @@ function CreatePost({ onPostCreated }) {
       }
       
       // Upload post data to IPFS
+      console.log('📤 Uploading post to IPFS...');
       const ipfsHash = await uploadToIPFS(JSON.stringify(postData));
+      console.log('✅ IPFS upload complete:', ipfsHash);
+
+      // Validate contract address
+      if (!contractData.address || contractData.address === '0x0000000000000000000000000000000000000000') {
+        throw new Error('Invalid contract address');
+      }
+
+      console.log('📝 Creating post on blockchain...');
+      console.log('Contract address:', contractData.address);
+      console.log('IPFS hash:', ipfsHash);
 
       // Create post on-chain
       writeContract({
@@ -109,39 +120,33 @@ function CreatePost({ onPostCreated }) {
         abi: contractData.abi,
         functionName: 'createPost',
         args: [ipfsHash],
-      }, {
-        onSuccess: (data) => {
-          console.log('✅ Post transaction sent! Hash:', data);
-          setContent('');
-          setPostImage(null);
-          setImagePreview('');
-          setIsUploading(false);
-        },
-        onError: (error) => {
-          console.error('❌ Transaction failed:', error);
-          console.error('Error details:', {
-            message: error.message,
-            cause: error.cause,
-            shortMessage: error.shortMessage
-          });
-          
-          let errorMessage = 'Failed to create post';
-          if (error.message.includes('insufficient funds')) {
-            errorMessage = 'Insufficient funds for gas fees';
-          } else if (error.message.includes('user rejected')) {
-            errorMessage = 'Transaction rejected by user';
-          } else if (error.shortMessage) {
-            errorMessage = error.shortMessage;
-          }
-          
-          alert(errorMessage);
-          setIsUploading(false);
-        }
       });
-    } catch (error) {
-      console.error('Error uploading to IPFS:', error);
+
+      // Clear form immediately after sending transaction
+      setContent('');
+      setPostImage(null);
+      setImagePreview('');
       setIsUploading(false);
-      alert('Failed to upload content. Please try again.');
+      
+    } catch (error) {
+      console.error('❌ Error creating post:', error);
+      console.error('Error details:', {
+        message: error.message,
+        cause: error.cause,
+        shortMessage: error.shortMessage
+      });
+      
+      let errorMessage = 'Failed to create post';
+      if (error.message && error.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas fees';
+      } else if (error.message && error.message.includes('user rejected')) {
+        errorMessage = 'Transaction rejected by user';
+      } else if (error.shortMessage) {
+        errorMessage = error.shortMessage;
+      }
+      
+      alert(errorMessage);
+      setIsUploading(false);
     }
   };
 
