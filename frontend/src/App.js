@@ -331,9 +331,19 @@ function AppContent() {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const handleRegistrationComplete = () => {
+  const handleRegistrationComplete = async () => {
+    console.log('🎉 Registration completed! Reloading profile...');
     setShowRegistration(false);
-    refetchProfile();
+    
+    // Reset the check flag so it re-checks the profile
+    setHasCheckedProfile(false);
+    
+    // Wait a bit for blockchain to update
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Refetch profile
+    await refetchProfile();
+    
     setRefreshTrigger(prev => prev + 1);
   };
 
