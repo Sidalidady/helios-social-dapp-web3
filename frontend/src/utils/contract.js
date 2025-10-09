@@ -8,11 +8,22 @@ import contractABI from '../contracts/SocialFeed.json';
 // Get contract address from environment variable with fallback
 const getContractAddress = () => {
   // Try multiple ways to get the address (runtime config, build-time env, fallback)
-  const address = (window.ENV_CONFIG && window.ENV_CONFIG.REACT_APP_CONTRACT_ADDRESS) ||
+  let address = (window.ENV_CONFIG && window.ENV_CONFIG.REACT_APP_CONTRACT_ADDRESS) ||
                   process.env.REACT_APP_CONTRACT_ADDRESS || 
                   '0x95D97F00b5979f3537E12c144E91E06658443377'; // Fallback to deployed address
   
-  if (!address || address === 'undefined') {
+  // Clean the address - remove any leading/trailing whitespace or special characters
+  if (address && typeof address === 'string') {
+    address = address.trim();
+    // Remove any leading = or other special characters
+    address = address.replace(/^[^0]/g, '');
+    // Ensure it starts with 0x
+    if (!address.startsWith('0x')) {
+      address = '0x' + address.replace(/^x/i, '');
+    }
+  }
+  
+  if (!address || address === 'undefined' || address === '0x') {
     console.error('❌ REACT_APP_CONTRACT_ADDRESS is not set!');
     console.error('Using fallback address: 0x95D97F00b5979f3537E12c144E91E06658443377');
     return '0x95D97F00b5979f3537E12c144E91E06658443377';
