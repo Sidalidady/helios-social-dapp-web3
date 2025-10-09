@@ -7,7 +7,7 @@ import Header from './components/Header';
 import LeftSidebar from './components/LeftSidebar';
 import CreatePost from './components/CreatePost';
 import Feed from './components/Feed';
-import Profile from './components/Profile';
+import Profile from './components/ProfileNew';
 import WalletConnect from './components/WalletConnect';
 import Sidebar from './components/Sidebar';
 import Registration from './components/Registration';

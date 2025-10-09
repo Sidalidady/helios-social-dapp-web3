@@ -120,6 +120,11 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         address indexed unliker
     );
     
+    event ProfileDeleted(
+        address indexed user,
+        string displayName
+    );
+    
     // Comment storage
     struct Comment {
         uint256 id;
@@ -562,5 +567,27 @@ contract SocialFeed is Ownable, ReentrancyGuard {
      */
     function getUserProfile(address _user) external view returns (UserProfile memory) {
         return userProfiles[_user];
+    }
+    
+    /**
+     * @dev Delete user profile
+     * Removes username and profile data but keeps posts
+     */
+    function deleteProfile() external {
+        require(userProfiles[msg.sender].exists, "Profile does not exist");
+        
+        string memory displayName = userProfiles[msg.sender].displayName;
+        string memory lowerUsername = _toLower(displayName);
+        
+        // Free up the username
+        usernameTaken[lowerUsername] = false;
+        delete usernameToAddress[lowerUsername];
+        
+        // Delete profile data but keep post/follower counts
+        userProfiles[msg.sender].displayName = "";
+        userProfiles[msg.sender].profileIpfsHash = "";
+        userProfiles[msg.sender].exists = false;
+        
+        emit ProfileDeleted(msg.sender, displayName);
     }
 }
