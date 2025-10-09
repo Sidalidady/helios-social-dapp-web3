@@ -787,39 +787,42 @@ contract SocialFeed is Ownable, ReentrancyGuard {
      * Returns arrays of addresses and usernames
      */
     function getOnlineUsers() external view returns (address[] memory, string[] memory, uint256[] memory) {
-        // First pass: count online users
+        // First pass: count unique online users
         uint256 onlineCount = 0;
+        address[] memory tempAddresses = new address[](postIds.length);
         
         for (uint256 i = 0; i < postIds.length; i++) {
             address author = posts[postIds[i]].author;
             
+            // Check if user is online and not already counted
             if (userProfiles[author].exists && 
                 (block.timestamp - userProfiles[author].lastSeen) <= ONLINE_THRESHOLD) {
-                onlineCount++;
+                
+                // Check if already added
+                bool alreadyAdded = false;
+                for (uint256 j = 0; j < onlineCount; j++) {
+                    if (tempAddresses[j] == author) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+                
+                if (!alreadyAdded) {
+                    tempAddresses[onlineCount] = author;
+                    onlineCount++;
+                }
             }
         }
         
-        // Second pass: collect online users
+        // Create final arrays with exact size
         address[] memory addresses = new address[](onlineCount);
         string[] memory usernames = new string[](onlineCount);
         uint256[] memory lastSeenTimes = new uint256[](onlineCount);
-        uint256 index = 0;
         
-        // Track already added users to avoid duplicates
-        mapping(address => bool) storage addedUsers;
-        
-        for (uint256 i = 0; i < postIds.length; i++) {
-            address author = posts[postIds[i]].author;
-            
-            if (userProfiles[author].exists && 
-                (block.timestamp - userProfiles[author].lastSeen) <= ONLINE_THRESHOLD &&
-                index < onlineCount) {
-                
-                addresses[index] = author;
-                usernames[index] = userProfiles[author].displayName;
-                lastSeenTimes[index] = userProfiles[author].lastSeen;
-                index++;
-            }
+        for (uint256 i = 0; i < onlineCount; i++) {
+            addresses[i] = tempAddresses[i];
+            usernames[i] = userProfiles[tempAddresses[i]].displayName;
+            lastSeenTimes[i] = userProfiles[tempAddresses[i]].lastSeen;
         }
         
         return (addresses, usernames, lastSeenTimes);
