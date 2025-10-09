@@ -70,11 +70,12 @@ function UserProfileModal({ userAddress, onClose }) {
     <div className="user-profile-modal-overlay" onClick={onClose}>
       <div className="user-profile-modal" onClick={(e) => e.stopPropagation()}>
         <button className="close-button" onClick={onClose}>
-          <X size={24} />
+          <X size={20} />
         </button>
 
-        {/* Profile Header */}
-        <div className="user-profile-header">
+        <div className="user-profile-modal-content">
+          {/* Profile Header */}
+          <div className="user-profile-header">
           <div className="user-profile-avatar">
             {profileImage ? (
               <img src={profileImage} alt={username} />
@@ -139,6 +140,7 @@ function UserProfileModal({ userAddress, onClose }) {
           ) : (
             <p className="no-posts">No posts yet</p>
           )}
+        </div>
         </div>
       </div>
     </div>
