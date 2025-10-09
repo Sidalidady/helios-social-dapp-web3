@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { Loader2, RefreshCw, X } from 'lucide-react';
 import Post from './Post';
 import { getFromIPFS } from '../utils/ipfs';
