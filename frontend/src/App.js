@@ -15,7 +15,7 @@ import Registration from './components/Registration';
 import WelcomeBack from './components/WelcomeBack';
 import WelcomeChoice from './components/WelcomeChoice';
 import LoginSuccess from './components/LoginSuccess';
-import OnlineUsers from './components/OnlineUsers';
+import AllUsers from './components/OnlineUsers';
 import SunLogo from './components/SunLogo';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import { getFromIPFS } from './utils/ipfs';
@@ -787,7 +787,7 @@ function AppContent() {
               Connect with active members of the community
             </p>
             <div className="communities-modal-content">
-              <OnlineUsers expanded={true} />
+              <AllUsers expanded={true} />
             </div>
           </div>
         </div>

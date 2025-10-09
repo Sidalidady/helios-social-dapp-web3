@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Home, TrendingUp, Users, User } from 'lucide-react';
 import { useAccount } from 'wagmi';
-import OnlineUsers from './OnlineUsers';
+import AllUsers from './OnlineUsers';
 import './LeftSidebar.css';
 
 function LeftSidebar({ activeTab, onTabChange, onProfileClick }) {
@@ -42,9 +42,9 @@ function LeftSidebar({ activeTab, onTabChange, onProfileClick }) {
         })}
       </nav>
       
-      {/* Online Users Section */}
+      {/* All Users Section */}
       <div className="left-sidebar-content">
-        <OnlineUsers />
+        <AllUsers />
       </div>
     </div>
   );

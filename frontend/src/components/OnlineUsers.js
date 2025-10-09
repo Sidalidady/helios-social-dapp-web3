@@ -5,13 +5,11 @@ import { getFromIPFS } from '../utils/ipfs';
 import { formatAddress } from '../utils/formatters';
 import FollowButton from './FollowButton';
 import { contractData } from '../utils/contract';
-import { getOnlineUsersArray } from '../utils/onlineTracker';
 import './OnlineUsers.css';
 
-function OnlineUsers() {
+function AllUsers() {
   const { address } = useAccount();
   const [allUsers, setAllUsers] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]);
 
   // Get all posts to extract unique users
   const { data: allPosts, refetch: refetchPosts } = useReadContract({
@@ -20,30 +18,7 @@ function OnlineUsers() {
     functionName: 'getAllPosts',
   });
 
-  // Update online users list every 10 seconds (from blockchain)
-  useEffect(() => {
-    const updateOnlineList = async () => {
-      const onlineList = await getOnlineUsersArray();
-      console.log('👥 Online users from blockchain:', onlineList.length);
-      
-      // Filter out current user
-      const filteredList = onlineList.filter(user => 
-        !address || user.address !== address.toLowerCase()
-      );
-      
-      setOnlineUsers(filteredList);
-    };
-
-    // Initial load
-    updateOnlineList();
-
-    // Update every 10 seconds (blockchain read is free)
-    const interval = setInterval(updateOnlineList, 10000);
-
-    return () => clearInterval(interval);
-  }, [address]);
-
-  // Load all registered users from smart contract (fallback)
+  // Load all registered users from smart contract
   useEffect(() => {
     const loadUsers = async () => {
       console.log('📊 Loading all registered users from blockchain...');
@@ -95,11 +70,7 @@ function OnlineUsers() {
         !address || addr !== address.toLowerCase()
       );
 
-      setAllUsers(userAddresses.map(addr => ({
-        address: addr,
-        isOnline: false,
-        lastSeen: Date.now()
-      })));
+      setAllUsers(userAddresses);
     };
 
     loadUsers();
@@ -127,8 +98,8 @@ function OnlineUsers() {
     }
   });
 
-  // Component to display user with online status
-  const OnlineUserItem = ({ userAddress, trackedUsername }) => {
+  // Component to display user
+  const UserItem = ({ userAddress }) => {
     const { data: userProfile } = useReadContract({
       address: contractData.address,
       abi: contractData.abi,
@@ -138,23 +109,23 @@ function OnlineUsers() {
     });
 
     const [profileImage, setProfileImage] = useState('');
-    const [isOnline, setIsOnline] = useState(true);
 
     useEffect(() => {
-      if (userProfile?.profileImageHash) {
+      if (userProfile?.profileIpfsHash) {
+        getFromIPFS(userProfile.profileIpfsHash).then(data => {
+          if (data?.image) setProfileImage(data.image);
+        });
+      } else if (userProfile?.profileImageHash) {
         getFromIPFS(userProfile.profileImageHash).then(data => {
           if (data?.image) setProfileImage(data.image);
         });
       }
-      
-      setIsOnline(Math.random() > 0.3);
     }, [userProfile]);
 
     // Guard against undefined userAddress - after hooks
     if (!userAddress) return null;
-
-    // Use tracked username if available, otherwise use profile or address
-    const username = trackedUsername || userProfile?.displayName || formatAddress(userAddress);
+    
+    const username = userProfile?.displayName || formatAddress(userAddress);
     const isCurrentUser = address && userAddress?.toLowerCase() === address?.toLowerCase();
 
     if (isCurrentUser) return null;
@@ -166,16 +137,12 @@ function OnlineUsers() {
             {profileImage ? (
               <img src={profileImage} alt={username} />
             ) : (
-              <User size={20} />
+              <User size={24} />
             )}
           </div>
-          <div className={`online-status ${isOnline ? 'online' : 'offline'}`} />
         </div>
         <div className="online-user-info">
-          <span className="online-user-name">{username}</span>
-          <span className={`online-user-status-text ${isOnline ? 'online' : 'offline'}`}>
-            {isOnline ? 'Online' : 'Offline'}
-          </span>
+          <div className="online-user-name">{username}</div>
         </div>
         <FollowButton targetAddress={userAddress} />
       </div>
@@ -186,23 +153,22 @@ function OnlineUsers() {
     <div className="online-users-section">
       <h3 className="online-users-title">
         <Users size={20} />
-        Online Users ({onlineUsers.length})
+        Users on dApp ({allUsers.length})
       </h3>
       <div className="online-users-list">
-        {onlineUsers.length > 0 ? (
-          onlineUsers.map((user) => (
-            <OnlineUserItem 
-              key={user.address} 
-              userAddress={user.address}
-              trackedUsername={user.username}
+        {allUsers.length > 0 ? (
+          allUsers.map((userAddr) => (
+            <UserItem 
+              key={userAddr} 
+              userAddress={userAddr}
             />
           ))
         ) : (
-          <p className="no-users">No other users online. Invite your friends!</p>
+          <p className="no-users">No other users yet. Invite your friends!</p>
         )}
       </div>
     </div>
   );
 }
 
-export default OnlineUsers;
+export default AllUsers;
