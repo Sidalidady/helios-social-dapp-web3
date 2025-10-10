@@ -103,19 +103,41 @@ function Sidebar({ onHashtagClick }) {
   const [allUsersForSuggestions, setAllUsersForSuggestions] = useState([]);
   const [allFollows, setAllFollows] = useState([]);
 
-  // Extract users from posts
+  // Extract users from posts and fetch their profiles
   useEffect(() => {
-    if (!postsData || !Array.isArray(postsData)) return;
+    const fetchUserProfiles = async () => {
+      if (!postsData || !Array.isArray(postsData)) return;
 
-    const uniqueAddresses = [...new Set(postsData.map(post => post.author))];
-    const users = uniqueAddresses.map(addr => ({
-      address: addr,
-      username: addr.slice(0, 6) + '...' + addr.slice(-4),
-      bio: '',
-      profileImage: null
-    }));
+      const uniqueAddresses = [...new Set(postsData.map(post => post.author))];
+      
+      // Fetch profiles for all unique users
+      const usersWithProfiles = await Promise.all(
+        uniqueAddresses.map(async (addr) => {
+          try {
+            // This would need to use readContract to fetch profile
+            // For now, return basic structure
+            return {
+              address: addr,
+              username: addr.slice(0, 6) + '...' + addr.slice(-4), // Fallback
+              bio: '',
+              profileImage: null
+            };
+          } catch (error) {
+            console.error('Error fetching user profile:', error);
+            return {
+              address: addr,
+              username: addr.slice(0, 6) + '...' + addr.slice(-4),
+              bio: '',
+              profileImage: null
+            };
+          }
+        })
+      );
 
-    setAllUsersForSuggestions(users);
+      setAllUsersForSuggestions(usersWithProfiles);
+    };
+
+    fetchUserProfiles();
 
     // Get follows from localStorage
     const followingKey = `following_${address}`;
