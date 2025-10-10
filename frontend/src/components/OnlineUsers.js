@@ -11,70 +11,30 @@ function AllUsers() {
   const { address } = useAccount();
   const [allUsers, setAllUsers] = useState([]);
 
-  // Get all posts to extract unique users
-  const { data: allPosts, refetch: refetchPosts } = useReadContract({
+  // Get all registered users directly from blockchain
+  const { data: registeredUsers, refetch: refetchUsers } = useReadContract({
     address: contractData.address,
     abi: contractData.abi,
-    functionName: 'getAllPosts',
+    functionName: 'getAllRegisteredUsers',
   });
 
-  // Load all registered users from smart contract
+  // Load all registered users directly from blockchain
   useEffect(() => {
-    const loadUsers = async () => {
-      console.log('📊 Loading all registered users from blockchain...');
-      const uniqueAddresses = new Set();
+    if (!registeredUsers || !Array.isArray(registeredUsers)) {
+      console.log('⏳ Waiting for registered users from blockchain...');
+      return;
+    }
 
-      // Get all posts and extract unique authors
-      if (allPosts && allPosts.length > 0) {
-        console.log('📝 Checking', allPosts.length, 'posts for authors...');
-        
-        for (const post of allPosts) {
-          if (post && post.author) {
-            const authorAddress = post.author.toLowerCase();
-            
-            // Check if this user has a profile on the blockchain
-            try {
-              const { readContract } = await import('wagmi/actions');
-              const { config } = await import('../config/wagmi');
-              
-              const userProfile = await readContract(config, {
-                address: contractData.address,
-                abi: contractData.abi,
-                functionName: 'getUserProfile',
-                args: [post.author],
-              });
-              
-              // If user has a profile (displayName exists), add them
-              if (userProfile && userProfile.displayName && userProfile.displayName.length > 0) {
-                uniqueAddresses.add(authorAddress);
-                console.log('✅ Found user:', userProfile.displayName, '-', authorAddress);
-              }
-            } catch (error) {
-              console.error('Error checking user profile:', error);
-            }
-          }
-        }
-      }
-
-      // Also check localStorage for registered users (backup)
-      const stored = localStorage.getItem('all_registered_users');
-      if (stored) {
-        const registeredUsers = JSON.parse(stored);
-        registeredUsers.forEach(addr => uniqueAddresses.add(addr.toLowerCase()));
-      }
-
-      console.log('👥 Total unique registered users:', uniqueAddresses.size);
-
-      // Convert to array and filter out current user
-      const userAddresses = Array.from(uniqueAddresses).filter(addr => 
-        !address || addr !== address.toLowerCase()
-      );
-
-      setAllUsers(userAddresses);
-    };
-
-    loadUsers();
-  }, [allPosts, address]);
+    console.log('📊 Loaded', registeredUsers.length, 'registered users from blockchain');
+    
+    // Filter out current user and convert to lowercase
+    const userAddresses = registeredUsers
+      .map(addr => addr.toLowerCase())
+      .filter(addr => !address || addr !== address.toLowerCase());
+    
+    console.log('👥 Showing', userAddresses.length, 'users (excluding yourself)');
+    setAllUsers(userAddresses);
+  }, [registeredUsers, address]);
 
   // Watch for new profile creation events
   useWatchContractEvent({
@@ -83,20 +43,25 @@ function AllUsers() {
     eventName: 'ProfileCreated',
     onLogs: (logs) => {
       console.log('🆕 New profile created, refreshing users...');
-      refetchPosts();
+      logs.forEach((log) => {
+        const newUserAddress = log.args.user;
+        const username = log.args.displayName;
+        console.log('✅ New user registered:', username, '-', newUserAddress);
+      });
+      // Refresh user list from blockchain
+      refetchUsers();
     }
   });
 
-  // Watch for new posts to update user list
-  useWatchContractEvent({
-    address: contractData.address,
-    abi: contractData.abi,
-    eventName: 'PostCreated',
-    onLogs: (logs) => {
-      console.log('📝 New post created, refreshing users...');
-      refetchPosts();
-    }
-  });
+  // Auto-refresh user list every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing user list from blockchain...');
+      refetchUsers();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [refetchUsers]);
 
   // Component to display user
   const UserItem = ({ userAddress }) => {

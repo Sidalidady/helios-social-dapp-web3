@@ -42,6 +42,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     mapping(string => bool) public usernameTaken; // Track if username is taken
     
     uint256[] private postIds;
+    address[] private registeredUsers; // Track all registered users
     
     // Events for efficient off-chain indexing
     event PostCreated(
@@ -71,6 +72,12 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     event UserUnfollowed(
         address indexed follower,
         address indexed unfollowing
+    );
+    
+    event ProfileCreated(
+        address indexed user,
+        string displayName,
+        string profileIpfsHash
     );
     
     event ProfileUpdated(
@@ -319,14 +326,21 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         usernameTaken[lowerUsername] = true;
         usernameToAddress[lowerUsername] = msg.sender;
         
-        if (!userProfiles[msg.sender].exists) {
+        bool isNewProfile = !userProfiles[msg.sender].exists;
+        
+        if (isNewProfile) {
             userProfiles[msg.sender].exists = true;
+            registeredUsers.push(msg.sender); // Add to registered users list
         }
         
         userProfiles[msg.sender].displayName = _displayName;
         userProfiles[msg.sender].profileIpfsHash = _profileIpfsHash;
         
-        emit ProfileUpdated(msg.sender, _displayName, _profileIpfsHash);
+        if (isNewProfile) {
+            emit ProfileCreated(msg.sender, _displayName, _profileIpfsHash);
+        } else {
+            emit ProfileUpdated(msg.sender, _displayName, _profileIpfsHash);
+        }
     }
     
     /**
@@ -746,6 +760,48 @@ contract SocialFeed is Ownable, ReentrancyGuard {
      */
     function getUserProfile(address _user) external view returns (UserProfile memory) {
         return userProfiles[_user];
+    }
+    
+    /**
+     * @dev Get all registered users
+     * Returns array of addresses of all users who have created profiles
+     */
+    function getAllRegisteredUsers() external view returns (address[] memory) {
+        return registeredUsers;
+    }
+    
+    /**
+     * @dev Get total number of registered users
+     */
+    function getRegisteredUsersCount() external view returns (uint256) {
+        return registeredUsers.length;
+    }
+    
+    /**
+     * @dev Get registered users with pagination
+     * @param _start Start index
+     * @param _limit Number of users to return
+     */
+    function getRegisteredUsersPaginated(uint256 _start, uint256 _limit) 
+        external 
+        view 
+        returns (address[] memory) 
+    {
+        require(_start < registeredUsers.length, "Start index out of bounds");
+        
+        uint256 end = _start + _limit;
+        if (end > registeredUsers.length) {
+            end = registeredUsers.length;
+        }
+        
+        uint256 resultLength = end - _start;
+        address[] memory result = new address[](resultLength);
+        
+        for (uint256 i = 0; i < resultLength; i++) {
+            result[i] = registeredUsers[_start + i];
+        }
+        
+        return result;
     }
     
     /**

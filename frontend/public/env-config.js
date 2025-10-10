@@ -2,7 +2,7 @@
 // This file is loaded before React app starts
 // IMPORTANT: API keys should be set in Vercel environment variables
 window.ENV_CONFIG = {
-  REACT_APP_CONTRACT_ADDRESS: '0xb75819e83843a3325404BfABfBC211F401661AA0',
+  REACT_APP_CONTRACT_ADDRESS: '0x871f6b513172b39B2069592f91f17895818BF393',
   REACT_APP_HELIOS_RPC_URL: 'https://testnet1.helioschainlabs.org',
   REACT_APP_CHAIN_ID: '42000',
   REACT_APP_IPFS_GATEWAY: 'https://gateway.pinata.cloud/ipfs/',
