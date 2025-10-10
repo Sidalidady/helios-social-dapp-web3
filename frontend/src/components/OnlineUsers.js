@@ -117,24 +117,28 @@ function AllUsers() {
 
     return (
       <div className="online-user-item">
-        <div className="online-user-avatar-container">
-          <div className="online-user-avatar">
-            {profileImage ? (
-              <img src={profileImage} alt={username} />
-            ) : (
-              <User size={16} />
-            )}
+        <div className="online-user-header">
+          <div className="online-user-avatar-container">
+            <div className="online-user-avatar">
+              {profileImage ? (
+                <img src={profileImage} alt={username} />
+              ) : (
+                <User size={16} />
+              )}
+            </div>
+          </div>
+          <div className="online-user-info">
+            <div className="online-user-name">@{username}</div>
+            <div className="online-user-stats">
+              <span>{postsCount} posts</span>
+              <span className="stat-separator">•</span>
+              <span>{followers} followers</span>
+            </div>
           </div>
         </div>
-        <div className="online-user-info">
-          <div className="online-user-name">@{username}</div>
-          <div className="online-user-stats">
-            <span>{postsCount} posts</span>
-            <span className="stat-separator">•</span>
-            <span>{followers} followers</span>
-          </div>
+        <div className="online-user-actions">
+          <FollowButton targetAddress={userAddress} size="small" />
         </div>
-        <FollowButton targetAddress={userAddress} size="small" />
       </div>
     );
   };
