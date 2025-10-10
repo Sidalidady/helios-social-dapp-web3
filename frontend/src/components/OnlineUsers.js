@@ -73,6 +73,24 @@ function AllUsers() {
       enabled: !!userAddress,
     });
 
+    // Get user's posts count
+    const { data: userPosts } = useReadContract({
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'getUserPosts',
+      args: [userAddress],
+      enabled: !!userAddress,
+    });
+
+    // Get user's followers count
+    const { data: followersCount } = useReadContract({
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'getFollowerCount',
+      args: [userAddress],
+      enabled: !!userAddress,
+    });
+
     const [profileImage, setProfileImage] = useState('');
 
     useEffect(() => {
@@ -92,14 +110,8 @@ function AllUsers() {
     
     const username = userProfile?.displayName || formatAddress(userAddress);
     const isCurrentUser = address && userAddress?.toLowerCase() === address?.toLowerCase();
-
-    // Debug logging
-    console.log('👤 User in list:', {
-      address: userAddress,
-      username: username,
-      hasProfile: !!userProfile,
-      displayName: userProfile?.displayName
-    });
+    const postsCount = userPosts ? userPosts.length : 0;
+    const followers = followersCount ? Number(followersCount) : 0;
 
     if (isCurrentUser) return null;
 
@@ -116,8 +128,13 @@ function AllUsers() {
         </div>
         <div className="online-user-info">
           <div className="online-user-name">@{username}</div>
+          <div className="online-user-stats">
+            <span>{postsCount} posts</span>
+            <span className="stat-separator">•</span>
+            <span>{followers} followers</span>
+          </div>
         </div>
-        <FollowButton targetAddress={userAddress} size="medium" />
+        <FollowButton targetAddress={userAddress} size="small" />
       </div>
     );
   };
