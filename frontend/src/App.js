@@ -348,15 +348,35 @@ function AppContent() {
     // Mark that profile was created to prevent re-showing registration
     setProfileCreated(true);
     
-    // Wait for blockchain to update
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Mark as checked to prevent profile check from running
+    setHasCheckedProfile(true);
     
-    // Refetch profile data
-    const result = await refetchProfile();
-    console.log('Refetched profile after registration:', result.data);
+    // Wait for blockchain to update (longer wait)
+    console.log('⏳ Waiting for blockchain confirmation...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Get the updated profile
-    const updatedProfile = result.data;
+    // Try to refetch profile multiple times
+    let updatedProfile = null;
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (attempts < maxAttempts && (!updatedProfile?.exists || !updatedProfile?.displayName)) {
+      attempts++;
+      console.log(`🔄 Attempt ${attempts}/${maxAttempts} to fetch profile...`);
+      
+      const result = await refetchProfile();
+      updatedProfile = result.data;
+      
+      if (updatedProfile?.exists && updatedProfile?.displayName?.length > 0) {
+        console.log('✅ Profile confirmed:', updatedProfile.displayName);
+        break;
+      }
+      
+      // Wait before next attempt
+      if (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
     
     if (updatedProfile?.exists && updatedProfile?.displayName?.length > 0) {
       const username = updatedProfile.displayName;
@@ -377,20 +397,22 @@ function AppContent() {
         }
       }
       
-      // Show welcome back animation
+      // Show welcome animation
       setShowLoginSuccess(true);
       
       // Auto-hide after 3 seconds
       setTimeout(() => {
         setShowLoginSuccess(false);
       }, 3000);
-      
-      // Mark as checked
-      setHasCheckedProfile(true);
     } else {
-      // Profile not found yet, but still close modal and mark as checked
+      // Profile not found yet, but still close modal
       console.warn('⚠️ Profile not found after registration, but closing modal anyway');
-      setHasCheckedProfile(true);
+      
+      // Show a generic welcome message
+      setShowLoginSuccess(true);
+      setTimeout(() => {
+        setShowLoginSuccess(false);
+      }, 3000);
     }
     
     setRefreshTrigger(prev => prev + 1);
