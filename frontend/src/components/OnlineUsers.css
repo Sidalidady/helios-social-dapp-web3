@@ -4,6 +4,8 @@
   border-radius: 1rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  width: 100%;
+  min-width: 340px;
 }
 
 .online-users-title {
@@ -26,12 +28,13 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1.25rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   transition: all 0.2s;
-  min-height: 70px;
+  min-height: 80px;
+  width: 100%;
 }
 
 .online-user-item:hover {
@@ -47,8 +50,8 @@
 }
 
 .online-user-avatar {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
@@ -106,10 +109,11 @@
 .online-user-name {
   font-weight: 700;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 1.1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .online-user-address {
