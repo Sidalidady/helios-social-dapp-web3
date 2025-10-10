@@ -333,16 +333,50 @@ function AppContent() {
 
   const handleRegistrationComplete = async () => {
     console.log('🎉 Registration completed! Reloading profile...');
-    setShowRegistration(false);
     
-    // Reset the check flag so it re-checks the profile
-    setHasCheckedProfile(false);
-    
-    // Wait a bit for blockchain to update
+    // Wait for blockchain to update
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Refetch profile
-    await refetchProfile();
+    // Refetch profile data
+    const result = await refetchProfile();
+    console.log('Refetched profile after registration:', result.data);
+    
+    // Get the updated profile
+    const updatedProfile = result.data;
+    
+    if (updatedProfile?.exists && updatedProfile?.displayName?.length > 0) {
+      const username = updatedProfile.displayName;
+      const ipfsHash = updatedProfile.profileIpfsHash;
+      
+      console.log('✅ Profile confirmed:', username);
+      setWelcomeUsername(username);
+      
+      // Load profile image if available
+      if (ipfsHash && ipfsHash.length > 0) {
+        try {
+          const profileData = await getFromIPFS(ipfsHash);
+          if (profileData && profileData.image) {
+            setWelcomeImage(profileData.image);
+          }
+        } catch (error) {
+          console.error('Error loading profile image:', error);
+        }
+      }
+      
+      // Close registration modal
+      setShowRegistration(false);
+      
+      // Show welcome back animation
+      setShowLoginSuccess(true);
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        setShowLoginSuccess(false);
+      }, 3000);
+      
+      // Mark as checked
+      setHasCheckedProfile(true);
+    }
     
     setRefreshTrigger(prev => prev + 1);
   };
