@@ -37,7 +37,13 @@ function AppContent() {
   const [showRegistration, setShowRegistration] = useState(false);
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
-  const [profileCreated, setProfileCreated] = useState(false); // Track if profile was just created
+  // Track if profile was just created (persist in localStorage)
+  const [profileCreated, setProfileCreated] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('profile_created') === 'true';
+    }
+    return false;
+  });
   const [welcomeUsername, setWelcomeUsername] = useState('');
   const [welcomeImage, setWelcomeImage] = useState('');
   const [activeTab, setActiveTab] = useState('feed');
@@ -307,7 +313,7 @@ function AppContent() {
       // Reset check when disconnected
       if (!isConnected && !isConnecting && !isReconnecting) {
         setHasCheckedProfile(false);
-        setProfileCreated(false);
+        // DON'T reset profileCreated - it's persisted in localStorage
         setShowWelcomeChoice(false);
         setShowRegistration(false);
         setShowWelcomeBack(false);
@@ -347,6 +353,7 @@ function AppContent() {
     
     // Mark that profile was created to prevent re-showing registration
     setProfileCreated(true);
+    localStorage.setItem('profile_created', 'true');
     
     // Mark as checked to prevent profile check from running
     setHasCheckedProfile(true);
