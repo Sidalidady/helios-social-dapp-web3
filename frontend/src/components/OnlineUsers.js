@@ -93,6 +93,14 @@ function AllUsers() {
     const username = userProfile?.displayName || formatAddress(userAddress);
     const isCurrentUser = address && userAddress?.toLowerCase() === address?.toLowerCase();
 
+    // Debug logging
+    console.log('👤 User in list:', {
+      address: userAddress,
+      username: username,
+      hasProfile: !!userProfile,
+      displayName: userProfile?.displayName
+    });
+
     if (isCurrentUser) return null;
 
     return (
