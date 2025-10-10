@@ -264,7 +264,23 @@ function AppContent() {
         const hasProfile = userProfile?.exists && userProfile?.displayName?.length > 0;
         console.log('Has profile?', hasProfile);
         
+        // Also check localStorage backup
+        const hasProfileCreatedFlag = localStorage.getItem('profile_created') === 'true';
+        console.log('Has profile created flag in localStorage?', hasProfileCreatedFlag);
+        
+        // If localStorage says profile was created but blockchain doesn't show it yet,
+        // trust localStorage and skip the modal
+        if (hasProfileCreatedFlag && !hasProfile) {
+          console.log('⚠️ Profile flag set but not found on blockchain yet - skipping modal');
+          setProfileCreated(true);
+          setHasCheckedProfile(true);
+          return;
+        }
+        
         if (hasProfile) {
+          // Profile found on blockchain - set the flag for future
+          localStorage.setItem('profile_created', 'true');
+          setProfileCreated(true);
           // ✅ User has existing profile - auto login
           const username = userProfile.displayName;
           const ipfsHash = userProfile.profileIpfsHash;
