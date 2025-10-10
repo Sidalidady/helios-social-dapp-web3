@@ -37,6 +37,7 @@ function AppContent() {
   const [showRegistration, setShowRegistration] = useState(false);
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
+  const [profileCreated, setProfileCreated] = useState(false); // Track if profile was just created
   const [welcomeUsername, setWelcomeUsername] = useState('');
   const [welcomeImage, setWelcomeImage] = useState('');
   const [activeTab, setActiveTab] = useState('feed');
@@ -290,8 +291,14 @@ function AppContent() {
         } else {
           // ❌ No profile - must create one first
           console.log('⚠️ No profile found - MUST CREATE PROFILE');
-          setShowWelcomeChoice(false);
-          setShowRegistration(true); // Force registration - NO SKIP!
+          
+          // Only show registration if profile wasn't just created
+          if (!profileCreated) {
+            setShowWelcomeChoice(false);
+            setShowRegistration(true); // Force registration - NO SKIP!
+          } else {
+            console.log('✅ Profile was just created, skipping registration modal');
+          }
         }
         
         setHasCheckedProfile(true);
@@ -300,6 +307,7 @@ function AppContent() {
       // Reset check when disconnected
       if (!isConnected && !isConnecting && !isReconnecting) {
         setHasCheckedProfile(false);
+        setProfileCreated(false);
         setShowWelcomeChoice(false);
         setShowRegistration(false);
         setShowWelcomeBack(false);
@@ -336,6 +344,9 @@ function AppContent() {
     
     // IMMEDIATELY close registration modal
     setShowRegistration(false);
+    
+    // Mark that profile was created to prevent re-showing registration
+    setProfileCreated(true);
     
     // Wait for blockchain to update
     await new Promise(resolve => setTimeout(resolve, 2000));
