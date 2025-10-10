@@ -368,25 +368,31 @@
 .communities-modal-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem 1.5rem 1.5rem 1.5rem;
+  max-height: calc(85vh - 140px);
+  min-height: 300px;
 }
 
 .communities-modal-content::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .communities-modal-content::-webkit-scrollbar-track {
   background: rgba(30, 41, 59, 0.5);
-  border-radius: 4px;
+  border-radius: 5px;
+  margin: 4px 0;
 }
 
 .communities-modal-content::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.5);
-  border-radius: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+  border-radius: 5px;
+  border: 2px solid rgba(30, 41, 59, 0.5);
 }
 
 .communities-modal-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+  background: linear-gradient(135deg, #059669 0%, #2563eb 100%);
+  border-color: rgba(30, 41, 59, 0.7);
 }
 
 @keyframes fadeIn {
