@@ -332,7 +332,10 @@ function AppContent() {
   };
 
   const handleRegistrationComplete = async () => {
-    console.log('🎉 Registration completed! Reloading profile...');
+    console.log('🎉 Registration completed! Closing modal and reloading profile...');
+    
+    // IMMEDIATELY close registration modal
+    setShowRegistration(false);
     
     // Wait for blockchain to update
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -363,9 +366,6 @@ function AppContent() {
         }
       }
       
-      // Close registration modal
-      setShowRegistration(false);
-      
       // Show welcome back animation
       setShowLoginSuccess(true);
       
@@ -375,6 +375,10 @@ function AppContent() {
       }, 3000);
       
       // Mark as checked
+      setHasCheckedProfile(true);
+    } else {
+      // Profile not found yet, but still close modal and mark as checked
+      console.warn('⚠️ Profile not found after registration, but closing modal anyway');
       setHasCheckedProfile(true);
     }
     

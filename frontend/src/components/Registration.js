@@ -155,9 +155,11 @@ function Registration({ onComplete, onSkip, isFirstTime = false }) {
         console.log('✅ User address saved to registered users list');
       }
       
+      // Call onComplete immediately after success
+      console.log('✅ Registration success! Calling onComplete...');
       setTimeout(() => {
         onComplete();
-      }, 1500);
+      }, 500); // Reduced from 1500ms to 500ms
     }
   }, [isSuccess, onComplete, address]);
 
