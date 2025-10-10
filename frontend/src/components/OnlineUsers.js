@@ -102,14 +102,15 @@ function AllUsers() {
             {profileImage ? (
               <img src={profileImage} alt={username} />
             ) : (
-              <User size={24} />
+              <User size={28} />
             )}
           </div>
         </div>
         <div className="online-user-info">
-          <div className="online-user-name">{username}</div>
+          <div className="online-user-name">@{username}</div>
+          <div className="online-user-address">{formatAddress(userAddress)}</div>
         </div>
-        <FollowButton targetAddress={userAddress} />
+        <FollowButton targetAddress={userAddress} size="medium" />
       </div>
     );
   };
