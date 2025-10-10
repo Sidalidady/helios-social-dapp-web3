@@ -279,32 +279,34 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       console.log('🎯 Search complete:', foundPosts.length, 'posts found');
       console.log('📋 Found posts:', foundPosts);
 
-      // Search through users by fetching profiles from blockchain
+      // Search through users by fetching ALL registered users from blockchain
       const foundUsers = [];
       
-      // Get unique authors from posts (users who have profiles)
-      const uniqueAuthors = [...new Set(allPosts?.map(post => post.author) || [])];
-      console.log('📋 Found', uniqueAuthors.length, 'unique authors from posts');
+      console.log('👥 Fetching ALL registered users from blockchain...');
       
-      // Get registered users from localStorage as backup
-      const registeredUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
-      console.log('📋 Registered users from localStorage:', registeredUsers.length);
+      // Get ALL registered users from blockchain
+      let allUserAddresses = [];
+      try {
+        const registeredUsers = await readContract(config, {
+          address: contractData.address,
+          abi: contractData.abi,
+          functionName: 'getAllRegisteredUsers',
+          args: [],
+        });
+        
+        console.log('✅ Loaded', registeredUsers.length, 'registered users from blockchain');
+        allUserAddresses = registeredUsers.map(addr => addr.toLowerCase());
+      } catch (error) {
+        console.error('❌ Error fetching registered users:', error);
+        
+        // Fallback: Get unique authors from posts
+        const uniqueAuthors = [...new Set(allPosts?.map(post => post.author) || [])];
+        console.log('📋 Fallback: Using', uniqueAuthors.length, 'unique authors from posts');
+        allUserAddresses = uniqueAuthors.map(addr => addr.toLowerCase());
+      }
       
-      // Combine all user addresses
-      const allUserAddresses = new Set();
+      console.log('👥 Total users to search:', allUserAddresses.length);
       
-      // Add authors from posts (these definitely have profiles)
-      uniqueAuthors.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
-      
-      // Add registered users from localStorage
-      registeredUsers.forEach(addr => allUserAddresses.add(addr.toLowerCase()));
-      
-      // Add current user
-      if (address) allUserAddresses.add(address.toLowerCase());
-      
-      console.log('👥 Total users to search:', allUserAddresses.size);
-      
-      // Convert Set to Array for iteration
       const userAddressArray = Array.from(allUserAddresses);
       console.log('👥 Searching through', userAddressArray.length, 'users from blockchain...');
       
