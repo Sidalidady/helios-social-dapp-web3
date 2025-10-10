@@ -87,7 +87,7 @@ function Sidebar({ onHashtagClick }) {
     return () => clearInterval(interval);
   }, [postsData]);
 
-  // Track online users
+  // Track users
   const [allUsers, setAllUsers] = useState([]);
 
   // Get current user profile for suggestions

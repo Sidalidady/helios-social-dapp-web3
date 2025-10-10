@@ -93,7 +93,7 @@ git push origin main
 ```solidity
 updateOnlineStatus()              // Update heartbeat
 isUserOnline(address)             // Check if online (FREE)
-getOnlineUsers()                  // Get all online users (FREE)
+getOnlineUsers()                  // Get all users (FREE)
 ```
 
 #### Notifications:
@@ -112,7 +112,7 @@ getUnreadNotificationCount(address) // Count unread (FREE)
 | Update Online Status | ~21,000 | Every 60s |
 | Create Notification | ~25,000 | Per action |
 | Mark as Read | ~21,000 | Per click |
-| Get Online Users | FREE | Anytime |
+| Get Users | FREE | Anytime |
 | Get Notifications | FREE | Anytime |
 
 ---
@@ -137,10 +137,10 @@ getUnreadNotificationCount(address) // Count unread (FREE)
 
 ## 🔍 Testing After Deployment
 
-### Test 1: Online Users
+### Test 1: Users
 1. Connect your wallet
 2. Wait 10 seconds
-3. Check "Online Users" section
+3. Check "Users on dApp" section
 4. You should appear!
 
 ### Test 2: Cross-Device
@@ -156,7 +156,7 @@ getUnreadNotificationCount(address) // Count unread (FREE)
 ### Test 4: Cross-Browser
 1. Open in Chrome
 2. Open in Firefox
-3. Both show same online users!
+3. Both show same users!
 
 ---
 
@@ -185,7 +185,7 @@ Your deployment is successful when:
 
 1. ✅ Contract deploys without errors
 2. ✅ Frontend loads without errors
-3. ✅ Online users appear in sidebar
+3. ✅ Users appear in sidebar
 4. ✅ Notifications work
 5. ✅ Cross-device sync works
 6. ✅ All features functional
@@ -203,7 +203,7 @@ Your deployment is successful when:
 - Hard refresh (Ctrl + Shift + R)
 - Check contract address is updated
 
-### Issue: Online users don't show
+### Issue: Users don't show
 **Solution:**
 - Wait 10 seconds for first update
 - Check browser console for errors

@@ -774,7 +774,7 @@ function AppContent() {
             <div className="communities-modal-header">
               <h2>
                 <Users size={24} />
-                Online Users
+                Users on dApp
               </h2>
               <button 
                 className="communities-modal-close" 
