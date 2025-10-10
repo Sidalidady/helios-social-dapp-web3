@@ -110,7 +110,7 @@ function AllUsers() {
             {profileImage ? (
               <img src={profileImage} alt={username} />
             ) : (
-              <User size={28} />
+              <User size={20} />
             )}
           </div>
         </div>
@@ -125,7 +125,7 @@ function AllUsers() {
   return (
     <div className="online-users-section">
       <h3 className="online-users-title">
-        <Users size={20} />
+        <Users size={16} />
         Users on dApp ({allUsers.length})
       </h3>
       <div className="online-users-list">
