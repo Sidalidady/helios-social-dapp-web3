@@ -1,96 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
-import { useAccount } from 'wagmi';
-import { addNotification } from './Notifications';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { contractData } from '../utils/contract';
 import './FollowButton.css';
 
 function FollowButton({ targetAddress, targetUsername, size = 'medium' }) {
   const { address } = useAccount();
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
+  // Check if following from blockchain
+  const { data: followStatus, refetch: refetchFollowStatus } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'checkIsFollowing',
+    args: [address, targetAddress],
+    enabled: !!address && !!targetAddress && address !== targetAddress,
+  });
+
+  // Write contract hooks
+  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+  // Update follow status from blockchain
   useEffect(() => {
-    if (address && targetAddress) {
-      checkFollowStatus();
+    if (followStatus !== undefined) {
+      setIsFollowing(followStatus);
+      console.log('Follow status from blockchain:', followStatus);
     }
-  }, [address, targetAddress]);
+  }, [followStatus]);
 
-  const checkFollowStatus = () => {
-    // Get follow list from localStorage
-    const followKey = `following_${address}`;
-    const following = localStorage.getItem(followKey);
-    
-    if (following) {
-      try {
-        const followList = JSON.parse(following);
-        setIsFollowing(followList.includes(targetAddress.toLowerCase()));
-      } catch (error) {
-        console.error('Error checking follow status:', error);
-      }
+  // Refetch after transaction success
+  useEffect(() => {
+    if (isSuccess) {
+      console.log('✅ Follow/Unfollow transaction successful!');
+      setTimeout(() => {
+        refetchFollowStatus();
+      }, 1000);
     }
-  };
+  }, [isSuccess, refetchFollowStatus]);
 
   const handleFollow = async () => {
     if (!address || !targetAddress || address.toLowerCase() === targetAddress.toLowerCase()) {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      const followKey = `following_${address}`;
-      const followersKey = `followers_${targetAddress}`;
-      
-      // Get current following list
-      const followingData = localStorage.getItem(followKey);
-      const followList = followingData ? JSON.parse(followingData) : [];
-      
-      // Get target's followers list
-      const followersData = localStorage.getItem(followersKey);
-      const followersList = followersData ? JSON.parse(followersData) : [];
-
       if (isFollowing) {
-        // Unfollow
-        const updatedFollowing = followList.filter(
-          addr => addr.toLowerCase() !== targetAddress.toLowerCase()
-        );
-        const updatedFollowers = followersList.filter(
-          addr => addr.toLowerCase() !== address.toLowerCase()
-        );
-        
-        localStorage.setItem(followKey, JSON.stringify(updatedFollowing));
-        localStorage.setItem(followersKey, JSON.stringify(updatedFollowers));
-        
-        setIsFollowing(false);
-        console.log('Unfollowed:', targetAddress);
-      } else {
-        // Follow
-        if (!followList.includes(targetAddress.toLowerCase())) {
-          followList.push(targetAddress.toLowerCase());
-        }
-        
-        if (!followersList.includes(address.toLowerCase())) {
-          followersList.push(address.toLowerCase());
-        }
-        
-        localStorage.setItem(followKey, JSON.stringify(followList));
-        localStorage.setItem(followersKey, JSON.stringify(followersList));
-        
-        // Send notification to followed user
-        addNotification(targetAddress, {
-          type: 'follow',
-          from: address,
-          message: 'started following you',
+        // Unfollow on blockchain
+        console.log('📤 Unfollowing user on blockchain:', targetAddress);
+        writeContract({
+          address: contractData.address,
+          abi: contractData.abi,
+          functionName: 'unfollowUser',
+          args: [targetAddress],
         });
-        
-        setIsFollowing(true);
-        console.log('Followed:', targetAddress);
+      } else {
+        // Follow on blockchain
+        console.log('📤 Following user on blockchain:', targetAddress);
+        writeContract({
+          address: contractData.address,
+          abi: contractData.abi,
+          functionName: 'followUser',
+          args: [targetAddress],
+        });
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
-      alert('Failed to update follow status');
-    } finally {
-      setIsLoading(false);
+      alert('Failed to update follow status: ' + error.message);
     }
   };
 
@@ -101,14 +77,20 @@ function FollowButton({ targetAddress, targetUsername, size = 'medium' }) {
 
   const buttonClass = `follow-button ${size} ${isFollowing ? 'following' : 'not-following'}`;
 
+  const isProcessing = isPending || isConfirming;
+
   return (
     <button
       className={buttonClass}
       onClick={handleFollow}
-      disabled={isLoading}
+      disabled={isProcessing}
+      title={isFollowing ? 'Unfollow this user' : 'Follow this user'}
     >
-      {isLoading ? (
-        <Loader2 size={size === 'small' ? 14 : 16} className="spinning" />
+      {isProcessing ? (
+        <>
+          <Loader2 size={size === 'small' ? 14 : 16} className="spinning" />
+          <span>{isPending ? 'Confirming...' : 'Processing...'}</span>
+        </>
       ) : isFollowing ? (
         <>
           <UserMinus size={size === 'small' ? 14 : 16} />
@@ -123,25 +105,5 @@ function FollowButton({ targetAddress, targetUsername, size = 'medium' }) {
     </button>
   );
 }
-
-// Helper functions to get follow data
-export const getFollowing = (userAddress) => {
-  const followKey = `following_${userAddress}`;
-  const data = localStorage.getItem(followKey);
-  return data ? JSON.parse(data) : [];
-};
-
-export const getFollowers = (userAddress) => {
-  const followersKey = `followers_${userAddress}`;
-  const data = localStorage.getItem(followersKey);
-  return data ? JSON.parse(data) : [];
-};
-
-export const getFollowCounts = (userAddress) => {
-  return {
-    following: getFollowing(userAddress).length,
-    followers: getFollowers(userAddress).length,
-  };
-};
 
 export default FollowButton;
