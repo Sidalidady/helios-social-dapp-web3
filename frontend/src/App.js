@@ -21,6 +21,7 @@ import NetworkSwitcher from './components/NetworkSwitcher';
 import { getFromIPFS } from './utils/ipfs';
 import { contractData } from './utils/contract';
 import './App.css';
+import './styles/mobile-responsive.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {

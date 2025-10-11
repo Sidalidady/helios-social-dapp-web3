@@ -1,0 +1,120 @@
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+  display: none; /* Hidden by default, shown on mobile via media query */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 8px 0;
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 8px 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 56px;
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.95);
+}
+
+.mobile-nav-item.active {
+  color: #60a5fa;
+}
+
+.mobile-nav-item.active .mobile-nav-icon-wrapper {
+  background: rgba(96, 165, 250, 0.15);
+}
+
+.mobile-nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-item:hover .mobile-nav-icon-wrapper {
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.mobile-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(15, 23, 42, 0.98);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.mobile-nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Show on mobile */
+@media (max-width: 767px) {
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+}
+
+/* Safe area insets for iPhone X+ */
+@supports (padding: max(0px)) {
+  .mobile-bottom-nav {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Landscape mode adjustments */
+@media (max-width: 767px) and (orientation: landscape) {
+  .mobile-bottom-nav {
+    padding: 4px 0;
+  }
+
+  .mobile-nav-item {
+    min-height: 48px;
+    gap: 2px;
+  }
+
+  .mobile-nav-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mobile-nav-label {
+    font-size: 10px;
+  }
+}
