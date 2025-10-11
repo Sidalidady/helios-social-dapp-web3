@@ -50,7 +50,8 @@
 
 .header-brand {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .brand-name {
@@ -63,6 +64,15 @@
   letter-spacing: -0.02em;
   line-height: 1;
   text-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .header-right {
@@ -1048,6 +1058,10 @@
   .brand-name {
     font-size: 1.4rem;
   }
+
+  .brand-subtitle {
+    font-size: 0.65rem;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1057,6 +1071,10 @@
 
   .brand-name {
     font-size: 1.2rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.6rem;
   }
   
   .user-username {
