@@ -456,6 +456,10 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
           {/* Left - Logo */}
           <div className="header-left">
             <SunLogo />
+            <div className="header-brand">
+              <div className="brand-name">Stellari</div>
+              <div className="brand-subtitle">Helios Social</div>
+            </div>
           </div>
 
           {/* Center - Search Bar */}

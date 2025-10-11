@@ -45,6 +45,33 @@
 .header-left {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.header-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .header-right {
@@ -1026,11 +1053,27 @@
   .header-search {
     display: none;
   }
+
+  .brand-name {
+    font-size: 1.25rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.65rem;
+  }
 }
 
 @media (max-width: 640px) {
   .header-logo h1 {
     font-size: 1.25rem;
+  }
+
+  .brand-name {
+    font-size: 1.1rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.6rem;
   }
   
   .user-username {
