@@ -6,6 +6,7 @@ import { Wallet, LogOut, User, X, Search, Sun, Moon, Bell, Menu, Home, TrendingU
 import { getFromIPFS } from '../utils/ipfs';
 import Profile from './Profile';
 import Notifications from './Notifications';
+import NotificationsSimple from './NotificationsSimple';
 import SearchResults from './SearchResults';
 import SunLogo from './SunLogo';
 import { contractData } from '../utils/contract';
@@ -524,7 +525,7 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       </header>
       
       {showProfile && <Profile onClose={() => setShowProfile(false)} />}
-      {showNotifications && <Notifications isOpen={showNotifications} onClose={() => setShowNotifications(false)} />}
+      {showNotifications && <NotificationsSimple isOpen={showNotifications} onClose={() => setShowNotifications(false)} notifications={[]} />}
     </>
   );
 }
