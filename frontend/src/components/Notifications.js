@@ -480,41 +480,43 @@ function Notifications({ isOpen, onClose }) {
       backdropFilter: 'blur(4px)',
       pointerEvents: 'auto'
     }}>
+      {/* TEST: Bright visible box */}
       <div onClick={(e) => e.stopPropagation()} style={{
         width: '90%',
         maxWidth: '800px',
-        backgroundColor: '#2d3748',
+        backgroundColor: '#ffffff',
         borderRadius: '24px',
-        border: '4px solid #60a5fa',
+        border: '8px solid #ff0000',
         display: 'flex',
         flexDirection: 'column',
         maxHeight: '90vh',
-        boxShadow: '0 0 0 2px rgba(96, 165, 250, 0.8), 0 20px 60px rgba(0, 0, 0, 0.9), inset 0 0 100px rgba(96, 165, 250, 0.1)',
+        boxShadow: '0 0 50px rgba(255, 0, 0, 1), inset 0 0 50px rgba(255, 255, 0, 0.3)',
         overflow: 'hidden',
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
+        padding: '40px'
       }}>
         {/* Header */}
         <div style={{
           padding: '24px 32px',
-          borderBottom: '2px solid #3b82f6',
+          borderBottom: '4px solid #000000',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: '#334155',
+          backgroundColor: '#fbbf24',
           minHeight: '80px'
         }}>
           <h3 style={{
-            color: '#ffffff',
-            fontSize: '28px',
-            fontWeight: 800,
+            color: '#000000',
+            fontSize: '32px',
+            fontWeight: 900,
             margin: 0,
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+            textShadow: 'none'
           }}>
-            <Bell size={32} color="#3b82f6" />
-            <span>Notifications</span>
+            <Bell size={40} color="#000000" />
+            <span>NOTIFICATIONS TEST</span>
           </h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {notifications.length > 0 && (
@@ -554,9 +556,12 @@ function Notifications({ isOpen, onClose }) {
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '16px',
+          padding: '40px',
           minHeight: '300px',
-          backgroundColor: '#0f172a'
+          backgroundColor: '#10b981',
+          color: '#000000',
+          fontSize: '24px',
+          fontWeight: 'bold'
         }}>
           {notifications.length > 0 ? (
             notifications.map((notification) => (
@@ -572,23 +577,24 @@ function Notifications({ isOpen, onClose }) {
               textAlign: 'center',
               minHeight: '400px'
             }}>
-              <Bell size={80} style={{ color: '#475569', marginBottom: '24px' }} />
+              <Bell size={100} style={{ color: '#000000', marginBottom: '24px' }} />
               <p style={{ 
-                color: '#e2e8f0', 
-                fontSize: '20px', 
-                fontWeight: 700, 
+                color: '#000000', 
+                fontSize: '32px', 
+                fontWeight: 900, 
                 margin: '0 0 12px 0',
-                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                textShadow: 'none'
               }}>
-                No notifications yet
+                TEST: CAN YOU SEE THIS?
               </p>
               <span style={{ 
-                color: '#94a3b8', 
-                fontSize: '16px',
-                lineHeight: '1.6'
+                color: '#000000', 
+                fontSize: '24px',
+                lineHeight: '1.6',
+                fontWeight: 'bold'
               }}>
-                When someone follows you or interacts with your posts,<br />
-                you'll see notifications here
+                If you see this bright box, the modal is working!<br />
+                Notifications count: {notifications.length}
               </span>
             </div>
           )}
