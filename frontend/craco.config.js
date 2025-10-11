@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   webpack: {
@@ -35,6 +36,63 @@ module.exports = {
           'process.env': JSON.stringify(process.env),
         }),
       ];
+
+      // Enhanced minification and obfuscation for production
+      if (process.env.NODE_ENV === 'production') {
+        webpackConfig.optimization = {
+          ...webpackConfig.optimization,
+          minimize: true,
+          minimizer: [
+            new TerserPlugin({
+              terserOptions: {
+                compress: {
+                  drop_console: true, // Remove console.log statements
+                  drop_debugger: true, // Remove debugger statements
+                  pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove specific console methods
+                  passes: 3, // Multiple compression passes
+                },
+                mangle: {
+                  safari10: true,
+                  properties: {
+                    regex: /^_/, // Mangle properties starting with underscore
+                  },
+                },
+                format: {
+                  comments: false, // Remove all comments
+                  ascii_only: true, // Escape Unicode characters
+                },
+              },
+              extractComments: false, // Don't create separate license file
+            }),
+          ],
+          splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+              default: false,
+              vendors: false,
+              // Split vendor code into separate chunk
+              vendor: {
+                name: 'vendor',
+                chunks: 'all',
+                test: /node_modules/,
+                priority: 20,
+              },
+              // Split common code
+              common: {
+                name: 'common',
+                minChunks: 2,
+                chunks: 'all',
+                priority: 10,
+                reuseExistingChunk: true,
+                enforce: true,
+              },
+            },
+          },
+        };
+
+        // Disable source maps in production for security
+        webpackConfig.devtool = false;
+      }
 
       // Ignore warnings
       webpackConfig.ignoreWarnings = [/Failed to parse source map/];
