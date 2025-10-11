@@ -455,13 +455,52 @@ function Notifications({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  console.log('Rendering notifications, count:', notifications.length);
+  console.log('🔔 ========== NOTIFICATIONS PANEL ==========');
+  console.log('📊 Rendering notifications panel');
+  console.log('📋 Notifications count:', notifications.length);
+  console.log('📋 Notifications data:', notifications);
+  console.log('👤 Current address:', address);
+  console.log('🔔 ==========================================');
 
   return (
-    <div className="notifications-dropdown" onClick={onClose}>
-      <div className="notifications-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="notifications-header">
-          <h3>
+    <div className="notifications-dropdown" onClick={onClose} style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      right: 0, 
+      bottom: 0, 
+      zIndex: 10000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'rgba(0, 0, 0, 0.85)'
+    }}>
+      <div className="notifications-modal-content" onClick={(e) => e.stopPropagation()} style={{
+        width: '90%',
+        maxWidth: '800px',
+        background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(31, 41, 55, 0.98) 100%)',
+        borderRadius: '20px',
+        border: '2px solid rgba(0, 102, 255, 0.4)',
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: '90vh'
+      }}>
+        <div className="notifications-header" style={{
+          padding: '1.5rem 2rem',
+          borderBottom: '2px solid rgba(0, 102, 255, 0.3)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h3 style={{
+            color: '#ffffff',
+            fontSize: '1.75rem',
+            fontWeight: 800,
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
             <Bell size={28} />
             Notifications
           </h3>
@@ -477,16 +516,33 @@ function Notifications({ isOpen, onClose }) {
           </div>
         </div>
         
-        <div className="notifications-list">
+        <div className="notifications-list" style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '1rem',
+          minHeight: '200px'
+        }}>
           {notifications.length > 0 ? (
             notifications.map((notification) => (
               <NotificationItem key={notification.id} notification={notification} />
             ))
           ) : (
-            <div className="no-notifications">
-              <Bell size={64} className="empty-icon" />
-              <p>No notifications yet</p>
-              <span>When someone interacts with your posts, you'll see it here</span>
+            <div className="no-notifications" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '3rem 2rem',
+              textAlign: 'center',
+              minHeight: '300px'
+            }}>
+              <Bell size={64} className="empty-icon" style={{ color: '#4b5563', marginBottom: '1rem' }} />
+              <p style={{ color: '#9ca3af', fontSize: '1rem', fontWeight: 600, margin: '0 0 0.5rem 0' }}>
+                No notifications yet
+              </p>
+              <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                When someone interacts with your posts, you'll see it here
+              </span>
             </div>
           )}
         </div>
