@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
 import { X, User, FileText } from 'lucide-react';
-import { formatTimestamp, formatAddress } from '../utils/formatters';
+import { formatTimestamp } from '../utils/formatters';
 import { contractData } from '../utils/contract';
 import './SearchResults.css';
 
@@ -20,7 +20,7 @@ function SearchResults({ isOpen, onClose, results, searchQuery }) {
       args: [post.author],
     });
 
-    const username = authorProfile?.displayName || formatAddress(post.author);
+    const username = authorProfile?.displayName || 'Anonymous';
 
     // Highlight matched text
     const highlightText = (text, query) => {
@@ -125,7 +125,6 @@ function SearchResults({ isOpen, onClose, results, searchQuery }) {
                         </div>
                         <div className="result-content">
                           <p className="result-username">@{user.username}</p>
-                          <p className="result-address">{formatAddress(user.address)}</p>
                         </div>
                       </div>
                     ))}

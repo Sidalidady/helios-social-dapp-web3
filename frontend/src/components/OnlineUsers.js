@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { Users, User } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
-import { formatAddress } from '../utils/formatters';
 import FollowButton from './FollowButton';
 import { contractData } from '../utils/contract';
 import './OnlineUsers.css';
@@ -108,7 +107,7 @@ function AllUsers() {
     // Guard against undefined userAddress - after hooks
     if (!userAddress) return null;
     
-    const username = userProfile?.displayName || formatAddress(userAddress);
+    const username = userProfile?.displayName || 'Anonymous';
     const isCurrentUser = address && userAddress?.toLowerCase() === address?.toLowerCase();
     const postsCount = userPosts ? userPosts.length : 0;
     const followers = followersCount ? Number(followersCount) : 0;

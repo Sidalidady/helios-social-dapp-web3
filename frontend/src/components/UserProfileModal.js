@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { X, User, Users, FileText, Calendar } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
-import { formatAddress } from '../utils/formatters';
 import FollowButton from './FollowButton';
 import { contractData } from '../utils/contract';
 import './UserProfileModal.css';
@@ -106,7 +105,7 @@ function UserProfileModal({ userAddress, onClose }) {
 
   if (!userAddress) return null;
 
-  const username = userProfile?.displayName || formatAddress(userAddress);
+  const username = userProfile?.displayName || 'Anonymous';
   const followerCount = userProfile?.followerCount ? Number(userProfile.followerCount) : 0;
   const followingCount = userProfile?.followingCount ? Number(userProfile.followingCount) : 0;
   const postCount = userPosts.length;
@@ -139,7 +138,6 @@ function UserProfileModal({ userAddress, onClose }) {
             )}
           </div>
           <h2 className="user-profile-username">@{username}</h2>
-          <p className="user-profile-address">{formatAddress(userAddress)}</p>
           {bio && <p className="user-profile-bio">{bio}</p>}
         </div>
 
