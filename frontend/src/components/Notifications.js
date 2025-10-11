@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { X, User, FileText, Heart, MessageCircle, AtSign, Bell } from 'lucide-react';
 import { formatTimestamp } from '../utils/formatters';
@@ -462,7 +463,7 @@ function Notifications({ isOpen, onClose }) {
   console.log('👤 Current address:', address);
   console.log('🔔 ==========================================');
 
-  return (
+  const modalContent = (
     <div onClick={onClose} style={{ 
       position: 'fixed', 
       top: 0, 
@@ -471,24 +472,26 @@ function Notifications({ isOpen, onClose }) {
       bottom: 0, 
       width: '100vw',
       height: '100vh',
-      zIndex: 99999,
+      zIndex: 999999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.9)',
-      backdropFilter: 'blur(4px)'
+      backgroundColor: 'rgba(0, 0, 0, 0.95)',
+      backdropFilter: 'blur(4px)',
+      pointerEvents: 'auto'
     }}>
       <div onClick={(e) => e.stopPropagation()} style={{
         width: '90%',
         maxWidth: '800px',
-        backgroundColor: '#1e293b',
+        backgroundColor: '#2d3748',
         borderRadius: '24px',
-        border: '3px solid #3b82f6',
+        border: '4px solid #60a5fa',
         display: 'flex',
         flexDirection: 'column',
         maxHeight: '90vh',
-        boxShadow: '0 0 0 1px rgba(59, 130, 246, 0.5), 0 20px 60px rgba(0, 0, 0, 0.8)',
-        overflow: 'hidden'
+        boxShadow: '0 0 0 2px rgba(96, 165, 250, 0.8), 0 20px 60px rgba(0, 0, 0, 0.9), inset 0 0 100px rgba(96, 165, 250, 0.1)',
+        overflow: 'hidden',
+        pointerEvents: 'auto'
       }}>
         {/* Header */}
         <div style={{
@@ -593,6 +596,9 @@ function Notifications({ isOpen, onClose }) {
       </div>
     </div>
   );
+
+  // Use Portal to render at document root level (ensures it's on top)
+  return ReactDOM.createPortal(modalContent, document.body);
 }
 
 // Helper function to add notification (call this from other components)
