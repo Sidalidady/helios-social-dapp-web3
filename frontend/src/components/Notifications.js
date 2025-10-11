@@ -478,19 +478,21 @@ function Notifications({ isOpen, onClose }) {
       <div className="notifications-modal-content" onClick={(e) => e.stopPropagation()} style={{
         width: '90%',
         maxWidth: '800px',
-        background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(31, 41, 55, 0.98) 100%)',
+        background: '#1f2937',
         borderRadius: '20px',
-        border: '2px solid rgba(0, 102, 255, 0.4)',
+        border: '2px solid #3b82f6',
         display: 'flex',
         flexDirection: 'column',
-        maxHeight: '90vh'
+        maxHeight: '90vh',
+        boxShadow: '0 25px 80px rgba(59, 130, 246, 0.5)'
       }}>
         <div className="notifications-header" style={{
           padding: '1.5rem 2rem',
-          borderBottom: '2px solid rgba(0, 102, 255, 0.3)',
+          borderBottom: '2px solid #3b82f6',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          background: 'rgba(59, 130, 246, 0.1)'
         }}>
           <h3 style={{
             color: '#ffffff',
@@ -520,7 +522,8 @@ function Notifications({ isOpen, onClose }) {
           flex: 1,
           overflowY: 'auto',
           padding: '1rem',
-          minHeight: '200px'
+          minHeight: '200px',
+          background: '#111827'
         }}>
           {notifications.length > 0 ? (
             notifications.map((notification) => (
