@@ -25,7 +25,7 @@
 .nav-tab {
   padding: 1rem 1.25rem;
   background: transparent;
-  border: none;
+  border: 2px solid rgba(255, 152, 0, 0.3);
   border-radius: 12px;
   color: #94a3b8;
   font-size: 1rem;
@@ -40,12 +40,20 @@
   position: relative;
 }
 
+.nav-tab:hover {
+  background: rgba(255, 152, 0, 0.1);
+  border-color: rgba(255, 152, 0, 0.5);
+  color: #ff9800;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
 .nav-tab.active {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border-left: 3px solid #3b82f6;
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+  border: 2px solid #ff9800;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
 }
 
 .nav-tab.active::before {
@@ -56,7 +64,7 @@
   transform: translateY(-50%);
   width: 4px;
   height: 60%;
-  background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(180deg, #ff9800 0%, #ff6f00 100%);
   border-radius: 0 4px 4px 0;
 }
 
@@ -66,18 +74,18 @@
 
 /* Profile Tab - Special Styling */
 .nav-tab.profile-tab {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-  border-left: 3px solid #8b5cf6;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 111, 0, 0.1) 100%);
+  border: 2px solid rgba(255, 152, 0, 0.4);
   margin-bottom: 0.75rem;
   font-weight: 600;
 }
 
 .nav-tab.profile-tab:hover {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
-  color: #a78bfa;
-  border-left-color: #a78bfa;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 111, 0, 0.2) 100%);
+  color: #ff9800;
+  border-color: #ff9800;
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
 }
 
 .left-sidebar-content {
