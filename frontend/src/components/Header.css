@@ -50,28 +50,19 @@
 
 .header-brand {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
 }
 
 .brand-name {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #ff9800 0%, #ff6f00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
   line-height: 1;
-}
-
-.brand-subtitle {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #94a3b8;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  line-height: 1;
+  text-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
 }
 
 .header-right {
@@ -1055,11 +1046,7 @@
   }
 
   .brand-name {
-    font-size: 1.25rem;
-  }
-
-  .brand-subtitle {
-    font-size: 0.65rem;
+    font-size: 1.4rem;
   }
 }
 
@@ -1069,11 +1056,7 @@
   }
 
   .brand-name {
-    font-size: 1.1rem;
-  }
-
-  .brand-subtitle {
-    font-size: 0.6rem;
+    font-size: 1.2rem;
   }
   
   .user-username {
