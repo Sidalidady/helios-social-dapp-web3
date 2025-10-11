@@ -31,10 +31,10 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
         style={{
           width: '90%',
           maxWidth: '600px',
-          backgroundColor: '#ffffff',
+          backgroundColor: '#1e293b',
           borderRadius: '20px',
-          border: '5px solid #3b82f6',
-          boxShadow: '0 0 100px rgba(59, 130, 246, 1)',
+          border: '2px solid rgba(59, 130, 246, 0.5)',
+          boxShadow: '0 25px 80px rgba(59, 130, 246, 0.3), 0 0 100px rgba(139, 92, 246, 0.2)',
           overflow: 'hidden',
         }}
       >
@@ -42,7 +42,8 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
         <div
           style={{
             padding: '20px 30px',
-            backgroundColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+            borderBottom: '2px solid rgba(59, 130, 246, 0.3)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -59,7 +60,7 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
               gap: '10px',
             }}
           >
-            <Bell size={28} />
+            <Bell size={28} color="#60a5fa" />
             Notifications ({notifications.length})
           </h2>
           <button
@@ -67,14 +68,21 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
             style={{
               width: '40px',
               height: '40px',
-              backgroundColor: '#ef4444',
-              border: 'none',
+              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              border: '2px solid rgba(239, 68, 68, 0.5)',
               borderRadius: '10px',
-              color: '#ffffff',
+              color: '#f87171',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.3)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
             }}
           >
             <X size={24} />
@@ -87,7 +95,7 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
             padding: '30px',
             maxHeight: '500px',
             overflowY: 'auto',
-            backgroundColor: '#f3f4f6',
+            backgroundColor: '#0f172a',
           }}
         >
           {notifications.length > 0 ? (
@@ -95,17 +103,27 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
               <div
                 key={index}
                 style={{
-                  padding: '15px',
+                  padding: '15px 20px',
                   marginBottom: '10px',
-                  backgroundColor: '#ffffff',
-                  borderRadius: '10px',
-                  border: '2px solid #e5e7eb',
+                  backgroundColor: 'rgba(30, 41, 59, 0.8)',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.15)';
+                  e.currentTarget.style.transform = 'translateX(4px)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+                  e.currentTarget.style.transform = 'translateX(0)';
                 }}
               >
-                <p style={{ margin: 0, color: '#111827', fontSize: '16px' }}>
+                <p style={{ margin: 0, color: '#e5e7eb', fontSize: '16px', fontWeight: '500' }}>
                   {notif.message || 'New notification'}
                 </p>
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                   {notif.timestamp || 'Just now'}
                 </span>
               </div>
@@ -117,11 +135,11 @@ function NotificationsSimple({ isOpen, onClose, notifications = [] }) {
                 padding: '60px 20px',
               }}
             >
-              <Bell size={80} style={{ color: '#9ca3af', marginBottom: '20px' }} />
-              <h3 style={{ color: '#111827', fontSize: '20px', margin: '0 0 10px 0' }}>
+              <Bell size={80} style={{ color: '#475569', marginBottom: '20px' }} />
+              <h3 style={{ color: '#e2e8f0', fontSize: '20px', margin: '0 0 10px 0', fontWeight: '700' }}>
                 No notifications yet
               </h3>
-              <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+              <p style={{ color: '#94a3b8', fontSize: '14px', margin: 0, lineHeight: '1.6' }}>
                 When someone follows you or interacts with your posts,
                 <br />
                 you'll see notifications here
