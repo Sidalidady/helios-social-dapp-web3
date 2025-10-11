@@ -217,10 +217,6 @@ function SunLogo() {
   return (
     <div className="sun-logo-container">
       <canvas ref={canvasRef} className="sun-logo-canvas"></canvas>
-      <div className="helios-text">
-        <span className="helios-main">HELIOS</span>
-        <span className="helios-sub">Social</span>
-      </div>
     </div>
   );
 }
