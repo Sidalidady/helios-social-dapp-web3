@@ -5,7 +5,7 @@ import { formatAddress } from '../utils/formatters';
 import { Wallet, LogOut, User, X, Search, Sun, Moon, Bell, Menu, Home, TrendingUp, Users } from 'lucide-react';
 import { getFromIPFS } from '../utils/ipfs';
 import Profile from './Profile';
-import Notifications, { getUnreadCount } from './Notifications';
+import Notifications from './Notifications';
 import SearchResults from './SearchResults';
 import SunLogo from './SunLogo';
 import { contractData } from '../utils/contract';
@@ -91,21 +91,61 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
     loadProfile();
   }, [userProfile]);
 
-  // Update unread count
+  // Read unread notification count from blockchain
+  const { data: unreadCountData, refetch: refetchUnreadCount } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getUnreadNotificationCount',
+    args: [address],
+    enabled: !!address,
+  });
+
+  // Update unread count from blockchain
+  useEffect(() => {
+    if (unreadCountData !== undefined) {
+      setUnreadCount(Number(unreadCountData));
+      console.log('🔔 Unread notification count:', Number(unreadCountData));
+    }
+  }, [unreadCountData]);
+
+  // Watch for NotificationCreated events to update count
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'NotificationCreated',
+    onLogs: (logs) => {
+      if (!address) return;
+      
+      for (const log of logs) {
+        const recipient = log.args.recipient;
+        if (recipient.toLowerCase() === address.toLowerCase()) {
+          console.log('🔔 New notification received, updating count...');
+          // Refetch unread count
+          setTimeout(() => {
+            refetchUnreadCount();
+          }, 1000);
+        }
+      }
+    }
+  });
+
+  // Refresh unread count when notifications panel closes
+  useEffect(() => {
+    if (!showNotifications && address) {
+      refetchUnreadCount();
+    }
+  }, [showNotifications, address, refetchUnreadCount]);
+
+  // Auto-refresh unread count every 30 seconds
   useEffect(() => {
     if (address) {
-      const count = getUnreadCount(address);
-      setUnreadCount(count);
-      
-      // Check for updates every 10 seconds
       const interval = setInterval(() => {
-        const newCount = getUnreadCount(address);
-        setUnreadCount(newCount);
-      }, 10000);
+        refetchUnreadCount();
+      }, 30000);
       
       return () => clearInterval(interval);
     }
-  }, [address, showNotifications]);
+  }, [address, refetchUnreadCount]);
 
   const [showWalletModal, setShowWalletModal] = useState(false);
 

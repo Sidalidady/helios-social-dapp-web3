@@ -14,7 +14,7 @@ function Notifications({ isOpen, onClose }) {
     if (isOpen && address) {
       loadNotifications();
     }
-  }, [isOpen, address]);
+  }, [isOpen, address, blockchainNotifications]);
 
   // Read notifications from blockchain
   const { data: blockchainNotifications, refetch: refetchNotifications } = useReadContract({
@@ -34,6 +34,7 @@ function Notifications({ isOpen, onClose }) {
   const loadNotifications = () => {
     // Load notifications from blockchain
     console.log('📥 Loading notifications from blockchain for:', address);
+    console.log('📊 Blockchain notifications data:', blockchainNotifications);
     
     if (blockchainNotifications && blockchainNotifications.length > 0) {
       console.log('✅ Loaded', blockchainNotifications.length, 'notifications from blockchain');
@@ -41,6 +42,12 @@ function Notifications({ isOpen, onClose }) {
       // Convert blockchain data to frontend format
       const formattedNotifications = blockchainNotifications.map((notif, index) => {
         const typeString = getNotificationTypeString(Number(notif.notificationType));
+        console.log(`📋 Notification ${index}:`, {
+          type: typeString,
+          sender: notif.sender,
+          timestamp: Number(notif.timestamp),
+          read: notif.read
+        });
         return {
           id: index,
           type: typeString,
@@ -53,9 +60,24 @@ function Notifications({ isOpen, onClose }) {
       }).reverse(); // Reverse to show newest first
       
       setNotifications(formattedNotifications);
+      console.log('✅ Notifications loaded into state:', formattedNotifications.length);
     } else {
       console.log('📭 No notifications found on blockchain');
-      setNotifications([]);
+      
+      // Fallback: Try loading from localStorage for backward compatibility
+      const stored = localStorage.getItem(`notifications_${address}`);
+      if (stored) {
+        try {
+          const localNotifications = JSON.parse(stored);
+          console.log('📦 Loaded', localNotifications.length, 'notifications from localStorage (fallback)');
+          setNotifications(localNotifications);
+        } catch (error) {
+          console.error('❌ Error parsing localStorage notifications:', error);
+          setNotifications([]);
+        }
+      } else {
+        setNotifications([]);
+      }
     }
   };
 
@@ -130,10 +152,21 @@ function Notifications({ isOpen, onClose }) {
             continue;
           }
 
-          console.log('✅ New notification! Refetching from blockchain...');
+          console.log('✅ New notification for you! Refetching from blockchain...');
+          console.log('📋 Notification details:', {
+            recipient: log.args.recipient,
+            sender: log.args.sender,
+            type: log.args.notificationType,
+            relatedId: log.args.relatedId?.toString()
+          });
           
           // Refetch notifications from blockchain
-          refetchNotifications();
+          await refetchNotifications();
+          
+          // Force reload after a short delay to ensure blockchain is updated
+          setTimeout(() => {
+            refetchNotifications();
+          }, 2000);
           
         } catch (error) {
           console.error('❌ Error processing notification:', error);
@@ -481,8 +514,28 @@ export const addNotification = (userAddress, notification) => {
   return updated.filter(n => !n.read).length;
 };
 
-// Get unread count
-export const getUnreadCount = (userAddress) => {
+// Get unread count from blockchain
+export const getUnreadCount = async (userAddress, contractAddress, abi) => {
+  try {
+    // Try to get from blockchain first
+    if (contractAddress && abi) {
+      const { readContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      
+      const count = await readContract(config, {
+        address: contractAddress,
+        abi: abi,
+        functionName: 'getUnreadNotificationCount',
+        args: [userAddress],
+      });
+      
+      return Number(count);
+    }
+  } catch (error) {
+    console.error('Error getting unread count from blockchain:', error);
+  }
+  
+  // Fallback to localStorage
   const stored = localStorage.getItem(`notifications_${userAddress}`);
   if (!stored) return 0;
   
