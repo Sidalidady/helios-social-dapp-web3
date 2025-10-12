@@ -266,6 +266,11 @@ function AppContent() {
           // Profile found on blockchain
           setProfileCreated(true);
           setHasValidProfile(true);
+          
+          // IMPORTANT: Close registration modal if it's open
+          setShowRegistration(false);
+          setShowWelcomeChoice(false);
+          
           // ✅ User has existing profile - auto login
           const username = userProfile.displayName;
           const ipfsHash = userProfile.profileIpfsHash;
@@ -819,7 +824,7 @@ function AppContent() {
         />
       )}
 
-      {showRegistration && isConnected && (
+      {showRegistration && isConnected && !hasValidProfile && (
         <Registration 
           address={address}
           onComplete={handleRegistrationComplete}
