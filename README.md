@@ -1,4 +1,4 @@
-# Helios Social - Decentralized Social Platform
+# Stellari Social - Decentralized Helios Social Platform
 
 <div align="center">
 
