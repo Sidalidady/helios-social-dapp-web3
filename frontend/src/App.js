@@ -487,8 +487,8 @@ function AppContent() {
               </div>
               <div className="logo-glow"></div>
             </div>
-            <h1>Welcome to Helios Social</h1>
-            <p className="tagline">Your Decentralized Social Network</p>
+            <h1>Welcome to Stellari Social</h1>
+            <p className="tagline">Your Decentralized Helios Social Network</p>
             <p className="subtitle">Connect your Web3 wallet to join the community</p>
             <button 
               onClick={() => setShowWalletConnect(true)} 
