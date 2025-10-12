@@ -11,20 +11,20 @@ function Notifications({ isOpen, onClose }) {
   const [notifications, setNotifications] = useState([]);
   const { address } = useAccount();
 
-  useEffect(() => {
-    if (isOpen && address) {
-      loadNotifications();
-    }
-  }, [isOpen, address, blockchainNotifications]);
-
   // Read notifications from blockchain
   const { data: blockchainNotifications, refetch: refetchNotifications } = useReadContract({
     address: contractData.address,
     abi: contractData.abi,
     functionName: 'getUserNotifications',
     args: [address],
-    enabled: !!address,
+    enabled: !!address && isOpen,
   });
+
+  useEffect(() => {
+    if (isOpen && address) {
+      loadNotifications();
+    }
+  }, [isOpen, address, blockchainNotifications]);
 
   // Helper to convert notification type number to string
   const getNotificationTypeString = (typeNum) => {

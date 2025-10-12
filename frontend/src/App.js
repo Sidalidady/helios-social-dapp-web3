@@ -39,12 +39,8 @@ function AppContent() {
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
   // Track if profile was just created (persist in localStorage)
-  const [profileCreated, setProfileCreated] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('profile_created') === 'true';
-    }
-    return false;
-  });
+  const [profileCreated, setProfileCreated] = useState(false);
+  const [hasValidProfile, setHasValidProfile] = useState(false);
   const [welcomeUsername, setWelcomeUsername] = useState('');
   const [welcomeImage, setWelcomeImage] = useState('');
   const [activeTab, setActiveTab] = useState('feed');
@@ -265,23 +261,11 @@ function AppContent() {
         const hasProfile = userProfile?.exists && userProfile?.displayName?.length > 0;
         console.log('Has profile?', hasProfile);
         
-        // Also check localStorage backup
-        const hasProfileCreatedFlag = localStorage.getItem('profile_created') === 'true';
-        console.log('Has profile created flag in localStorage?', hasProfileCreatedFlag);
-        
-        // If localStorage says profile was created but blockchain doesn't show it yet,
-        // trust localStorage and skip the modal
-        if (hasProfileCreatedFlag && !hasProfile) {
-          console.log('⚠️ Profile flag set but not found on blockchain yet - skipping modal');
-          setProfileCreated(true);
-          setHasCheckedProfile(true);
-          return;
-        }
-        
         if (hasProfile) {
-          // Profile found on blockchain - set the flag for future
-          localStorage.setItem('profile_created', 'true');
+          // Profile exists on blockchain
+          // Profile found on blockchain
           setProfileCreated(true);
+          setHasValidProfile(true);
           // ✅ User has existing profile - auto login
           const username = userProfile.displayName;
           const ipfsHash = userProfile.profileIpfsHash;
@@ -314,14 +298,9 @@ function AppContent() {
         } else {
           // ❌ No profile - must create one first
           console.log('⚠️ No profile found - MUST CREATE PROFILE');
-          
-          // Only show registration if profile wasn't just created
-          if (!profileCreated) {
-            setShowWelcomeChoice(false);
-            setShowRegistration(true); // Force registration - NO SKIP!
-          } else {
-            console.log('✅ Profile was just created, skipping registration modal');
-          }
+          setHasValidProfile(false);
+          setShowWelcomeChoice(false);
+          setShowRegistration(true); // Force registration - NO SKIP!
         }
         
         setHasCheckedProfile(true);
@@ -330,7 +309,8 @@ function AppContent() {
       // Reset check when disconnected
       if (!isConnected && !isConnecting && !isReconnecting) {
         setHasCheckedProfile(false);
-        // DON'T reset profileCreated - it's persisted in localStorage
+        setProfileCreated(false);
+        setHasValidProfile(false);
         setShowWelcomeChoice(false);
         setShowRegistration(false);
         setShowWelcomeBack(false);
@@ -368,11 +348,11 @@ function AppContent() {
     // IMMEDIATELY close registration modal
     setShowRegistration(false);
     
-    // Mark that profile was created to prevent re-showing registration
+    // Mark that profile was created
     setProfileCreated(true);
-    localStorage.setItem('profile_created', 'true');
+    setHasValidProfile(true);
     
-    // Mark as checked to prevent profile check from running
+    // Mark as checked to prevent profile check from running again
     setHasCheckedProfile(true);
     
     // Wait for blockchain to update (longer wait)
@@ -517,8 +497,22 @@ function AppContent() {
             </div>
           </div>
         </div>
+      ) : !hasValidProfile && !showRegistration ? (
+        // Connected but no profile - show loading or waiting state
+        <div className="disconnected-overlay">
+          <div className="connect-prompt">
+            <div className="connect-prompt-logo">
+              <div className="logo-container">
+                <SunLogo />
+              </div>
+              <div className="logo-glow"></div>
+            </div>
+            <h1>Checking Profile...</h1>
+            <p className="tagline">Please wait while we verify your account</p>
+          </div>
+        </div>
       ) : (
-        // Connected state - show full UI
+        // Connected state with valid profile - show full UI
         <>
           
           <main className="main-content">
