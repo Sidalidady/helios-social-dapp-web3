@@ -28,7 +28,7 @@ function Notifications({ isOpen, onClose }) {
 
   // Helper to convert notification type number to string
   const getNotificationTypeString = (typeNum) => {
-    const types = ['like', 'follow', 'comment', 'comment_like'];
+    const types = ['like', 'follow', 'comment', 'comment_like', 'mention', 'reply', 'tag'];
     return types[typeNum] || 'unknown';
   };
 
@@ -179,6 +179,12 @@ function Notifications({ isOpen, onClose }) {
         return 'commented on your post';
       case 'comment_like':
         return 'liked your comment';
+      case 'mention':
+        return 'mentioned you in a post';
+      case 'reply':
+        return 'replied to your comment';
+      case 'tag':
+        return 'tagged you in a post';
       default:
         return 'interacted with you';
     }
@@ -217,6 +223,12 @@ function Notifications({ isOpen, onClose }) {
         return <Heart size={20} className="notification-icon like" />;
       case 'comment':
         return <MessageCircle size={20} className="notification-icon comment" />;
+      case 'comment_like':
+        return <Heart size={20} className="notification-icon like" />;
+      case 'reply':
+        return <MessageCircle size={20} className="notification-icon comment" />;
+      case 'tag':
+        return <AtSign size={20} className="notification-icon mention" />;
       default:
         return <User size={20} className="notification-icon" />;
     }

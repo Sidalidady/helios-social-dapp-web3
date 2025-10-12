@@ -148,6 +148,9 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     uint8 constant NOTIF_FOLLOW = 1;
     uint8 constant NOTIF_COMMENT = 2;
     uint8 constant NOTIF_COMMENT_LIKE = 3;
+    uint8 constant NOTIF_MENTION = 4;
+    uint8 constant NOTIF_REPLY = 5;
+    uint8 constant NOTIF_TAG = 6;
     
     // Notification event for frontend
     event NotificationCreated(
@@ -669,7 +672,11 @@ contract SocialFeed is Ownable, ReentrancyGuard {
         if (_notificationType == NOTIF_LIKE) typeString = "like";
         else if (_notificationType == NOTIF_FOLLOW) typeString = "follow";
         else if (_notificationType == NOTIF_COMMENT) typeString = "comment";
-        else typeString = "comment_like";
+        else if (_notificationType == NOTIF_COMMENT_LIKE) typeString = "comment_like";
+        else if (_notificationType == NOTIF_MENTION) typeString = "mention";
+        else if (_notificationType == NOTIF_REPLY) typeString = "reply";
+        else if (_notificationType == NOTIF_TAG) typeString = "tag";
+        else typeString = "unknown";
         
         emit NotificationCreated(
             _recipient,
@@ -746,6 +753,63 @@ contract SocialFeed is Ownable, ReentrancyGuard {
             }
             notifications.pop();
         }
+    }
+    
+    /**
+     * @dev Create mention notification
+     * Call this when a user mentions another user in a post or comment
+     */
+    function createMentionNotification(
+        address _mentionedUser,
+        uint256 _postId
+    ) external {
+        require(_mentionedUser != msg.sender, "Cannot mention yourself");
+        require(_mentionedUser != address(0), "Invalid address");
+        
+        _createNotification(
+            _mentionedUser,
+            msg.sender,
+            NOTIF_MENTION,
+            _postId
+        );
+    }
+    
+    /**
+     * @dev Create reply notification
+     * Call this when a user replies to another user's comment
+     */
+    function createReplyNotification(
+        address _originalCommenter,
+        uint256 _postId
+    ) external {
+        require(_originalCommenter != msg.sender, "Cannot reply to yourself");
+        require(_originalCommenter != address(0), "Invalid address");
+        
+        _createNotification(
+            _originalCommenter,
+            msg.sender,
+            NOTIF_REPLY,
+            _postId
+        );
+    }
+    
+    /**
+     * @dev Create tag notification
+     * Call this when a user tags another user in a post
+     */
+    function createTagNotification(
+        address _taggedUser,
+        uint256 _postId
+    ) external {
+        require(_taggedUser != msg.sender, "Cannot tag yourself");
+        require(_taggedUser != address(0), "Invalid address");
+        
+        _createNotification(
+            _taggedUser,
+            msg.sender,
+            NOTIF_TAG,
+            _postId
+        );
     }
     
     /**
