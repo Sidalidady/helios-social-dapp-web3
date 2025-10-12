@@ -42,20 +42,7 @@ function Notifications({ isOpen, onClose }) {
     console.log('📥 Loading notifications for:', address);
     console.log('📊 Blockchain notifications data:', blockchainNotifications);
     
-    // PRIORITY 1: Try localStorage first (most reliable for current implementation)
-    const stored = localStorage.getItem(`notifications_${address}`);
-    if (stored) {
-      try {
-        const localNotifications = JSON.parse(stored);
-        console.log('📦 Loaded', localNotifications.length, 'notifications from localStorage');
-        setNotifications(localNotifications);
-        return; // Use localStorage data
-      } catch (error) {
-        console.error('❌ Error parsing localStorage notifications:', error);
-      }
-    }
-    
-    // PRIORITY 2: Try blockchain if localStorage is empty
+    // PRIORITY 1: Try blockchain first (source of truth)
     if (blockchainNotifications && blockchainNotifications.length > 0) {
       console.log('✅ Loaded', blockchainNotifications.length, 'notifications from blockchain');
       
@@ -82,7 +69,7 @@ function Notifications({ isOpen, onClose }) {
       setNotifications(formattedNotifications);
       console.log('✅ Notifications loaded into state:', formattedNotifications.length);
     } else {
-      console.log('📭 No notifications found in blockchain or localStorage');
+      console.log('📭 No notifications found on blockchain');
       setNotifications([]);
     }
   };
@@ -197,188 +184,26 @@ function Notifications({ isOpen, onClose }) {
     }
   };
 
-  // Keep old event watchers as backup (will be removed later)
-  // Watch for post likes
+  // Watch for NotificationCreated events from smart contract to refresh the list
   useWatchContractEvent({
     address: contractData.address,
     abi: contractData.abi,
-    eventName: 'PostLiked',
-    onLogs: async (logs) => {
-      if (!address) {
-        console.log('⚠️ No address, skipping like notification');
-        return;
-      }
-
-      console.log('❤️ PostLiked event received:', logs.length, 'events');
-
-      for (const log of logs) {
-        try {
-          const postId = log.args.postId;
-          const liker = log.args.liker;
-
-          console.log('Processing like:', { postId: postId?.toString(), liker, currentUser: address });
-
-          // Don't notify if you liked your own post
-          if (liker.toLowerCase() === address.toLowerCase()) {
-            console.log('⏭️ Skipping - you liked your own post');
-            continue;
-          }
-
-          // Get the post to check if it's yours
-          const { readContract } = await import('wagmi/actions');
-          const { config } = await import('../config/wagmi');
-          
-          const post = await readContract(config, {
-            address: contractData.address,
-            abi: contractData.abi,
-            functionName: 'getPost',
-            args: [postId],
-          });
-
-          console.log('Post author:', post?.author, 'Your address:', address);
-
-          // If this is your post, add notification
-          if (post && post.author.toLowerCase() === address.toLowerCase()) {
-            console.log('✅ Adding like notification!');
-            
-            const notification = {
-              id: Date.now() + Math.random(),
-              type: 'like',
-              from: liker,
-              message: 'liked your post',
-              postId: postId.toString(),
-              timestamp: Date.now(),
-              read: false
-            };
-
-            // Save directly to localStorage
-            const stored = localStorage.getItem(`notifications_${address}`);
-            const existing = stored ? JSON.parse(stored) : [];
-            const updated = [notification, ...existing].slice(0, 50);
-            localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
-            
-            console.log('💾 Notification saved to localStorage');
-            
-            // Update state
-            setNotifications(updated);
-          } else {
-            console.log('⏭️ Not your post, skipping notification');
-          }
-        } catch (error) {
-          console.error('❌ Error processing like notification:', error);
-        }
-      }
-    }
-  });
-
-  // Watch for follows
-  useWatchContractEvent({
-    address: contractData.address,
-    abi: contractData.abi,
-    eventName: 'UserFollowed',
+    eventName: 'NotificationCreated',
     onLogs: (logs) => {
-      if (!address) {
-        console.log('⚠️ No address, skipping follow notification');
-        return;
-      }
-
-      console.log('👥 UserFollowed event received:', logs.length, 'events');
-
+      if (!address) return;
+      
       for (const log of logs) {
-        try {
-          const follower = log.args.follower;
-          const followed = log.args.followed;
-
-          console.log('Processing follow:', { follower, followed, currentUser: address });
-
-          // If someone followed you, add notification
-          if (followed.toLowerCase() === address.toLowerCase() && 
-              follower.toLowerCase() !== address.toLowerCase()) {
-            console.log('✅ Adding follow notification!');
-            
-            const notification = {
-              id: Date.now() + Math.random(),
-              type: 'follow',
-              from: follower,
-              message: 'started following you',
-              timestamp: Date.now(),
-              read: false
-            };
-
-            // Save directly to localStorage
-            const stored = localStorage.getItem(`notifications_${address}`);
-            const existing = stored ? JSON.parse(stored) : [];
-            const updated = [notification, ...existing].slice(0, 50);
-            localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
-            
-            console.log('💾 Follow notification saved to localStorage');
-            
-            // Update state
-            setNotifications(updated);
-          } else {
-            console.log('⏭️ Not following you, skipping notification');
-          }
-        } catch (error) {
-          console.error('❌ Error processing follow notification:', error);
+        const recipient = log.args.recipient;
+        if (recipient.toLowerCase() === address.toLowerCase()) {
+          console.log('🔔 New notification created on blockchain, refreshing...');
+          // Refetch notifications from blockchain
+          setTimeout(() => {
+            refetchNotifications();
+          }, 1000);
         }
       }
     }
   });
-
-  // Watch for new comments to detect mentions
-  useWatchContractEvent({
-    address: contractData.address,
-    abi: contractData.abi,
-    eventName: 'CommentAdded',
-    onLogs: async (logs) => {
-      if (!address || !userProfile || !userProfile.displayName) return;
-
-      const username = userProfile.displayName.toLowerCase();
-
-      // Check each comment for mentions
-      for (const log of logs) {
-        try {
-          const ipfsHash = log.args.ipfsHash;
-          const commenter = log.args.commenter;
-          const postId = log.args.postId;
-
-          // Don't notify if you mentioned yourself
-          if (commenter.toLowerCase() === address.toLowerCase()) continue;
-
-          // Fetch comment content
-          const commentData = await getFromIPFS(ipfsHash);
-          const content = commentData.content || '';
-
-          // Check if comment mentions this user
-          const mentionRegex = new RegExp(`@${username}\\b`, 'i');
-          if (mentionRegex.test(content)) {
-            // Add notification
-            addNotification({
-              id: Date.now() + Math.random(),
-              type: 'mention',
-              from: commenter,
-              fromName: 'Someone',
-              message: `mentioned you in a comment`,
-              content: content.substring(0, 100),
-              postId: postId.toString(),
-              timestamp: Date.now(),
-              read: false
-            });
-          }
-        } catch (error) {
-          console.error('Error processing mention:', error);
-        }
-      }
-    }
-  });
-
-  const addNotification = (notification) => {
-    const stored = localStorage.getItem(`notifications_${address}`);
-    const existing = stored ? JSON.parse(stored) : [];
-    const updated = [notification, ...existing].slice(0, 50); // Keep last 50
-    localStorage.setItem(`notifications_${address}`, JSON.stringify(updated));
-    setNotifications(updated);
-  };
 
   const getNotificationIcon = (type) => {
     switch (type) {

@@ -92,33 +92,22 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
     loadProfile();
   }, [userProfile]);
 
-  // Read unread notification count from localStorage (primary source)
-  const updateUnreadCount = () => {
-    if (!address) {
-      setUnreadCount(0);
-      return;
-    }
-    
-    try {
-      const stored = localStorage.getItem(`notifications_${address}`);
-      if (stored) {
-        const notifications = JSON.parse(stored);
-        const unread = notifications.filter(n => !n.read).length;
-        setUnreadCount(unread);
-        console.log('🔔 Unread notification count from localStorage:', unread);
-      } else {
-        setUnreadCount(0);
-      }
-    } catch (error) {
-      console.error('Error reading notification count:', error);
-      setUnreadCount(0);
-    }
-  };
+  // Read unread notification count from blockchain
+  const { data: unreadCountData, refetch: refetchUnreadCount } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getUnreadNotificationCount',
+    args: [address],
+    enabled: !!address,
+  });
 
-  // Update count when address changes or component mounts
+  // Update unread count from blockchain
   useEffect(() => {
-    updateUnreadCount();
-  }, [address]);
+    if (unreadCountData !== undefined) {
+      setUnreadCount(Number(unreadCountData));
+      console.log('🔔 Unread notification count from blockchain:', Number(unreadCountData));
+    }
+  }, [unreadCountData]);
 
   // Watch for NotificationCreated events to update count
   useWatchContractEvent({
@@ -132,9 +121,9 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
         const recipient = log.args.recipient;
         if (recipient.toLowerCase() === address.toLowerCase()) {
           console.log('🔔 New notification received, updating count...');
-          // Update count from localStorage
+          // Refetch count from blockchain
           setTimeout(() => {
-            updateUnreadCount();
+            refetchUnreadCount();
           }, 1000);
         }
       }
@@ -144,20 +133,20 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
   // Refresh unread count when notifications panel closes
   useEffect(() => {
     if (!showNotifications && address) {
-      updateUnreadCount();
+      refetchUnreadCount();
     }
-  }, [showNotifications, address]);
+  }, [showNotifications, address, refetchUnreadCount]);
 
   // Auto-refresh unread count every 30 seconds
   useEffect(() => {
     if (address) {
       const interval = setInterval(() => {
-        updateUnreadCount();
+        refetchUnreadCount();
       }, 30000);
       
       return () => clearInterval(interval);
     }
-  }, [address]);
+  }, [address, refetchUnreadCount]);
 
   const [showWalletModal, setShowWalletModal] = useState(false);
 
