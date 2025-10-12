@@ -137,7 +137,7 @@ function AppContent() {
     if (address) {
       // Reset profile check when address changes
       setHasCheckedProfile(false);
-      setShowProfileInFeed(false);
+      setShowProfileInFeed(false); // Always hide profile window on reload/address change
       setViewingUserProfile(null);
     }
   }, [address]);
@@ -270,6 +270,7 @@ function AppContent() {
           // IMPORTANT: Close registration modal if it's open
           setShowRegistration(false);
           setShowWelcomeChoice(false);
+          setShowProfileInFeed(false); // Hide profile window on reload
           
           // ✅ User has existing profile - auto login
           const username = userProfile.displayName;
