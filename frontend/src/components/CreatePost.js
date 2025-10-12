@@ -23,24 +23,12 @@ function CreatePost({ onPostCreated }) {
   const [hasRefreshed, setHasRefreshed] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  // Track if this is the user's first post
-  const [isFirstPost, setIsFirstPost] = useState(() => {
-    const hasPostedBefore = localStorage.getItem('hasPostedBefore');
-    return !hasPostedBefore;
-  });
-  
   useEffect(() => {
     if (isConfirmed && hash && !hasRefreshed) {
       console.log('✅ Post confirmed on blockchain!');
       console.log('Transaction hash:', hash);
       setHasRefreshed(true);
       setShowSuccess(true);
-      
-      // Mark that user has posted before
-      if (isFirstPost) {
-        localStorage.setItem('hasPostedBefore', 'true');
-        setIsFirstPost(false);
-      }
       
       // Hide success message after 3 seconds
       setTimeout(() => setShowSuccess(false), 3000);
@@ -66,9 +54,9 @@ function CreatePost({ onPostCreated }) {
       setHasRefreshed(false);
       setShowSuccess(false);
     }
-  }, [isConfirmed, hash, hasRefreshed, onPostCreated, isFirstPost]);
+  }, [isConfirmed, hash, hasRefreshed, onPostCreated]);
 
-  const MAX_LENGTH = isFirstPost ? 2800 : 280;
+  const MAX_LENGTH = 300;
   const charCount = content.length;
   const isOverLimit = charCount > MAX_LENGTH;
 
@@ -190,7 +178,7 @@ function CreatePost({ onPostCreated }) {
           {showHint && (
             <div className="hint-tooltip">
               Your post will be stored on IPFS and the blockchain!
-              <br />Max {MAX_LENGTH} characters{isFirstPost ? ' (First post bonus!)' : ''}.
+              <br />Max {MAX_LENGTH} characters.
             </div>
           )}
         </div>

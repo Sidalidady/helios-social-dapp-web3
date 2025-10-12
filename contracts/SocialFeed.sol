@@ -30,7 +30,7 @@ contract SocialFeed is Ownable, ReentrancyGuard {
     }
     
     uint256 private postCounter;
-    uint256 public constant MAX_POST_LENGTH = 280; // Character limit
+    uint256 public constant MAX_POST_LENGTH = 300; // Character limit
     
     mapping(uint256 => Post) public posts;
     mapping(address => UserProfile) public userProfiles;
