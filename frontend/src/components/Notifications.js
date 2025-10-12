@@ -33,10 +33,29 @@ function Notifications({ isOpen, onClose }) {
   };
 
   const loadNotifications = () => {
-    // Load notifications from blockchain
-    console.log('📥 Loading notifications from blockchain for:', address);
+    if (!address) {
+      console.log('⚠️ No address, cannot load notifications');
+      setNotifications([]);
+      return;
+    }
+
+    console.log('📥 Loading notifications for:', address);
     console.log('📊 Blockchain notifications data:', blockchainNotifications);
     
+    // PRIORITY 1: Try localStorage first (most reliable for current implementation)
+    const stored = localStorage.getItem(`notifications_${address}`);
+    if (stored) {
+      try {
+        const localNotifications = JSON.parse(stored);
+        console.log('📦 Loaded', localNotifications.length, 'notifications from localStorage');
+        setNotifications(localNotifications);
+        return; // Use localStorage data
+      } catch (error) {
+        console.error('❌ Error parsing localStorage notifications:', error);
+      }
+    }
+    
+    // PRIORITY 2: Try blockchain if localStorage is empty
     if (blockchainNotifications && blockchainNotifications.length > 0) {
       console.log('✅ Loaded', blockchainNotifications.length, 'notifications from blockchain');
       
@@ -63,22 +82,8 @@ function Notifications({ isOpen, onClose }) {
       setNotifications(formattedNotifications);
       console.log('✅ Notifications loaded into state:', formattedNotifications.length);
     } else {
-      console.log('📭 No notifications found on blockchain');
-      
-      // Fallback: Try loading from localStorage for backward compatibility
-      const stored = localStorage.getItem(`notifications_${address}`);
-      if (stored) {
-        try {
-          const localNotifications = JSON.parse(stored);
-          console.log('📦 Loaded', localNotifications.length, 'notifications from localStorage (fallback)');
-          setNotifications(localNotifications);
-        } catch (error) {
-          console.error('❌ Error parsing localStorage notifications:', error);
-          setNotifications([]);
-        }
-      } else {
-        setNotifications([]);
-      }
+      console.log('📭 No notifications found in blockchain or localStorage');
+      setNotifications([]);
     }
   };
 
