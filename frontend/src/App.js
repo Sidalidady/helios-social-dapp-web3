@@ -150,6 +150,8 @@ function AppContent() {
       setActiveTab('feed');
     } else if (path === '/all-posts') {
       setActiveTab('feed');
+    } else if (path === '/my-posts') {
+      setActiveTab('feed');
     }
   }, [location.pathname]);
 

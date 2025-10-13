@@ -37,6 +37,7 @@ npm install react-router-dom
 | Profile | `/profile` |
 | All Posts | `/all-posts` |
 | Following | `/following` |
+| My Posts | `/my-posts` |
 
 ### 4. How It Works
 
@@ -55,11 +56,30 @@ npm install react-router-dom
 - ✅ State synchronization with URL
 - ✅ No page reloads (SPA behavior)
 
+### 6. "My Posts" Feature
+
+The "My Posts" button (previously "X Helios") has been redesigned:
+
+**Changes:**
+- ✅ Renamed from "X Helios" to "My Posts"
+- ✅ No longer links to Twitter/X
+- ✅ Shows only the current user's posts when clicked
+- ✅ User's own posts are **hidden** from "All Posts" tab
+- ✅ User's own posts are **hidden** from "Following" tab
+- ✅ User can only see their posts in the "My Posts" tab
+- ✅ URL changes to `/my-posts` when clicked
+
+**Behavior:**
+- **All Posts**: Shows posts from all registered users **except** the current user
+- **Following**: Shows posts from users you follow **except** your own posts
+- **My Posts**: Shows **only** your posts
+
 ## Testing
 
 To test the routing:
 1. Start the development server: `npm start`
 2. Click on different navigation buttons and observe the URL changing
 3. Use browser back/forward buttons
-4. Try accessing URLs directly (e.g., `/trending`, `/following`)
+4. Try accessing URLs directly (e.g., `/trending`, `/following`, `/my-posts`)
 5. Refresh the page and verify the correct tab is active
+6. Create some posts and verify they only appear in "My Posts" tab

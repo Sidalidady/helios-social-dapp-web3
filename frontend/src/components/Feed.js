@@ -15,14 +15,20 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
   const [deletedPosts, setDeletedPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showFollowedOnly, setShowFollowedOnly] = useState(false);
+  const [showMyPostsOnly, setShowMyPostsOnly] = useState(false);
   const { isConnected, address } = useAccount();
 
-  // Sync showFollowedOnly with URL
+  // Sync tabs with URL
   useEffect(() => {
-    if (location.pathname === '/following') {
+    if (location.pathname === '/my-posts') {
+      setShowMyPostsOnly(true);
+      setShowFollowedOnly(false);
+    } else if (location.pathname === '/following') {
       setShowFollowedOnly(true);
+      setShowMyPostsOnly(false);
     } else if (location.pathname === '/all-posts' || location.pathname === '/feed' || location.pathname === '/') {
       setShowFollowedOnly(false);
+      setShowMyPostsOnly(false);
     }
   }, [location.pathname]);
 
@@ -153,8 +159,15 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         return;
       }
 
-      if (showFollowedOnly) {
-        // Show only posts from followed users
+      if (showMyPostsOnly) {
+        // Show only current user's posts
+        const myPosts = posts.filter(post => 
+          post.author.toLowerCase() === address?.toLowerCase()
+        );
+        console.log('📝 My posts:', myPosts.length);
+        setFilteredPosts(myPosts);
+      } else if (showFollowedOnly) {
+        // Show only posts from followed users (excluding own posts)
         const followingKey = `following_${address}`;
         const following = JSON.parse(localStorage.getItem(followingKey) || '[]');
         
@@ -162,6 +175,11 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         console.log('📝 Total posts:', posts.length);
         
         const followedPosts = posts.filter(post => {
+          // Exclude own posts
+          if (post.author.toLowerCase() === address?.toLowerCase()) {
+            return false;
+          }
+          
           const isFollowing = following.some(followedAddress => 
             followedAddress.toLowerCase() === post.author.toLowerCase()
           );
@@ -176,12 +194,17 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         console.log('📊 Filtered posts from following:', followedPosts.length);
         setFilteredPosts(followedPosts);
       } else {
-        // Show all posts from users with registered profiles
+        // Show all posts from users with registered profiles (excluding own posts)
         const registeredUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
         
         console.log('📋 Registered users:', registeredUsers.length);
         
         const postsFromRegistered = posts.filter(post => {
+          // Exclude own posts
+          if (post.author.toLowerCase() === address?.toLowerCase()) {
+            return false;
+          }
+          
           // Check if post author has a registered profile
           const hasProfile = registeredUsers.some(userAddress => 
             userAddress.toLowerCase() === post.author.toLowerCase()
@@ -202,7 +225,7 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
     if (!filterHashtag && !searchQuery && !filterByUser) {
       filterPosts();
     }
-  }, [posts, showFollowedOnly, address, filterHashtag, searchQuery, filterByUser]);
+  }, [posts, showFollowedOnly, showMyPostsOnly, address, filterHashtag, searchQuery, filterByUser]);
 
   // Filter posts by hashtag, search query, or user
   useEffect(() => {
@@ -294,9 +317,11 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
                 ? `Found ${displayPosts.length} post${displayPosts.length !== 1 ? 's' : ''} matching "${searchQuery}"`
                 : filterHashtag 
                   ? `Posts with ${filterHashtag}` 
-                  : showFollowedOnly 
-                    ? 'Posts from people you follow' 
-                    : 'Latest updates from your Web3 community'}
+                  : showMyPostsOnly
+                    ? 'Your posts'
+                    : showFollowedOnly 
+                      ? 'Posts from people you follow' 
+                      : 'Latest updates from your Web3 community'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -337,10 +362,11 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         {isConnected && (
           <div className="feed-tabs">
             <button 
-              className={`feed-tab ${!showFollowedOnly ? 'active' : ''}`}
+              className={`feed-tab ${!showFollowedOnly && !showMyPostsOnly ? 'active' : ''}`}
               onClick={() => {
                 navigate('/all-posts');
                 setShowFollowedOnly(false);
+                setShowMyPostsOnly(false);
               }}
             >
               All Posts
@@ -350,19 +376,22 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
               onClick={() => {
                 navigate('/following');
                 setShowFollowedOnly(true);
+                setShowMyPostsOnly(false);
               }}
             >
               Following
             </button>
-            <a 
-              href="https://x.com/helios_layer1" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="feed-tab feed-tab-x-helios"
-              title="Follow Helios on X (Twitter)"
+            <button 
+              className={`feed-tab ${showMyPostsOnly ? 'active' : ''}`}
+              onClick={() => {
+                navigate('/my-posts');
+                setShowMyPostsOnly(true);
+                setShowFollowedOnly(false);
+              }}
+              title="View your posts"
             >
-              X Helios
-            </a>
+              My Posts
+            </button>
           </div>
         )}
       </div>
