@@ -455,6 +455,11 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
         <div className="header-container">
           {/* Left - Logo */}
           <div className="header-left">
+            <img 
+              src="/images/1760379016814-0199dec3-f31d-7171-a4dd-facbecd0f667.png" 
+              alt="Logo" 
+              className="header-logo-image"
+            />
             <SunLogo />
             <div className="header-brand">
               <div className="brand-name">Stellari</div>
