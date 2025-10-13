@@ -279,8 +279,8 @@ function Notifications({ isOpen, onClose }) {
     });
 
     useEffect(() => {
-      // If notification already has username, use it
-      if (notification.username && notification.username !== 'Anonymous User') {
+      // Always use the pre-loaded username from notification object
+      if (notification.username) {
         console.log('✅ Using pre-loaded username:', notification.username);
         setAuthorUsername(notification.username);
       }
