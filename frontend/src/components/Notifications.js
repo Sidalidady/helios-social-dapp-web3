@@ -32,7 +32,7 @@ function Notifications({ isOpen, onClose }) {
     return types[typeNum] || 'unknown';
   };
 
-  const loadNotifications = () => {
+  const loadNotifications = async () => {
     if (!address) {
       console.log('⚠️ No address, cannot load notifications');
       setNotifications([]);
@@ -46,28 +46,58 @@ function Notifications({ isOpen, onClose }) {
     if (blockchainNotifications && blockchainNotifications.length > 0) {
       console.log('✅ Loaded', blockchainNotifications.length, 'notifications from blockchain');
       
-      // Convert blockchain data to frontend format
-      const formattedNotifications = blockchainNotifications.map((notif, index) => {
-        const typeString = getNotificationTypeString(Number(notif.notificationType));
-        console.log(`📋 Notification ${index}:`, {
-          type: typeString,
-          sender: notif.sender,
-          timestamp: Number(notif.timestamp),
-          read: notif.read
-        });
-        return {
-          id: index,
-          type: typeString,
-          from: notif.sender,
-          message: getNotificationMessage(typeString),
-          postId: Number(notif.relatedId).toString(),
-          timestamp: Number(notif.timestamp) * 1000,
-          read: notif.read
-        };
-      }).reverse(); // Reverse to show newest first
+      // Convert blockchain data to frontend format and fetch usernames
+      const formattedNotifications = await Promise.all(
+        blockchainNotifications.map(async (notif, index) => {
+          const typeString = getNotificationTypeString(Number(notif.notificationType));
+          
+          // Try to get username from contract
+          let username = 'Anonymous User';
+          try {
+            const { readContract } = await import('wagmi/actions');
+            const { config } = await import('../config/wagmi');
+            
+            const profile = await readContract(config, {
+              address: contractData.address,
+              abi: contractData.abi,
+              functionName: 'getUserProfile',
+              args: [notif.sender],
+            });
+            
+            if (profile && profile[0] && profile[0].trim() !== '') {
+              username = profile[0];
+              console.log(`✅ Got username for ${notif.sender}: ${username}`);
+            } else {
+              console.log(`⚠️ Empty username for ${notif.sender}`);
+            }
+          } catch (error) {
+            console.error(`❌ Error fetching username for ${notif.sender}:`, error);
+          }
+          
+          console.log(`📋 Notification ${index}:`, {
+            type: typeString,
+            sender: notif.sender,
+            username: username,
+            timestamp: Number(notif.timestamp),
+            read: notif.read
+          });
+          
+          return {
+            id: index,
+            type: typeString,
+            from: notif.sender,
+            username: username, // Add username directly to notification object
+            message: getNotificationMessage(typeString),
+            postId: Number(notif.relatedId).toString(),
+            timestamp: Number(notif.timestamp) * 1000,
+            read: notif.read
+          };
+        })
+      );
       
-      setNotifications(formattedNotifications);
-      console.log('✅ Notifications loaded into state:', formattedNotifications.length);
+      const reversedNotifications = formattedNotifications.reverse(); // Reverse to show newest first
+      setNotifications(reversedNotifications);
+      console.log('✅ Notifications loaded into state:', reversedNotifications);
     } else {
       console.log('📭 No notifications found on blockchain');
       setNotifications([]);
@@ -235,10 +265,11 @@ function Notifications({ isOpen, onClose }) {
   };
 
   const NotificationItem = ({ notification }) => {
-    const [authorUsername, setAuthorUsername] = useState('Loading...');
+    // Use username from notification object (already fetched)
+    const [authorUsername, setAuthorUsername] = useState(notification.username || 'Loading...');
     const [authorImage, setAuthorImage] = useState('');
 
-    // Get author's profile
+    // Get author's profile for image only
     const { data: authorProfile } = useReadContract({
       address: contractData.address,
       abi: contractData.abi,
@@ -248,68 +279,34 @@ function Notifications({ isOpen, onClose }) {
     });
 
     useEffect(() => {
-      const loadAuthorProfile = async () => {
-        console.log('🔍 Loading profile for:', notification.from);
-        console.log('📊 Author profile data:', authorProfile);
-        
-        // Check if we have profile data from blockchain
-        if (authorProfile) {
-          const username = authorProfile[0];
+      // If notification already has username, use it
+      if (notification.username && notification.username !== 'Anonymous User') {
+        console.log('✅ Using pre-loaded username:', notification.username);
+        setAuthorUsername(notification.username);
+      }
+      
+      // Load profile image from IPFS
+      const loadProfileImage = async () => {
+        if (authorProfile && authorProfile[1]) {
           const ipfsHash = authorProfile[1];
+          console.log('📸 Loading image from IPFS:', ipfsHash);
           
-          console.log('📝 Username from blockchain:', username);
-          console.log('📝 IPFS hash:', ipfsHash);
-          
-          // Check if username is not empty
-          if (username && username.trim() !== '') {
-            console.log('✅ Found username from blockchain:', username);
-            setAuthorUsername(username);
-            
-            // Try to load profile image from IPFS
-            if (ipfsHash && ipfsHash !== '') {
-              try {
-                const profileData = await getFromIPFS(ipfsHash);
-                console.log('📸 Profile data from IPFS:', profileData);
-                if (profileData && profileData.image) {
-                  setAuthorImage(profileData.image);
-                }
-              } catch (error) {
-                console.error('Error loading author profile image:', error);
+          if (ipfsHash && ipfsHash !== '') {
+            try {
+              const profileData = await getFromIPFS(ipfsHash);
+              if (profileData && profileData.image) {
+                setAuthorImage(profileData.image);
+                console.log('✅ Profile image loaded');
               }
+            } catch (error) {
+              console.error('Error loading profile image:', error);
             }
-            return; // Exit early if we found the username
           }
-        }
-        
-        // Fallback 1: Try to get from localStorage cache
-        console.log('⚠️ No profile from blockchain, checking localStorage...');
-        const cachedProfiles = JSON.parse(localStorage.getItem('user_profiles_cache') || '{}');
-        const cachedProfile = cachedProfiles[notification.from?.toLowerCase()];
-        
-        if (cachedProfile && cachedProfile.username) {
-          console.log('✅ Found username in cache:', cachedProfile.username);
-          setAuthorUsername(cachedProfile.username);
-          if (cachedProfile.image) {
-            setAuthorImage(cachedProfile.image);
-          }
-          return;
-        }
-        
-        // Fallback 2: Try to get from all_registered_users
-        const allUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
-        if (allUsers.includes(notification.from?.toLowerCase())) {
-          // User is registered but we couldn't get their profile
-          // Try to fetch it directly
-          console.log('👤 User is registered, trying direct fetch...');
-          setAuthorUsername('User'); // Temporary
-        } else {
-          console.log('❌ No profile found, using Anonymous User');
-          setAuthorUsername('Anonymous User');
         }
       };
       
-      loadAuthorProfile();
-    }, [authorProfile, notification.from]);
+      loadProfileImage();
+    }, [authorProfile, notification.username]);
 
     return (
       <div 
