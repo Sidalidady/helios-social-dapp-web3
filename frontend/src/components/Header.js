@@ -534,7 +534,7 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       </header>
       
       {showProfile && <Profile onClose={() => setShowProfile(false)} />}
-      {showNotifications && <NotificationsSimple isOpen={showNotifications} onClose={() => setShowNotifications(false)} notifications={[]} />}
+      {showNotifications && <Notifications isOpen={showNotifications} onClose={() => setShowNotifications(false)} />}
     </>
   );
 }
