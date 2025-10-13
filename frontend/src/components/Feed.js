@@ -164,19 +164,22 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         const myPosts = posts.filter(post => 
           post.author.toLowerCase() === address?.toLowerCase()
         );
-        console.log('📝 My posts:', myPosts.length);
+        console.log('📝 MY POSTS TAB - Showing only my posts:', myPosts.length);
+        console.log('📝 Current user address:', address);
         setFilteredPosts(myPosts);
       } else if (showFollowedOnly) {
         // Show only posts from followed users (excluding own posts)
         const followingKey = `following_${address}`;
         const following = JSON.parse(localStorage.getItem(followingKey) || '[]');
         
-        console.log('👥 Following list:', following);
+        console.log('👥 FOLLOWING TAB - Following list:', following);
         console.log('📝 Total posts:', posts.length);
+        console.log('🚫 Excluding posts from:', address);
         
         const followedPosts = posts.filter(post => {
           // Exclude own posts
           if (post.author.toLowerCase() === address?.toLowerCase()) {
+            console.log('🚫 Excluding my post:', post.id?.toString());
             return false;
           }
           
@@ -191,17 +194,19 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
           return isFollowing;
         });
         
-        console.log('📊 Filtered posts from following:', followedPosts.length);
+        console.log('📊 FOLLOWING TAB - Filtered posts (excluding mine):', followedPosts.length);
         setFilteredPosts(followedPosts);
       } else {
         // Show all posts from users with registered profiles (excluding own posts)
         const registeredUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
         
-        console.log('📋 Registered users:', registeredUsers.length);
+        console.log('📋 ALL POSTS TAB - Registered users:', registeredUsers.length);
+        console.log('🚫 Excluding posts from:', address);
         
         const postsFromRegistered = posts.filter(post => {
           // Exclude own posts
           if (post.author.toLowerCase() === address?.toLowerCase()) {
+            console.log('🚫 Excluding my post:', post.id?.toString());
             return false;
           }
           
@@ -217,7 +222,7 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
           return hasProfile;
         });
         
-        console.log('📊 Posts from registered users:', postsFromRegistered.length);
+        console.log('📊 ALL POSTS TAB - Posts from registered users (excluding mine):', postsFromRegistered.length);
         setFilteredPosts(postsFromRegistered);
       }
     };
@@ -230,8 +235,6 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
   // Filter posts by hashtag, search query, or user
   useEffect(() => {
     const filterPosts = async () => {
-      const basePosts = showFollowedOnly ? filteredPosts : posts;
-      
       // Filter by user if specified
       if (filterByUser) {
         const userPosts = posts.filter(post => 
@@ -241,12 +244,9 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         return;
       }
       
-      // If no filter or search, show all posts
+      // If no filter or search, don't override the tab filtering
       if (!filterHashtag && !searchQuery) {
-        if (!showFollowedOnly) {
-          setFilteredPosts(posts);
-        }
-        return;
+        return; // Let the tab filtering (My Posts, Following, All Posts) handle it
       }
 
       const filtered = [];
@@ -293,14 +293,18 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
     );
   }
 
-  const displayPosts = (filterHashtag || searchQuery) ? filteredPosts : posts;
+  // Use filteredPosts for display (tab filtering is always applied)
+  const displayPosts = filteredPosts;
   
   console.log('Feed: Display posts', {
     filterHashtag,
     searchQuery,
+    showMyPostsOnly,
+    showFollowedOnly,
     postsCount: posts.length,
     filteredPostsCount: filteredPosts.length,
-    displayPostsCount: displayPosts.length
+    displayPostsCount: displayPosts.length,
+    currentUserAddress: address
   });
   
   // Show message when searching
