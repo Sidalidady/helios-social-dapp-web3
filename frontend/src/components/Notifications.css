@@ -150,13 +150,14 @@
 }
 
 .notification-item:hover {
-  background: rgba(0, 102, 255, 0.15);
+  background: rgba(249, 115, 22, 0.15);
   transform: translateX(8px);
-  box-shadow: 0 4px 20px rgba(0, 102, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
 }
 
 .notification-item.unread {
-  background: rgba(0, 102, 255, 0.08);
+  background: rgba(249, 115, 22, 0.08);
+  border-left: 3px solid #f97316;
 }
 
 .notification-avatar {
@@ -164,14 +165,14 @@
   height: 56px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   flex-shrink: 0;
-  border: 3px solid rgba(96, 165, 250, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(249, 115, 22, 0.4);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
 }
 
 .notification-avatar img {
@@ -197,22 +198,22 @@
 }
 
 .notification-icon.follow {
-  color: #60a5fa;
+  color: #f97316;
 }
 
 .notification-icon.post {
-  color: #a78bfa;
+  color: #fb923c;
 }
 .notification-icon.like {
   color: #f87171;
 }
 
 .notification-icon.comment {
-  color: #8b5cf6;
+  color: #fb923c;
 }
 
 .notification-icon.mention {
-  color: #60a5fa;
+  color: #f97316;
 }
 
 .notification-username {
@@ -237,10 +238,11 @@
   position: absolute;
   top: 1.25rem;
   right: 1.25rem;
-  width: 8px;
-  height: 8px;
-  background: #60a5fa;
+  width: 10px;
+  height: 10px;
+  background: #f97316;
   border-radius: 50%;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
   animation: pulse 2s ease-in-out infinite;
 }
 
