@@ -6,20 +6,21 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@tanstack/react-query": "^5.17.19",
     "@wagmi/connectors": "^4.1.14",
     "@wagmi/core": "^2.6.5",
     "axios": "^1.6.5",
+    "buffer": "^6.0.3",
     "core-js-pure": "3.19.0",
     "lucide-react": "^0.315.0",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^7.9.4",
     "react-scripts": "5.0.1",
     "viem": "^2.7.13",
-    "wagmi": "^2.5.7",
-    "@react-native-async-storage/async-storage": "^1.23.1",
-    "process": "^0.11.10",
-    "buffer": "^6.0.3"
+    "wagmi": "^2.5.7"
   },
   "scripts": {
     "start": "craco start",
@@ -46,12 +47,12 @@
     ]
   },
   "devDependencies": {
-    "react-refresh": "^0.18.0",
     "@craco/craco": "^7.1.0",
     "assert": "^2.1.0",
     "crypto-browserify": "^3.12.0",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
+    "react-refresh": "^0.18.0",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "url": "^0.11.3"

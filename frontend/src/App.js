@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { WagmiProvider, useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useWatchContractEvent } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TrendingUp, Users } from 'lucide-react';
@@ -33,6 +34,8 @@ const queryClient = new QueryClient({
 });
 
 function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showWelcomeChoice, setShowWelcomeChoice] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
@@ -131,6 +134,24 @@ function AppContent() {
       });
     }
   }, [isConnected, isConnecting, isReconnecting]);
+
+  // Sync activeTab with URL
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/feed' || path === '/') {
+      setActiveTab('feed');
+    } else if (path === '/trending') {
+      setActiveTab('trending');
+    } else if (path === '/communities') {
+      setActiveTab('communities');
+    } else if (path === '/profile') {
+      setShowProfileInFeed(true);
+    } else if (path === '/following') {
+      setActiveTab('feed');
+    } else if (path === '/all-posts') {
+      setActiveTab('feed');
+    }
+  }, [location.pathname]);
 
   // Handle account changes - reset state when address changes
   useEffect(() => {
@@ -527,16 +548,19 @@ function AppContent() {
             activeTab={activeTab} 
             onTabChange={(tab) => {
               if (tab === 'feed') {
+                navigate('/feed');
                 setActiveTab('feed');
                 setSelectedHashtag(null);
                 setShowProfileInFeed(false);
                 setViewingUserProfile(null);
               } else if (tab === 'trending') {
+                navigate('/trending');
                 setActiveTab('trending');
                 setShowProfileInFeed(false);
                 setViewingUserProfile(null);
                 setSelectedHashtag(null);
               } else if (tab === 'communities') {
+                navigate('/communities');
                 // Don't change activeTab, keep Feed active
                 setShowProfileInFeed(false);
                 setViewingUserProfile(null);
@@ -545,6 +569,7 @@ function AppContent() {
               }
             }}
             onProfileClick={() => {
+              navigate('/profile');
               // Don't change activeTab, keep Feed active
               setShowProfileInFeed(true);
             }}
@@ -897,7 +922,11 @@ export default function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <AppContent />
+        <Router>
+          <Routes>
+            <Route path="/*" element={<AppContent />} />
+          </Routes>
+        </Router>
       </QueryClientProvider>
     </WagmiProvider>
   );

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { Loader2, RefreshCw, X } from 'lucide-react';
 import Post from './Post';
@@ -7,12 +8,23 @@ import { contractData } from '../utils/contract';
 import './Feed.css';
 
 function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [posts, setPosts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [deletedPosts, setDeletedPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showFollowedOnly, setShowFollowedOnly] = useState(false);
   const { isConnected, address } = useAccount();
+
+  // Sync showFollowedOnly with URL
+  useEffect(() => {
+    if (location.pathname === '/following') {
+      setShowFollowedOnly(true);
+    } else if (location.pathname === '/all-posts' || location.pathname === '/feed' || location.pathname === '/') {
+      setShowFollowedOnly(false);
+    }
+  }, [location.pathname]);
 
   // Read posts from contract
   const { data: postsData, isLoading, refetch, error } = useReadContract({
@@ -326,13 +338,19 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
           <div className="feed-tabs">
             <button 
               className={`feed-tab ${!showFollowedOnly ? 'active' : ''}`}
-              onClick={() => setShowFollowedOnly(false)}
+              onClick={() => {
+                navigate('/all-posts');
+                setShowFollowedOnly(false);
+              }}
             >
               All Posts
             </button>
             <button 
               className={`feed-tab ${showFollowedOnly ? 'active' : ''}`}
-              onClick={() => setShowFollowedOnly(true)}
+              onClick={() => {
+                navigate('/following');
+                setShowFollowedOnly(true);
+              }}
             >
               Following
             </button>
