@@ -314,6 +314,25 @@ function WalletConnect({ onClose }) {
             💡 Don't have a wallet? Install MetaMask, Rabby, or OKX Wallet to get started!
           </p>
         </div>
+
+        {/* Safety Warning */}
+        <div className="wallet-warning-section">
+          <div className="wallet-warning-header">
+            <span className="warning-icon">⚠️</span>
+            <h3>Important Safety Notice</h3>
+          </div>
+          <div className="wallet-warning-content">
+            <p className="warning-text">
+              <strong>🔴 TESTNET ONLY:</strong> This dApp uses <strong>Helios Testnet</strong>. Do not send real funds!
+            </p>
+            <p className="warning-text">
+              <strong>💰 BE AWARE:</strong> The dApp is <strong>not responsible</strong> for any loss of funds. Always verify you're on the testnet.
+            </p>
+            <p className="warning-text">
+              <strong>🛡️ STAY SAFE:</strong> Never share your private keys or seed phrase with anyone.
+            </p>
+          </div>
+        </div>
         
         {connectionError && (
           <div className="wallet-connection-error">
