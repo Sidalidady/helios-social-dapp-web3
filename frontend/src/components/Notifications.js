@@ -235,7 +235,7 @@ function Notifications({ isOpen, onClose }) {
   };
 
   const NotificationItem = ({ notification }) => {
-    const [authorUsername, setAuthorUsername] = useState('');
+    const [authorUsername, setAuthorUsername] = useState('Loading...');
     const [authorImage, setAuthorImage] = useState('');
 
     // Get author's profile
@@ -249,27 +249,67 @@ function Notifications({ isOpen, onClose }) {
 
     useEffect(() => {
       const loadAuthorProfile = async () => {
-        if (authorProfile && authorProfile[0]) {
-          setAuthorUsername(authorProfile[0]);
-          
+        console.log('🔍 Loading profile for:', notification.from);
+        console.log('📊 Author profile data:', authorProfile);
+        
+        // Check if we have profile data from blockchain
+        if (authorProfile) {
+          const username = authorProfile[0];
           const ipfsHash = authorProfile[1];
-          if (ipfsHash) {
-            try {
-              const profileData = await getFromIPFS(ipfsHash);
-              if (profileData && profileData.image) {
-                setAuthorImage(profileData.image);
+          
+          console.log('📝 Username from blockchain:', username);
+          console.log('📝 IPFS hash:', ipfsHash);
+          
+          // Check if username is not empty
+          if (username && username.trim() !== '') {
+            console.log('✅ Found username from blockchain:', username);
+            setAuthorUsername(username);
+            
+            // Try to load profile image from IPFS
+            if (ipfsHash && ipfsHash !== '') {
+              try {
+                const profileData = await getFromIPFS(ipfsHash);
+                console.log('📸 Profile data from IPFS:', profileData);
+                if (profileData && profileData.image) {
+                  setAuthorImage(profileData.image);
+                }
+              } catch (error) {
+                console.error('Error loading author profile image:', error);
               }
-            } catch (error) {
-              console.error('Error loading author profile:', error);
             }
+            return; // Exit early if we found the username
           }
+        }
+        
+        // Fallback 1: Try to get from localStorage cache
+        console.log('⚠️ No profile from blockchain, checking localStorage...');
+        const cachedProfiles = JSON.parse(localStorage.getItem('user_profiles_cache') || '{}');
+        const cachedProfile = cachedProfiles[notification.from?.toLowerCase()];
+        
+        if (cachedProfile && cachedProfile.username) {
+          console.log('✅ Found username in cache:', cachedProfile.username);
+          setAuthorUsername(cachedProfile.username);
+          if (cachedProfile.image) {
+            setAuthorImage(cachedProfile.image);
+          }
+          return;
+        }
+        
+        // Fallback 2: Try to get from all_registered_users
+        const allUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
+        if (allUsers.includes(notification.from?.toLowerCase())) {
+          // User is registered but we couldn't get their profile
+          // Try to fetch it directly
+          console.log('👤 User is registered, trying direct fetch...');
+          setAuthorUsername('User'); // Temporary
         } else {
+          console.log('❌ No profile found, using Anonymous User');
           setAuthorUsername('Anonymous User');
         }
       };
       
       loadAuthorProfile();
-    }, [authorProfile]);
+    }, [authorProfile, notification.from]);
 
     return (
       <div 
