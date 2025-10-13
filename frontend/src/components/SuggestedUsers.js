@@ -1,8 +1,135 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient, useReadContract } from 'wagmi';
+import { Users } from 'lucide-react';
 import { getSuggestedUsers } from '../utils/suggestedUsers';
+import { contractData } from '../utils/contract';
 import FollowButton from './FollowButton';
 import './SuggestedUsers.css';
+
+// Component for individual user card with blockchain stats
+const SuggestedUserCard = ({ user, index, onFollowChange, truncateBio, getReasonText }) => {
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [postCount, setPostCount] = useState(0);
+
+  // Get follower count from blockchain
+  const { data: followers } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getFollowers',
+    args: [user.address],
+    enabled: !!user.address,
+  });
+
+  // Get following count from blockchain
+  const { data: following } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getFollowing',
+    args: [user.address],
+    enabled: !!user.address,
+  });
+
+  // Get user's posts from blockchain
+  const { data: userPosts } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getRecentPosts',
+    args: [0n, 100n],
+    enabled: !!user.address,
+  });
+
+  // Update counts from blockchain
+  useEffect(() => {
+    if (followers) {
+      setFollowerCount(followers.length);
+    }
+  }, [followers]);
+
+  useEffect(() => {
+    if (following) {
+      setFollowingCount(following.length);
+    }
+  }, [following]);
+
+  useEffect(() => {
+    if (userPosts && Array.isArray(userPosts)) {
+      // Count only active posts from this user
+      const count = userPosts.filter(post => 
+        post.author.toLowerCase() === user.address.toLowerCase() && post.isActive
+      ).length;
+      setPostCount(count);
+    }
+  }, [userPosts, user.address]);
+
+  return (
+    <div 
+      className="suggested-user-card"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      <div className="twinkling-stars"></div>
+      
+      <div className="user-card-content">
+        <div className="user-avatar">
+          {user.profileImage ? (
+            <img src={user.profileImage} alt={user.username} />
+          ) : (
+            <div className="avatar-placeholder">
+              {user.username?.charAt(0).toUpperCase() || '?'}
+            </div>
+          )}
+          <div className="avatar-glow"></div>
+        </div>
+
+        <div className="user-info">
+          <div className="user-header">
+            <h4 className="username">@{user.username || 'Anonymous'}</h4>
+            {user.score > 0.8 && (
+              <span className="high-match-badge" title="High match score">
+                ⭐
+              </span>
+            )}
+          </div>
+          
+          <p className="user-bio">{truncateBio(user.bio)}</p>
+          
+          {/* Blockchain Stats */}
+          <div className="user-stats-sidebar">
+            <span className="stat-item">
+              <Users size={12} />
+              {followerCount} followers
+            </span>
+            <span className="stat-separator">•</span>
+            <span className="stat-item">
+              {followingCount} following
+            </span>
+            <span className="stat-separator">•</span>
+            <span className="stat-item">
+              {postCount} posts
+            </span>
+          </div>
+          
+          <div className="user-meta">
+            <span className="reason-tag">
+              {getReasonText(user)}
+            </span>
+          </div>
+        </div>
+
+        <div className="user-actions">
+          <FollowButton 
+            targetAddress={user.address}
+            targetUsername={user.username}
+            size="small"
+            onFollowChange={onFollowChange}
+          />
+        </div>
+      </div>
+
+      <div className="card-shimmer"></div>
+    </div>
+  );
+};
 
 const SuggestedUsers = ({ 
   currentUser, 
@@ -125,59 +252,14 @@ const SuggestedUsers = ({
       {!loading && !error && suggestions.length > 0 && (
         <div className="suggested-users-list">
           {suggestions.map((user, index) => (
-            <div 
-              key={user.address} 
-              className="suggested-user-card"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="twinkling-stars"></div>
-              
-              <div className="user-card-content">
-                <div className="user-avatar">
-                  {user.profileImage ? (
-                    <img src={user.profileImage} alt={user.username} />
-                  ) : (
-                    <div className="avatar-placeholder">
-                      {user.username?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  )}
-                  <div className="avatar-glow"></div>
-                </div>
-
-                <div className="user-info">
-                  <div className="user-header">
-                    <h4 className="username">@{user.username || 'Anonymous'}</h4>
-                    {user.score > 0.8 && (
-                      <span className="high-match-badge" title="High match score">
-                        ⭐
-                      </span>
-                    )}
-                  </div>
-                  
-                  <p className="user-bio">{truncateBio(user.bio)}</p>
-                  
-                  <div className="user-meta">
-                    <span className="reason-tag">
-                      {getReasonText(user)}
-                    </span>
-                    {user.postCount > 0 && (
-                      <span className="post-count">
-                        {user.postCount} post{user.postCount !== 1 ? 's' : ''}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="user-actions">
-                  <FollowButton 
-                    userAddress={user.address}
-                    onFollowChange={handleFollowChange}
-                  />
-                </div>
-              </div>
-
-              <div className="card-shimmer"></div>
-            </div>
+            <SuggestedUserCard
+              key={user.address}
+              user={user}
+              index={index}
+              onFollowChange={handleFollowChange}
+              truncateBio={truncateBio}
+              getReasonText={getReasonText}
+            />
           ))}
         </div>
       )}

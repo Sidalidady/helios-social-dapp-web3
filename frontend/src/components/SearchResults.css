@@ -184,6 +184,55 @@
   font-weight: 600;
 }
 
+/* User Result Item Styles */
+.user-result-item {
+  align-items: center;
+}
+
+.user-result-avatar {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: 2px solid rgba(249, 115, 22, 0.3);
+}
+
+.user-result-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-separator {
+  color: #4b5563;
+}
+
+.user-result-actions {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 @media (max-width: 768px) {
   .search-modal {
     max-width: 100%;

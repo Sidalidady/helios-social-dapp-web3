@@ -1,15 +1,116 @@
 import React, { useState, useEffect } from 'react';
-import { useReadContract } from 'wagmi';
-import { X, User, FileText } from 'lucide-react';
+import { useAccount, useReadContract } from 'wagmi';
+import { X, User, FileText, Users } from 'lucide-react';
 import { formatTimestamp } from '../utils/formatters';
 import { contractData } from '../utils/contract';
+import FollowButton from './FollowButton';
+import { getFromIPFS } from '../utils/ipfs';
 import './SearchResults.css';
 
 function SearchResults({ isOpen, onClose, results, searchQuery }) {
+  const { address } = useAccount();
   const [postsWithUsernames, setPostsWithUsernames] = useState([]);
   
   const { posts = [], users = [] } = results;
   const totalResults = posts.length + users.length;
+
+  // Component to display user result with follow button and stats
+  const UserResultItem = ({ user, currentUserAddress }) => {
+    const [profileImage, setProfileImage] = useState('');
+    const [followerCount, setFollowerCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
+
+    // Get user's full profile from blockchain
+    const { data: userProfile } = useReadContract({
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'getUserProfile',
+      args: [user.address],
+      enabled: !!user.address,
+    });
+
+    // Get follower count from blockchain
+    const { data: followers } = useReadContract({
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'getFollowers',
+      args: [user.address],
+      enabled: !!user.address,
+    });
+
+    // Get following count from blockchain
+    const { data: following } = useReadContract({
+      address: contractData.address,
+      abi: contractData.abi,
+      functionName: 'getFollowing',
+      args: [user.address],
+      enabled: !!user.address,
+    });
+
+    // Load profile image from IPFS
+    useEffect(() => {
+      const loadProfileImage = async () => {
+        if (userProfile && userProfile[1]) {
+          try {
+            const profileData = await getFromIPFS(userProfile[1]);
+            if (profileData && profileData.image) {
+              setProfileImage(profileData.image);
+            }
+          } catch (error) {
+            console.error('Error loading profile image:', error);
+          }
+        }
+      };
+      loadProfileImage();
+    }, [userProfile]);
+
+    // Update follower/following counts from blockchain
+    useEffect(() => {
+      if (followers) {
+        setFollowerCount(followers.length);
+      }
+    }, [followers]);
+
+    useEffect(() => {
+      if (following) {
+        setFollowingCount(following.length);
+      }
+    }, [following]);
+
+    return (
+      <div className="result-item user-result-item">
+        <div className="user-result-avatar">
+          {profileImage ? (
+            <img src={profileImage} alt={user.username} />
+          ) : (
+            <User size={24} />
+          )}
+        </div>
+        <div className="result-content">
+          <p className="result-username">@{user.username}</p>
+          <div className="user-stats">
+            <span className="stat-item">
+              <Users size={14} />
+              {followerCount} followers
+            </span>
+            <span className="stat-separator">•</span>
+            <span className="stat-item">
+              {followingCount} following
+            </span>
+          </div>
+        </div>
+        {currentUserAddress && currentUserAddress.toLowerCase() !== user.address.toLowerCase() && (
+          <div className="user-result-actions">
+            <FollowButton 
+              targetAddress={user.address}
+              targetUsername={user.username}
+              size="small"
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Component to fetch and display username for each post
   const PostResultItem = ({ post, onClick }) => {
@@ -119,14 +220,11 @@ function SearchResults({ isOpen, onClose, results, searchQuery }) {
                   </h3>
                   <div className="results-list">
                     {users.map((user, index) => (
-                      <div key={index} className="result-item">
-                        <div className="result-icon">
-                          <User size={16} />
-                        </div>
-                        <div className="result-content">
-                          <p className="result-username">@{user.username}</p>
-                        </div>
-                      </div>
+                      <UserResultItem
+                        key={index}
+                        user={user}
+                        currentUserAddress={address}
+                      />
                     ))}
                   </div>
                 </div>
