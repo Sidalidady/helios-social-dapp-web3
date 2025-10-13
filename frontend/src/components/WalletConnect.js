@@ -283,6 +283,37 @@ function WalletConnect({ onClose }) {
             <X size={20} />
           </button>
         </div>
+
+        {/* Getting Started Info */}
+        <div className="wallet-info-section">
+          <div className="wallet-info-header">
+            <span className="info-icon">ℹ️</span>
+            <h3>Getting Started with Stellari Social</h3>
+          </div>
+          <div className="wallet-info-content">
+            <p className="wallet-info-step">
+              <span className="step-number">1</span>
+              <span className="step-text">
+                <strong>Connect a Web3 Wallet</strong> (MetaMask, Rabby, OKX, etc.)
+              </span>
+            </p>
+            <p className="wallet-info-step">
+              <span className="step-number">2</span>
+              <span className="step-text">
+                <strong>Create Your Profile</strong> immediately after connecting
+              </span>
+            </p>
+            <p className="wallet-info-step">
+              <span className="step-number">3</span>
+              <span className="step-text">
+                <strong>Get Full Access</strong> to all exclusive Stellari Social features
+              </span>
+            </p>
+          </div>
+          <p className="wallet-info-note">
+            💡 Don't have a wallet? Install MetaMask, Rabby, or OKX Wallet to get started!
+          </p>
+        </div>
         
         {connectionError && (
           <div className="wallet-connection-error">
