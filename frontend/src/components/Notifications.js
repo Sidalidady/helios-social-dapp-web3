@@ -8,9 +8,13 @@ import { contractData } from '../utils/contract';
 import './Notifications.css';
 
 function Notifications({ isOpen, onClose }) {
+  console.log('🔔🔔🔔 NOTIFICATIONS COMPONENT RENDERED 🔔🔔🔔', { isOpen });
+  
   const [notifications, setNotifications] = useState([]);
   const { address } = useAccount();
   const publicClient = usePublicClient();
+
+  console.log('🔔 Component state:', { address, hasPublicClient: !!publicClient, isOpen });
 
   // Read notifications from blockchain
   const { data: blockchainNotifications, refetch: refetchNotifications } = useReadContract({
@@ -19,6 +23,12 @@ function Notifications({ isOpen, onClose }) {
     functionName: 'getUserNotifications',
     args: [address],
     enabled: !!address && isOpen,
+  });
+  
+  console.log('🔔 useReadContract result:', { 
+    hasData: !!blockchainNotifications, 
+    dataLength: blockchainNotifications?.length,
+    data: blockchainNotifications 
   });
 
   useEffect(() => {
