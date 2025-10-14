@@ -11,6 +11,7 @@ import SearchResults from './SearchResults';
 import SunLogo from './SunLogo';
 import { contractData } from '../utils/contract';
 import { config } from '../config/wagmi';
+import { ensureHeliosNetwork } from '../utils/networkHelper';
 import './Header.css';
 
 function Header({ onProfileClick, onConnectClick, onSearch }) {
@@ -148,6 +149,24 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
     }
   }, [address, refetchUnreadCount]);
 
+  // Automatically switch to Helios Testnet when user connects
+  useEffect(() => {
+    const checkAndSwitchNetwork = async () => {
+      if (isConnected && address) {
+        console.log('👛 Wallet connected, checking network...');
+        const switched = await ensureHeliosNetwork();
+        
+        if (!switched) {
+          console.warn('⚠️ Failed to switch to Helios Testnet');
+          // Show a notification to the user
+          alert('Please switch to Helios Testnet manually in your wallet to use this dApp.');
+        }
+      }
+    };
+    
+    checkAndSwitchNetwork();
+  }, [isConnected, address]);
+
   const [showWalletModal, setShowWalletModal] = useState(false);
 
   const handleConnect = async (connector) => {
@@ -155,6 +174,12 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       console.log('Connecting with connector:', connector);
       await connect({ connector });
       setShowWalletModal(false);
+      
+      // After connection, ensure we're on Helios Testnet
+      setTimeout(async () => {
+        console.log('🔄 Checking network after connection...');
+        await ensureHeliosNetwork();
+      }, 1000);
     } catch (err) {
       console.error('Connection error:', err);
       alert('Failed to connect wallet. Please try again.');
