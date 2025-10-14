@@ -74,15 +74,13 @@ async function main() {
     JSON.stringify(contractConfig, null, 2)
   );
 
-  console.log('✅ Contract deployed successfully!');
-  console.log('📝 Contract address:', contract.target);
-  console.log('🔗 Network:', network.name);
-  console.log('⛽ Gas used:', deployTx.gasUsed?.toString());
+  console.log('✅ Contract ABI saved to frontend/src/contracts/SocialFeed.json');
   
   console.log('\n📋 Next steps:');
-  console.log('1. Update frontend/src/contracts/SocialFeed.json with new address');
-  console.log('2. Update deployments/helios-testnet.json');
-  console.log('3. Restart your frontend app');
+  console.log('1. Update REACT_APP_CONTRACT_ADDRESS in frontend/.env');
+  console.log('2. Copy contract address to Vercel environment variables');
+  console.log('3. Redeploy frontend to Vercel');
+  console.log('\n🎉 Deployment complete!');
 }
 
 main()

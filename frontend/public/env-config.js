@@ -4,7 +4,7 @@
 // Note: This file runs in the browser, so process.env is not available
 // Environment variables are injected during build time by Create React App
 window.ENV_CONFIG = {
-  REACT_APP_CONTRACT_ADDRESS: '0x871f6b513172b39B2069592f91f17895818BF393',
+  REACT_APP_CONTRACT_ADDRESS: '0x778Ea59b285dB81B3d13dC0E30908e886F4c067c',
   REACT_APP_HELIOS_RPC_URL: 'https://testnet1.helioschainlabs.org',
   REACT_APP_CHAIN_ID: '42000',
   REACT_APP_IPFS_GATEWAY: 'https://gateway.pinata.cloud/ipfs/',

@@ -1,9 +1,9 @@
 {
   "network": "helios-testnet",
   "chainId": 42000,
-  "contractAddress": "0xae273988E80fCdA77982B22F416E57117fDA2d98",
-  "deployer": "0x032f9d761989245960a17C38De5Cc5Fac14D0b64",
-  "deploymentTime": "2025-10-12T15:26:34.746Z",
-  "blockNumber": 489900,
-  "explorerUrl": "https://explorer.helioschainlabs.org/address/0xae273988E80fCdA77982B22F416E57117fDA2d98"
+  "contractAddress": "0x778Ea59b285dB81B3d13dC0E30908e886F4c067c",
+  "deployer": "0xcC665d1201D6C79A6648D7978ffea48071d026bD",
+  "deploymentTime": "2025-10-14T22:09:48.831Z",
+  "blockNumber": 502971,
+  "explorerUrl": "https://explorer.helioschainlabs.org/address/0x778Ea59b285dB81B3d13dC0E30908e886F4c067c"
 }
