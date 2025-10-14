@@ -331,8 +331,8 @@ function Notifications({ isOpen, onClose }) {
       
       // Load profile image from IPFS
       const loadProfileImage = async () => {
-        if (authorProfile && authorProfile[1]) {
-          const ipfsHash = authorProfile[1];
+        if (authorProfile && authorProfile.profileIpfsHash) {
+          const ipfsHash = authorProfile.profileIpfsHash;
           console.log('📸 Loading image from IPFS:', ipfsHash);
           
           if (ipfsHash && ipfsHash !== '') {
@@ -340,7 +340,7 @@ function Notifications({ isOpen, onClose }) {
               const profileData = await getFromIPFS(ipfsHash);
               if (profileData && profileData.image) {
                 setAuthorImage(profileData.image);
-                console.log('✅ Profile image loaded');
+                console.log('✅ Profile image loaded for notification:', authorUsername);
               }
             } catch (error) {
               console.error('Error loading profile image:', error);
