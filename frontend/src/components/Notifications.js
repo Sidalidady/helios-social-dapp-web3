@@ -22,10 +22,10 @@ function Notifications({ isOpen, onClose }) {
   });
 
   useEffect(() => {
-    if (isOpen && address && publicClient) {
+    if (isOpen && address) {
       loadNotifications();
     }
-  }, [isOpen, address, blockchainNotifications, publicClient]);
+  }, [isOpen, address, blockchainNotifications]);
 
   // Helper to convert notification type number to string
   const getNotificationTypeString = (typeNum) => {
