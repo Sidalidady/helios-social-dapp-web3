@@ -485,7 +485,10 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
               <>
                 <button 
                   className="btn-stack-icon"
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={() => {
+                    console.log('🔔🔔🔔 BELL BUTTON CLICKED 🔔🔔🔔', { currentState: showNotifications, willBe: !showNotifications });
+                    setShowNotifications(!showNotifications);
+                  }}
                   title="Notifications"
                 >
                   <Bell size={20} />
@@ -534,7 +537,12 @@ function Header({ onProfileClick, onConnectClick, onSearch }) {
       </header>
       
       {showProfile && <Profile onClose={() => setShowProfile(false)} />}
-      {showNotifications && <Notifications isOpen={showNotifications} onClose={() => setShowNotifications(false)} />}
+      {showNotifications && (
+        <>
+          {console.log('🔔🔔🔔 RENDERING NOTIFICATIONS COMPONENT FROM HEADER 🔔🔔🔔', { showNotifications })}
+          <Notifications isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
+        </>
+      )}
     </>
   );
 }
