@@ -19,10 +19,10 @@
 .profile-new-modal {
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
   border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
-  width: 340px;
+  border-radius: 10px;
+  width: 320px;
   max-width: 90vw;
-  max-height: 80vh;
+  max-height: 70vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
               0 0 0 1px rgba(59, 130, 246, 0.1),
@@ -34,13 +34,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
 }
 
 .profile-new-header h2 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
   background-clip: text;
@@ -52,9 +52,9 @@
 .profile-new-close {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 6px;
-  width: 28px;
-  height: 28px;
+  border-radius: 5px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,11 +79,11 @@
 }
 
 .profile-new-form {
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: calc(80vh - 60px);
+  gap: 8px;
+  max-height: calc(70vh - 50px);
   overflow-y: auto;
 }
 
@@ -91,16 +91,16 @@
 .profile-new-avatar-section {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  padding: 8px;
   background: rgba(59, 130, 246, 0.03);
   border: 1px solid rgba(59, 130, 246, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .profile-new-avatar {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
   border: 2px solid rgba(59, 130, 246, 0.3);
@@ -119,22 +119,22 @@
 
 .profile-new-avatar svg {
   color: #60a5fa;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 .profile-new-upload-btn {
   background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
+  border-radius: 5px;
+  padding: 5px 10px;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   transition: all 0.2s ease;
 }
 
@@ -147,12 +147,12 @@
 .profile-new-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   position: relative;
 }
 
 .profile-new-field label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #cbd5e1;
 }
@@ -161,10 +161,10 @@
 .profile-new-field textarea {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 6px;
-  padding: 8px 10px;
+  border-radius: 5px;
+  padding: 7px 9px;
   color: #e2e8f0;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-family: inherit;
   transition: all 0.2s ease;
   resize: none;
@@ -195,21 +195,21 @@
 /* Actions */
 .profile-new-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 6px;
+  margin-top: 2px;
 }
 
 .profile-new-btn {
   flex: 1;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  padding: 7px 10px;
+  border-radius: 5px;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   transition: all 0.2s ease;
   border: none;
 }
