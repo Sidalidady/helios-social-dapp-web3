@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
+import { useAccount, useReadContract, useWatchContractEvent, usePublicClient } from 'wagmi';
 import { X, User, FileText, Heart, MessageCircle, AtSign, Bell } from 'lucide-react';
 import { formatTimestamp } from '../utils/formatters';
 import { getFromIPFS } from '../utils/ipfs';
@@ -10,6 +10,7 @@ import './Notifications.css';
 function Notifications({ isOpen, onClose }) {
   const [notifications, setNotifications] = useState([]);
   const { address } = useAccount();
+  const publicClient = usePublicClient();
 
   // Read notifications from blockchain
   const { data: blockchainNotifications, refetch: refetchNotifications } = useReadContract({
@@ -21,10 +22,10 @@ function Notifications({ isOpen, onClose }) {
   });
 
   useEffect(() => {
-    if (isOpen && address) {
+    if (isOpen && address && publicClient) {
       loadNotifications();
     }
-  }, [isOpen, address, blockchainNotifications]);
+  }, [isOpen, address, blockchainNotifications, publicClient]);
 
   // Helper to convert notification type number to string
   const getNotificationTypeString = (typeNum) => {
@@ -33,8 +34,8 @@ function Notifications({ isOpen, onClose }) {
   };
 
   const loadNotifications = async () => {
-    if (!address) {
-      console.log('⚠️ No address, cannot load notifications');
+    if (!address || !publicClient) {
+      console.log('⚠️ No address or publicClient, cannot load notifications');
       setNotifications([]);
       return;
     }
@@ -51,24 +52,25 @@ function Notifications({ isOpen, onClose }) {
         blockchainNotifications.map(async (notif, index) => {
           const typeString = getNotificationTypeString(Number(notif.notificationType));
           
-          // Try to get username from contract
+          // Try to get username from contract using publicClient
           let username = 'Anonymous User';
           try {
-            const { readContract } = await import('wagmi/actions');
-            const { config } = await import('../config/wagmi');
+            console.log(`🔍 Fetching profile for sender: ${notif.sender}`);
             
-            const profile = await readContract(config, {
+            const profile = await publicClient.readContract({
               address: contractData.address,
               abi: contractData.abi,
               functionName: 'getUserProfile',
               args: [notif.sender],
             });
             
+            console.log(`📋 Profile response for ${notif.sender}:`, profile);
+            
             if (profile && profile[0] && profile[0].trim() !== '') {
-              username = profile[0];
-              console.log(`✅ Got username for ${notif.sender}: ${username}`);
+              username = profile[0].trim();
+              console.log(`✅ Got username for ${notif.sender}: "${username}"`);
             } else {
-              console.log(`⚠️ Empty username for ${notif.sender}`);
+              console.log(`⚠️ Empty username for ${notif.sender}, profile:`, profile);
             }
           } catch (error) {
             console.error(`❌ Error fetching username for ${notif.sender}:`, error);
