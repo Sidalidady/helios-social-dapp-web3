@@ -230,8 +230,11 @@
 }
 
 .notification-time {
-  color: #9ca3af;
-  font-size: 0.75rem;
+  color: #d1d5db;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
 }
 
 .unread-dot {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useAccount, useReadContract, useWatchContractEvent, usePublicClient } from 'wagmi';
 import { X, User, FileText, Heart, MessageCircle, AtSign, Bell } from 'lucide-react';
@@ -13,6 +13,7 @@ function Notifications({ isOpen, onClose }) {
   const [notifications, setNotifications] = useState([]);
   const { address } = useAccount();
   const publicClient = usePublicClient();
+  const hasMarkedAsRead = useRef(false);
 
   console.log('🔔 Component state:', { address, hasPublicClient: !!publicClient, isOpen });
 
@@ -36,8 +37,17 @@ function Notifications({ isOpen, onClose }) {
     if (isOpen && address) {
       console.log('🔔 CALLING loadNotifications()');
       loadNotifications();
+      // Mark all notifications as read when panel opens (only once)
+      if (!hasMarkedAsRead.current) {
+        markAllAsRead();
+        hasMarkedAsRead.current = true;
+      }
     } else {
       console.log('🔔 NOT LOADING - isOpen:', isOpen, 'address:', address);
+      // Reset the flag when panel closes
+      if (!isOpen) {
+        hasMarkedAsRead.current = false;
+      }
     }
   }, [isOpen, address, blockchainNotifications]);
 
@@ -148,8 +158,35 @@ function Notifications({ isOpen, onClose }) {
     }
   };
 
+  const markAllAsRead = async () => {
+    // Mark all notifications as read when panel opens
+    try {
+      const { writeContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      
+      await writeContract(config, {
+        address: contractData.address,
+        abi: contractData.abi,
+        functionName: 'markAllNotificationsAsRead',
+      });
+      
+      console.log('✅ Marked all notifications as read on blockchain');
+      // Refetch to update the UI
+      setTimeout(() => {
+        refetchNotifications();
+      }, 1000);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
   const clearNotifications = async () => {
-    // Clear notifications on blockchain (keep last 50)
+    // Confirm before clearing
+    if (!window.confirm('Are you sure you want to delete all notifications? This action cannot be undone.')) {
+      return;
+    }
+    
+    // Delete ALL notifications from blockchain
     try {
       const { writeContract } = await import('wagmi/actions');
       const { config } = await import('../config/wagmi');
@@ -158,11 +195,16 @@ function Notifications({ isOpen, onClose }) {
         address: contractData.address,
         abi: contractData.abi,
         functionName: 'clearOldNotifications',
-        args: [50],
+        args: [0], // Pass 0 to clear all notifications
       });
       
-      console.log('🗑️ Cleared old notifications on blockchain');
-      refetchNotifications();
+      console.log('🗑️ Deleted all notifications from blockchain');
+      // Clear local state immediately
+      setNotifications([]);
+      // Refetch to confirm
+      setTimeout(() => {
+        refetchNotifications();
+      }, 1000);
     } catch (error) {
       console.error('Error clearing notifications:', error);
     }

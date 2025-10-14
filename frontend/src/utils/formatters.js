@@ -8,7 +8,9 @@ export function formatAddress(address) {
 }
 
 export function formatTimestamp(timestamp) {
-  const date = new Date(Number(timestamp) * 1000);
+  // Check if timestamp is already in milliseconds or needs conversion
+  const timestampMs = timestamp > 1e12 ? timestamp : Number(timestamp) * 1000;
+  const date = new Date(timestampMs);
   const now = new Date();
   const diffMs = now - date;
   const diffMins = Math.floor(diffMs / 60000);
@@ -20,10 +22,13 @@ export function formatTimestamp(timestamp) {
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
   
+  // Show full date with time for older notifications
   return date.toLocaleDateString('en-US', { 
     month: 'short', 
     day: 'numeric',
-    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+    hour: '2-digit',
+    minute: '2-digit'
   });
 }
 
