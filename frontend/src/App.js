@@ -499,6 +499,48 @@ function AppContent() {
             <h1>Welcome to Stellari Social</h1>
             <p className="tagline">Your Decentralized Helios Social Network</p>
             <p className="subtitle">Connect your Web3 wallet to join the community</p>
+            
+            {/* Getting Started Info */}
+            <div className="welcome-info-box">
+              <div className="welcome-info-header">
+                <span className="info-icon-welcome">ℹ️</span>
+                <h3>Getting Started</h3>
+              </div>
+              <div className="welcome-steps">
+                <p className="welcome-step">
+                  <span className="step-num">1</span>
+                  <span><strong>Connect Wallet</strong> (MetaMask, Rabby, OKX)</span>
+                </p>
+                <p className="welcome-step">
+                  <span className="step-num">2</span>
+                  <span><strong>Create Profile</strong> immediately</span>
+                </p>
+                <p className="welcome-step">
+                  <span className="step-num">3</span>
+                  <span><strong>Get Full Access</strong> to Stellari Social</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Safety Warning */}
+            <div className="welcome-warning-box">
+              <div className="welcome-warning-header">
+                <span className="warning-icon-welcome">⚠️</span>
+                <h3>Important Safety Notice</h3>
+              </div>
+              <div className="welcome-warnings">
+                <p className="welcome-warning-text">
+                  <strong>🔴 TESTNET ONLY:</strong> Uses Helios Testnet. No real funds!
+                </p>
+                <p className="welcome-warning-text">
+                  <strong>💰 BE AWARE:</strong> Not responsible for any loss of funds.
+                </p>
+                <p className="welcome-warning-text">
+                  <strong>🛡️ STAY SAFE:</strong> Never share your private keys.
+                </p>
+              </div>
+            </div>
+
             <button 
               onClick={() => setShowWalletConnect(true)} 
               className="btn-connect-large"

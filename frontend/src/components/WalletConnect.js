@@ -283,56 +283,6 @@ function WalletConnect({ onClose }) {
             <X size={20} />
           </button>
         </div>
-
-        {/* Getting Started Info */}
-        <div className="wallet-info-section">
-          <div className="wallet-info-header">
-            <span className="info-icon">ℹ️</span>
-            <h3>Getting Started with Stellari Social</h3>
-          </div>
-          <div className="wallet-info-content">
-            <p className="wallet-info-step">
-              <span className="step-number">1</span>
-              <span className="step-text">
-                <strong>Connect a Web3 Wallet</strong> (MetaMask, Rabby, OKX, etc.)
-              </span>
-            </p>
-            <p className="wallet-info-step">
-              <span className="step-number">2</span>
-              <span className="step-text">
-                <strong>Create Your Profile</strong> immediately after connecting
-              </span>
-            </p>
-            <p className="wallet-info-step">
-              <span className="step-number">3</span>
-              <span className="step-text">
-                <strong>Get Full Access</strong> to all exclusive Stellari Social features
-              </span>
-            </p>
-          </div>
-          <p className="wallet-info-note">
-            💡 Don't have a wallet? Install MetaMask, Rabby, or OKX Wallet to get started!
-          </p>
-        </div>
-
-        {/* Safety Warning */}
-        <div className="wallet-warning-section">
-          <div className="wallet-warning-header">
-            <span className="warning-icon">⚠️</span>
-            <h3>Important Safety Notice</h3>
-          </div>
-          <div className="wallet-warning-content">
-            <p className="warning-text">
-              <strong>🔴 TESTNET ONLY:</strong> This dApp uses <strong>Helios Testnet</strong>. Do not send real funds!
-            </p>
-            <p className="warning-text">
-              <strong>💰 BE AWARE:</strong> The dApp is <strong>not responsible</strong> for any loss of funds. Always verify you're on the testnet.
-            </p>
-            <p className="warning-text">
-              <strong>🛡️ STAY SAFE:</strong> Never share your private keys or seed phrase with anyone.
-            </p>
-          </div>
-        </div>
         
         {connectionError && (
           <div className="wallet-connection-error">
