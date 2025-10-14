@@ -225,7 +225,7 @@ function ProfileNew({ onClose }) {
     <div className="profile-new-overlay" onClick={onClose}>
       <div className="profile-new-modal" onClick={(e) => e.stopPropagation()}>
         <div className="profile-new-header">
-          <h2>Edit Profile</h2>
+          <h2>Create Your Profile</h2>
           <button className="profile-new-close" onClick={onClose}>
             <X size={18} />
           </button>
