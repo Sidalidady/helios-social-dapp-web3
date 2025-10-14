@@ -10,7 +10,6 @@ import './SuggestedUsers.css';
 const SuggestedUserCard = ({ user, index, onFollowChange, truncateBio, getReasonText }) => {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  const [postCount, setPostCount] = useState(0);
 
   // Get follower count from blockchain
   const { data: followers } = useReadContract({
@@ -30,15 +29,6 @@ const SuggestedUserCard = ({ user, index, onFollowChange, truncateBio, getReason
     enabled: !!user.address,
   });
 
-  // Get user's posts from blockchain
-  const { data: userPosts } = useReadContract({
-    address: contractData.address,
-    abi: contractData.abi,
-    functionName: 'getRecentPosts',
-    args: [0n, 100n],
-    enabled: !!user.address,
-  });
-
   // Update counts from blockchain
   useEffect(() => {
     if (followers) {
@@ -51,16 +41,6 @@ const SuggestedUserCard = ({ user, index, onFollowChange, truncateBio, getReason
       setFollowingCount(following.length);
     }
   }, [following]);
-
-  useEffect(() => {
-    if (userPosts && Array.isArray(userPosts)) {
-      // Count only active posts from this user
-      const count = userPosts.filter(post => 
-        post.author.toLowerCase() === user.address.toLowerCase() && post.isActive
-      ).length;
-      setPostCount(count);
-    }
-  }, [userPosts, user.address]);
 
   return (
     <div 
@@ -93,19 +73,15 @@ const SuggestedUserCard = ({ user, index, onFollowChange, truncateBio, getReason
           
           <p className="user-bio">{truncateBio(user.bio)}</p>
           
-          {/* Blockchain Stats */}
+          {/* Blockchain Stats - Match SearchResults format */}
           <div className="user-stats-sidebar">
             <span className="stat-item">
-              <Users size={12} />
+              <Users size={14} />
               {followerCount} followers
             </span>
             <span className="stat-separator">•</span>
             <span className="stat-item">
               {followingCount} following
-            </span>
-            <span className="stat-separator">•</span>
-            <span className="stat-item">
-              {postCount} posts
             </span>
           </div>
           

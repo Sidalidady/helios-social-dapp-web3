@@ -50,9 +50,9 @@ function SearchResults({ isOpen, onClose, results, searchQuery }) {
     // Load profile image from IPFS
     useEffect(() => {
       const loadProfileImage = async () => {
-        if (userProfile && userProfile[1]) {
+        if (userProfile && userProfile.profileIpfsHash) {
           try {
-            const profileData = await getFromIPFS(userProfile[1]);
+            const profileData = await getFromIPFS(userProfile.profileIpfsHash);
             if (profileData && profileData.image) {
               setProfileImage(profileData.image);
             }
