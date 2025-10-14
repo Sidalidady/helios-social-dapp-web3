@@ -86,8 +86,8 @@ function Notifications({ isOpen, onClose }) {
                 args: [notif.sender],
               });
               
-              if (profile && profile[0] && profile[0].trim() !== '') {
-                username = profile[0].trim();
+              if (profile && profile.displayName && profile.displayName.trim() !== '') {
+                username = profile.displayName.trim();
                 console.log(`✅ Got username (fallback) for ${notif.sender}: "${username}"`);
               }
             } catch (error) {
@@ -106,8 +106,8 @@ function Notifications({ isOpen, onClose }) {
               
               console.log(`📋 Profile response for ${notif.sender}:`, profile);
               
-              if (profile && profile[0] && profile[0].trim() !== '') {
-                username = profile[0].trim();
+              if (profile && profile.displayName && profile.displayName.trim() !== '') {
+                username = profile.displayName.trim();
                 console.log(`✅ Got username for ${notif.sender}: "${username}"`);
               } else {
                 console.log(`⚠️ Empty username for ${notif.sender}, profile:`, profile);
