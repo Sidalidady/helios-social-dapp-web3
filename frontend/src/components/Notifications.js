@@ -22,8 +22,12 @@ function Notifications({ isOpen, onClose }) {
   });
 
   useEffect(() => {
+    console.log('🔔 NOTIFICATIONS EFFECT TRIGGERED:', { isOpen, address, hasData: !!blockchainNotifications });
     if (isOpen && address) {
+      console.log('🔔 CALLING loadNotifications()');
       loadNotifications();
+    } else {
+      console.log('🔔 NOT LOADING - isOpen:', isOpen, 'address:', address);
     }
   }, [isOpen, address, blockchainNotifications]);
 
@@ -34,15 +38,17 @@ function Notifications({ isOpen, onClose }) {
   };
 
   const loadNotifications = async () => {
+    console.log('🔔🔔🔔 LOAD NOTIFICATIONS FUNCTION CALLED 🔔🔔🔔');
+    
     if (!address) {
-      console.log('⚠️ No address, cannot load notifications');
+      console.log('⚠️⚠️⚠️ No address, cannot load notifications');
       setNotifications([]);
       return;
     }
 
-    console.log('📥 Loading notifications for:', address);
-    console.log('📊 Blockchain notifications data:', blockchainNotifications);
-    console.log('🔌 PublicClient available:', !!publicClient);
+    console.log('📥📥📥 Loading notifications for:', address);
+    console.log('📊📊📊 Blockchain notifications data:', blockchainNotifications);
+    console.log('🔌🔌🔌 PublicClient available:', !!publicClient);
     
     // PRIORITY 1: Try blockchain first (source of truth)
     if (blockchainNotifications && blockchainNotifications.length > 0) {
