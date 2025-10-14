@@ -34,14 +34,15 @@ function Notifications({ isOpen, onClose }) {
   };
 
   const loadNotifications = async () => {
-    if (!address || !publicClient) {
-      console.log('⚠️ No address or publicClient, cannot load notifications');
+    if (!address) {
+      console.log('⚠️ No address, cannot load notifications');
       setNotifications([]);
       return;
     }
 
     console.log('📥 Loading notifications for:', address);
     console.log('📊 Blockchain notifications data:', blockchainNotifications);
+    console.log('🔌 PublicClient available:', !!publicClient);
     
     // PRIORITY 1: Try blockchain first (source of truth)
     if (blockchainNotifications && blockchainNotifications.length > 0) {
@@ -54,26 +55,51 @@ function Notifications({ isOpen, onClose }) {
           
           // Try to get username from contract using publicClient
           let username = 'Anonymous User';
-          try {
-            console.log(`🔍 Fetching profile for sender: ${notif.sender}`);
-            
-            const profile = await publicClient.readContract({
-              address: contractData.address,
-              abi: contractData.abi,
-              functionName: 'getUserProfile',
-              args: [notif.sender],
-            });
-            
-            console.log(`📋 Profile response for ${notif.sender}:`, profile);
-            
-            if (profile && profile[0] && profile[0].trim() !== '') {
-              username = profile[0].trim();
-              console.log(`✅ Got username for ${notif.sender}: "${username}"`);
-            } else {
-              console.log(`⚠️ Empty username for ${notif.sender}, profile:`, profile);
+          
+          if (!publicClient) {
+            console.warn('⚠️ PublicClient not available, using fallback');
+            // Try using wagmi actions as fallback
+            try {
+              const { readContract } = await import('wagmi/actions');
+              const { config } = await import('../config/wagmi');
+              
+              const profile = await readContract(config, {
+                address: contractData.address,
+                abi: contractData.abi,
+                functionName: 'getUserProfile',
+                args: [notif.sender],
+              });
+              
+              if (profile && profile[0] && profile[0].trim() !== '') {
+                username = profile[0].trim();
+                console.log(`✅ Got username (fallback) for ${notif.sender}: "${username}"`);
+              }
+            } catch (error) {
+              console.error(`❌ Fallback error for ${notif.sender}:`, error);
             }
-          } catch (error) {
-            console.error(`❌ Error fetching username for ${notif.sender}:`, error);
+          } else {
+            try {
+              console.log(`🔍 Fetching profile for sender: ${notif.sender}`);
+              
+              const profile = await publicClient.readContract({
+                address: contractData.address,
+                abi: contractData.abi,
+                functionName: 'getUserProfile',
+                args: [notif.sender],
+              });
+              
+              console.log(`📋 Profile response for ${notif.sender}:`, profile);
+              
+              if (profile && profile[0] && profile[0].trim() !== '') {
+                username = profile[0].trim();
+                console.log(`✅ Got username for ${notif.sender}: "${username}"`);
+              } else {
+                console.log(`⚠️ Empty username for ${notif.sender}, profile:`, profile);
+              }
+            } catch (error) {
+              console.error(`❌ Error fetching username for ${notif.sender}:`, error);
+              console.error('Error details:', error.message, error.stack);
+            }
           }
           
           console.log(`📋 Notification ${index}:`, {

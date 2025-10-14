@@ -197,33 +197,25 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         console.log('📊 FOLLOWING TAB - Filtered posts (excluding mine):', followedPosts.length);
         setFilteredPosts(followedPosts);
       } else {
-        // Show all posts from users with registered profiles (excluding own posts)
-        const registeredUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
+        // Show all posts from OTHER users (never show own posts in main feed)
+        console.log('📋 ALL POSTS TAB - Total posts:', posts.length);
+        console.log('🚫 Current user address:', address);
         
-        console.log('📋 ALL POSTS TAB - Registered users:', registeredUsers.length);
-        console.log('🚫 Excluding posts from:', address);
-        
-        const postsFromRegistered = posts.filter(post => {
-          // Exclude own posts
-          if (post.author.toLowerCase() === address?.toLowerCase()) {
-            console.log('🚫 Excluding my post:', post.id?.toString());
+        const postsFromOthers = posts.filter(post => {
+          // ALWAYS exclude own posts in main feed
+          const isMyPost = post.author.toLowerCase() === address?.toLowerCase();
+          
+          if (isMyPost) {
+            console.log('🚫 Excluding my own post:', post.id?.toString());
             return false;
           }
           
-          // Check if post author has a registered profile
-          const hasProfile = registeredUsers.some(userAddress => 
-            userAddress.toLowerCase() === post.author.toLowerCase()
-          );
-          
-          if (hasProfile) {
-            console.log('✅ Post from registered user:', post.author);
-          }
-          
-          return hasProfile;
+          console.log('✅ Showing post from other user:', post.author);
+          return true;
         });
         
-        console.log('📊 ALL POSTS TAB - Posts from registered users (excluding mine):', postsFromRegistered.length);
-        setFilteredPosts(postsFromRegistered);
+        console.log('📊 ALL POSTS TAB - Posts from others (excluding mine):', postsFromOthers.length);
+        setFilteredPosts(postsFromOthers);
       }
     };
 
