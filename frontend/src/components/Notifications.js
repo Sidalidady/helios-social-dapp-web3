@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useAccount, useReadContract, useWatchContractEvent, usePublicClient } from 'wagmi';
 import { X, User, FileText, Heart, MessageCircle, AtSign, Bell } from 'lucide-react';
-import { formatTimestamp } from '../utils/formatters';
+import { formatNotificationTime } from '../utils/formatters';
 import { getFromIPFS } from '../utils/ipfs';
 import { contractData } from '../utils/contract';
 import './Notifications.css';
@@ -412,7 +412,7 @@ function Notifications({ isOpen, onClose }) {
             <span className="notification-username">@{authorUsername}</span>
           </div>
           <p className="notification-message">{notification.message}</p>
-          <span className="notification-time">{formatTimestamp(notification.timestamp)}</span>
+          <span className="notification-time">{formatNotificationTime(notification.timestamp)}</span>
         </div>
         {!notification.read && <div className="unread-dot"></div>}
       </div>

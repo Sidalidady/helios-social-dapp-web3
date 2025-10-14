@@ -32,6 +32,37 @@ export function formatTimestamp(timestamp) {
   });
 }
 
+export function formatNotificationTime(timestamp) {
+  // Check if timestamp is already in milliseconds or needs conversion
+  const timestampMs = timestamp > 1e12 ? timestamp : Number(timestamp) * 1000;
+  const date = new Date(timestampMs);
+  const now = new Date();
+
+  // Format time (hour and minute)
+  const timeStr = date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true
+  });
+
+  // Check if it's today
+  const isToday = date.toDateString() === now.toDateString();
+  
+  if (isToday) {
+    // Show only time for today's notifications
+    return timeStr;
+  }
+  
+  // Show full date with time for older notifications
+  const dateStr = date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+  });
+  
+  return `${dateStr} at ${timeStr}`;
+}
+
 export function truncateText(text, maxLength = 280) {
   if (!text || text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
