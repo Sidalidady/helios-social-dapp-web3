@@ -7,6 +7,7 @@ import './Registration.css';
 
 function Registration({ onComplete, onSkip, isFirstTime = false }) {
   const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -98,7 +99,7 @@ function Registration({ onComplete, onSkip, isFirstTime = false }) {
       // Create profile data
       const profileData = {
         username: username.trim(),
-        bio: '',
+        bio: bio.trim(),
         address: address,
         timestamp: Date.now(),
         registeredAt: new Date().toISOString(),
@@ -269,6 +270,23 @@ function Registration({ onComplete, onSkip, isFirstTime = false }) {
               {username.length > 0 && username.length < 3 && (
                 <span className="hint">Minimum 3 characters</span>
               )}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="bio">Bio</label>
+            <textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell us about yourself..."
+              maxLength={160}
+              rows={2}
+              disabled={isProcessing}
+              className="bio-textarea"
+            />
+            <div className="username-hints">
+              <span className="char-count">{bio.length}/160</span>
             </div>
           </div>
 
