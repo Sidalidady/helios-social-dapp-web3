@@ -21,7 +21,7 @@
   border-radius: 12px;
   width: 300px;
   max-width: 80vw;
-  max-height: calc(100vh - 30px);
+  max-height: calc(80vh - 30px);
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(249, 115, 22, 0.2);
   animation: slideUp 0.4s ease;
