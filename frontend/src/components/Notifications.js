@@ -354,6 +354,8 @@ function Notifications({ isOpen, onClose }) {
     // Use username from notification object (already fetched)
     const [authorUsername, setAuthorUsername] = useState(notification.username || 'Loading...');
     const [authorImage, setAuthorImage] = useState('');
+    const [postContent, setPostContent] = useState('');
+    const [commentContent, setCommentContent] = useState('');
 
     // Get author's profile for image only
     const { data: authorProfile } = useReadContract({
@@ -371,8 +373,9 @@ function Notifications({ isOpen, onClose }) {
         setAuthorUsername(notification.username);
       }
       
-      // Load profile image from IPFS
-      const loadProfileImage = async () => {
+      // Load profile image and post/comment content
+      const loadNotificationDetails = async () => {
+        // Load profile image from IPFS
         if (authorProfile && authorProfile.profileIpfsHash) {
           const ipfsHash = authorProfile.profileIpfsHash;
           console.log('📸 Loading image from IPFS:', ipfsHash);
@@ -389,15 +392,75 @@ function Notifications({ isOpen, onClose }) {
             }
           }
         }
+        
+        // Load post content if notification is about a post (like, comment, tag, mention)
+        if (notification.postId && ['like', 'comment', 'tag', 'mention'].includes(notification.type)) {
+          try {
+            const { readContract } = await import('wagmi/actions');
+            const { config } = await import('../config/wagmi');
+            
+            const post = await readContract(config, {
+              address: contractData.address,
+              abi: contractData.abi,
+              functionName: 'getPost',
+              args: [BigInt(notification.postId)],
+            });
+            
+            if (post && post.ipfsHash) {
+              const postData = await getFromIPFS(post.ipfsHash);
+              const content = typeof postData === 'object' ? postData.content : postData;
+              setPostContent(content.substring(0, 100));
+            }
+          } catch (error) {
+            console.error('Error loading post content:', error);
+          }
+        }
+        
+        // Load comment content if notification is about a comment like
+        if (notification.type === 'comment_like' && notification.postId) {
+          try {
+            const storedComments = localStorage.getItem(`comments_${notification.postId}`);
+            if (storedComments) {
+              const comments = JSON.parse(storedComments);
+              const comment = comments.find(c => c.author.toLowerCase() === address.toLowerCase());
+              if (comment) {
+                setCommentContent(comment.content.substring(0, 100));
+              }
+            }
+          } catch (error) {
+            console.error('Error loading comment content:', error);
+          }
+        }
       };
       
-      loadProfileImage();
-    }, [authorProfile, notification.username]);
+      loadNotificationDetails();
+    }, [authorProfile, notification.username, notification.postId, notification.type]);
+
+    const handleNotificationClick = () => {
+      markAsRead(notification.id);
+      
+      // Navigate to the relevant post/comment
+      if (notification.postId && ['like', 'comment', 'tag', 'mention'].includes(notification.type)) {
+        // Scroll to the post
+        setTimeout(() => {
+          const postElement = document.getElementById(`post-${notification.postId}`);
+          if (postElement) {
+            postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            postElement.style.animation = 'highlight 2s ease-in-out';
+          }
+        }, 100);
+        onClose(); // Close the notification panel
+      } else if (notification.type === 'follow') {
+        // Close notification panel so user can see the follower
+        onClose();
+      }
+    };
 
     return (
       <div 
         className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-        onClick={() => markAsRead(notification.id)}
+        onClick={handleNotificationClick}
+        style={{ cursor: 'pointer' }}
       >
         <div className="notification-avatar">
           {authorImage ? (
@@ -412,6 +475,12 @@ function Notifications({ isOpen, onClose }) {
             <span className="notification-username">@{authorUsername}</span>
           </div>
           <p className="notification-message">{notification.message}</p>
+          {postContent && (
+            <p className="notification-preview">"{postContent}..."</p>
+          )}
+          {commentContent && (
+            <p className="notification-preview">"{commentContent}..."</p>
+          )}
           <span className="notification-time">{formatNotificationTime(notification.timestamp)}</span>
         </div>
         {!notification.read && <div className="unread-dot"></div>}

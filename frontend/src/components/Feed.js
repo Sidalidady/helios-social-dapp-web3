@@ -40,6 +40,15 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
     args: [0n, 50n], // Offset: 0, Limit: 50
   });
 
+  // Read following list from blockchain
+  const { data: blockchainFollowing, refetch: refetchFollowing } = useReadContract({
+    address: contractData.address,
+    abi: contractData.abi,
+    functionName: 'getFollowing',
+    args: [address],
+    enabled: !!address && isConnected,
+  });
+
   useEffect(() => {
     console.log('🔍 Feed contract query:', {
       contractAddress: contractData.address,
@@ -48,6 +57,16 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
       error: error?.message
     });
   }, [postsData, isLoading, error]);
+
+  // Log blockchain following data
+  useEffect(() => {
+    if (blockchainFollowing) {
+      console.log('📊 Blockchain following data loaded:', {
+        count: blockchainFollowing.length,
+        addresses: blockchainFollowing
+      });
+    }
+  }, [blockchainFollowing]);
 
   // Watch for new posts
   useWatchContractEvent({
@@ -91,9 +110,41 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
     },
   });
 
+  // Watch for follow events to refresh following list
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'UserFollowed',
+    onLogs(logs) {
+      // Check if event involves current user
+      logs.forEach(log => {
+        if (log.args.follower?.toLowerCase() === address?.toLowerCase()) {
+          console.log('🔔 You followed someone, refreshing following list...');
+          refetchFollowing();
+        }
+      });
+    },
+  });
+
+  useWatchContractEvent({
+    address: contractData.address,
+    abi: contractData.abi,
+    eventName: 'UserUnfollowed',
+    onLogs(logs) {
+      // Check if event involves current user
+      logs.forEach(log => {
+        if (log.args.follower?.toLowerCase() === address?.toLowerCase()) {
+          console.log('🔔 You unfollowed someone, refreshing following list...');
+          refetchFollowing();
+        }
+      });
+    },
+  });
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await refetch();
+    await refetchFollowing(); // Also refresh following list from blockchain
     setTimeout(() => {
       setIsRefreshing(false);
     }, 500);
@@ -169,8 +220,19 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
         setFilteredPosts(myPosts);
       } else if (showFollowedOnly) {
         // Show only posts from followed users (excluding own posts)
-        const followingKey = `following_${address}`;
-        const following = JSON.parse(localStorage.getItem(followingKey) || '[]');
+        // First try to get following list from blockchain
+        let following = [];
+        
+        if (blockchainFollowing && Array.isArray(blockchainFollowing)) {
+          // Use blockchain data as source of truth
+          following = blockchainFollowing.map(addr => addr.toLowerCase());
+          console.log('✅ Using following list from BLOCKCHAIN:', following.length, 'users');
+        } else {
+          // Fallback to localStorage if blockchain data not available
+          const followingKey = `following_${address}`;
+          following = JSON.parse(localStorage.getItem(followingKey) || '[]').map(addr => addr.toLowerCase());
+          console.log('⚠️ Fallback to localStorage following list:', following.length, 'users');
+        }
         
         console.log('👥 FOLLOWING TAB - Following list:', following);
         console.log('📝 Total posts:', posts.length);
@@ -222,7 +284,7 @@ function Feed({ refreshTrigger, filterHashtag, searchQuery, filterByUser }) {
     if (!filterHashtag && !searchQuery && !filterByUser) {
       filterPosts();
     }
-  }, [posts, showFollowedOnly, showMyPostsOnly, address, filterHashtag, searchQuery, filterByUser]);
+  }, [posts, showFollowedOnly, showMyPostsOnly, address, filterHashtag, searchQuery, filterByUser, blockchainFollowing]);
 
   // Filter posts by hashtag, search query, or user
   useEffect(() => {

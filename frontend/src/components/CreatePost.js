@@ -3,6 +3,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import { HelpCircle, Send, Loader2, Image, X } from 'lucide-react';
 import { uploadToIPFS } from '../utils/ipfs';
 import { contractData } from '../utils/contract';
+import { addNotification } from './Notifications';
 import './CreatePost.css';
 
 function CreatePost({ onPostCreated }) {
@@ -127,6 +128,53 @@ function CreatePost({ onPostCreated }) {
         functionName: 'createPost',
         args: [ipfsHash],
       });
+
+      // Check for @mentions and notify mentioned users
+      const mentionRegex = /@(\w+)/g;
+      let match;
+      const mentionedUsers = new Set();
+      
+      while ((match = mentionRegex.exec(content)) !== null) {
+        const mentionedUsername = match[1].toLowerCase();
+        mentionedUsers.add(mentionedUsername);
+      }
+      
+      // Find mentioned users' addresses and notify them
+      if (mentionedUsers.size > 0) {
+        console.log('📢 Found @mentions:', Array.from(mentionedUsers));
+        const allUsers = JSON.parse(localStorage.getItem('all_registered_users') || '[]');
+        
+        for (const userAddr of allUsers) {
+          try {
+            const { readContract } = await import('wagmi/actions');
+            const { config } = await import('../config/wagmi');
+            
+            const userProfile = await readContract(config, {
+              address: contractData.address,
+              abi: contractData.abi,
+              functionName: 'getUserProfile',
+              args: [userAddr],
+            });
+            
+            if (userProfile && userProfile.displayName) {
+              const username = userProfile.displayName.toLowerCase();
+              
+              if (mentionedUsers.has(username) && userAddr.toLowerCase() !== address.toLowerCase()) {
+                console.log(`✅ Notifying @${username} about mention in post`);
+                addNotification(userAddr, {
+                  type: 'tag',
+                  from: address,
+                  message: 'tagged you in a post',
+                  content: content.trim().substring(0, 100),
+                  postId: 'latest', // Will be updated when post is confirmed
+                });
+              }
+            }
+          } catch (error) {
+            console.error('Error notifying mentioned user:', error);
+          }
+        }
+      }
 
       // Clear form immediately after sending transaction
       setContent('');

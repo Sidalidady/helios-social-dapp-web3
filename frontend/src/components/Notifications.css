@@ -229,6 +229,19 @@
   word-wrap: break-word;
 }
 
+.notification-preview {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: rgba(249, 115, 22, 0.1);
+  border-left: 2px solid #f97316;
+  border-radius: 4px;
+  word-wrap: break-word;
+}
+
 .notification-time {
   color: #d1d5db;
   font-size: 0.8125rem;
