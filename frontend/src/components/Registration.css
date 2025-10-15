@@ -91,7 +91,27 @@
 
 .registration-form {
   padding: 0.75rem;
-  overflow: visible;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+/* Custom Scrollbar for Registration Form */
+.registration-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.registration-form::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 3px;
+}
+
+.registration-form::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.5);
+  border-radius: 3px;
+}
+
+.registration-form::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.7);
 }
 
 /* Profile Picture Section */
